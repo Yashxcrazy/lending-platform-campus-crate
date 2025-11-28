@@ -129,7 +129,7 @@ export default function Signup() {
               {step === 3 && "Complete Profile"}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {step === 1 && "Sign up with your college email to get started"}
+              {step === 1 && "Sign up with your NITRR email to get started"}
               {step === 2 && "Choose a strong password to secure your account"}
               {step === 3 && "Tell us a bit about yourself"}
             </p>
