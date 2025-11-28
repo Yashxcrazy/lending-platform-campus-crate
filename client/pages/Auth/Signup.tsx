@@ -47,8 +47,8 @@ export default function Signup() {
       return;
     }
 
-    if (!formData.email.includes("@college") && !formData.email.includes("@university")) {
-      setError("Please use your college email address");
+    if (!formData.email.endsWith("@nitrr.ac.in")) {
+      setError("Please use your NITRR email address (yourname@nitrr.ac.in)");
       return;
     }
 
@@ -178,13 +178,13 @@ export default function Signup() {
                 <Input
                   type="email"
                   name="email"
-                  placeholder="your.email@college.edu"
+                  placeholder="your.email@nitrr.ac.in"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Use your official college/university email
+                  Use your official NITRR email address
                 </p>
               </div>
 
