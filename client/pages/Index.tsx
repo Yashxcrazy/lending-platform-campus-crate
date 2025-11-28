@@ -17,32 +17,38 @@ const features = [
   {
     icon: Zap,
     title: "Quick Discovery",
-    description: "Find the items you need in seconds. Filter by category, price, location, and availability.",
+    description:
+      "Find the items you need in seconds. Filter by category, price, location, and availability.",
   },
   {
     icon: Shield,
     title: "Safe & Verified",
-    description: "College email verification, ratings system, and secure handover process for peace of mind.",
+    description:
+      "College email verification, ratings system, and secure handover process for peace of mind.",
   },
   {
     icon: Users,
     title: "Build Community",
-    description: "Rate lenders and borrowers, earn trust, and help fellow students save money.",
+    description:
+      "Rate lenders and borrowers, earn trust, and help fellow students save money.",
   },
   {
     icon: TrendingUp,
     title: "Earn Extra",
-    description: "List items you're not using and earn money or barter with other students.",
+    description:
+      "List items you're not using and earn money or barter with other students.",
   },
   {
     icon: Lock,
     title: "Transparent Pricing",
-    description: "Clear daily/weekly rates with optional security deposits. No hidden charges.",
+    description:
+      "Clear daily/weekly rates with optional security deposits. No hidden charges.",
   },
   {
     icon: Smartphone,
     title: "Easy Handover",
-    description: "Meet at campus locations, confirm with photos, and track everything in-app.",
+    description:
+      "Meet at campus locations, confirm with photos, and track everything in-app.",
   },
 ];
 
@@ -50,27 +56,32 @@ const steps = [
   {
     number: "1",
     title: "Sign Up with College Email",
-    description: "Create an account and verify your college email to join our verified community.",
+    description:
+      "Create an account and verify your college email to join our verified community.",
   },
   {
     number: "2",
     title: "Browse or List Items",
-    description: "Find items you need or list items you want to share. Add photos, prices, and availability.",
+    description:
+      "Find items you need or list items you want to share. Add photos, prices, and availability.",
   },
   {
     number: "3",
     title: "Request & Confirm",
-    description: "Send a booking request, agree on dates and handover details. Both parties confirm.",
+    description:
+      "Send a booking request, agree on dates and handover details. Both parties confirm.",
   },
   {
     number: "4",
     title: "Handover with Confidence",
-    description: "Meet at a safe campus location, check condition, take photos, and you're done!",
+    description:
+      "Meet at a safe campus location, check condition, take photos, and you're done!",
   },
   {
     number: "5",
     title: "Return & Rate",
-    description: "Return the item in agreed condition. Rate each other and build your reputation.",
+    description:
+      "Return the item in agreed condition. Rate each other and build your reputation.",
   },
 ];
 
@@ -101,7 +112,9 @@ export default function Index() {
                   <span className="block text-primary mt-2">Together</span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground mt-4 leading-relaxed">
-                  Stop buying what you'll use once. Rent lab equipment, books, calculators, costumes, and more from fellow students on campus.
+                  Stop buying what you'll use once. Rent lab equipment, books,
+                  calculators, costumes, and more from fellow students on
+                  campus.
                 </p>
               </div>
 
@@ -112,7 +125,11 @@ export default function Index() {
                   </Button>
                 </Link>
                 <Link to="/listings">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                  >
                     Browse Items
                   </Button>
                 </Link>
@@ -139,8 +156,12 @@ export default function Index() {
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent rounded-2xl" />
                 <div className="relative text-center">
                   <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-2xl font-bold text-foreground">Student-Powered</h3>
-                  <p className="text-muted-foreground mt-2">Community sharing made easy</p>
+                  <h3 className="text-2xl font-bold text-foreground">
+                    Student-Powered
+                  </h3>
+                  <p className="text-muted-foreground mt-2">
+                    Community sharing made easy
+                  </p>
                 </div>
               </div>
             </div>
@@ -151,17 +172,24 @@ export default function Index() {
       {/* Categories Section */}
       <section className="py-12 md:py-16 border-b border-border">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">What Can You Borrow?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">
+            What Can You Borrow?
+          </h2>
           <p className="text-center text-muted-foreground mb-10">
             Browse popular categories or explore more
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.map((cat) => (
-              <Link key={cat.name} to={`/listings?category=${cat.name.toLowerCase()}`}>
+              <Link
+                key={cat.name}
+                to={`/listings?category=${cat.name.toLowerCase()}`}
+              >
                 <button className="w-full p-6 bg-muted/50 hover:bg-muted rounded-xl transition-all flex flex-col items-center gap-3 hover:shadow-md">
                   <span className="text-4xl">{cat.emoji}</span>
-                  <span className="font-semibold text-foreground text-sm">{cat.name}</span>
+                  <span className="font-semibold text-foreground text-sm">
+                    {cat.name}
+                  </span>
                 </button>
               </Link>
             ))}
@@ -172,9 +200,12 @@ export default function Index() {
       {/* Features Section */}
       <section className="py-16 md:py-24">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Why CampusCrate?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            Why CampusCrate?
+          </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            CampusCrate makes borrowing and lending safe, easy, and affordable for the entire campus community.
+            CampusCrate makes borrowing and lending safe, easy, and affordable
+            for the entire campus community.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -188,7 +219,9 @@ export default function Index() {
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-foreground">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-foreground">
+                    {feature.title}
+                  </h3>
                   <p className="text-muted-foreground">{feature.description}</p>
                 </div>
               );
@@ -200,9 +233,12 @@ export default function Index() {
       {/* How It Works Section */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">How It Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            How It Works
+          </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Five simple steps to start borrowing or sharing items with your campus community.
+            Five simple steps to start borrowing or sharing items with your
+            campus community.
           </p>
 
           <div className="space-y-6 md:space-y-8">
@@ -214,7 +250,9 @@ export default function Index() {
                   </div>
                 </div>
                 <div className="pt-1">
-                  <h3 className="text-lg md:text-xl font-semibold mb-2 text-foreground">{step.title}</h3>
+                  <h3 className="text-lg md:text-xl font-semibold mb-2 text-foreground">
+                    {step.title}
+                  </h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
               </div>
@@ -228,9 +266,12 @@ export default function Index() {
         <div className="container-center max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold">Trust is Everything</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Trust is Everything
+              </h2>
               <p className="text-lg text-muted-foreground">
-                We've built trust into every feature, from verified college accounts to transparent ratings.
+                We've built trust into every feature, from verified college
+                accounts to transparent ratings.
               </p>
 
               <div className="space-y-4">
@@ -255,8 +296,12 @@ export default function Index() {
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent rounded-2xl" />
                 <div className="relative text-center">
                   <Smile className="w-24 h-24 text-secondary/60 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-foreground">Safe & Secure</h3>
-                  <p className="text-muted-foreground mt-2">For everyone in our community</p>
+                  <h3 className="text-2xl font-bold text-foreground">
+                    Safe & Secure
+                  </h3>
+                  <p className="text-muted-foreground mt-2">
+                    For everyone in our community
+                  </p>
                 </div>
               </div>
             </div>
@@ -271,7 +316,8 @@ export default function Index() {
             Ready to Save Money & Help Others?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join hundreds of students already borrowing and lending on campus. It takes less than a minute to get started.
+            Join hundreds of students already borrowing and lending on campus.
+            It takes less than a minute to get started.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -300,33 +346,87 @@ export default function Index() {
             <div>
               <h4 className="font-semibold text-foreground mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-primary transition-colors">About Us</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Contact</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Blog</Link></li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Blog
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/listings" className="hover:text-primary transition-colors">Browse Items</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-primary transition-colors">How It Works</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Pricing</Link></li>
+                <li>
+                  <Link
+                    to="/listings"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Browse Items
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/how-it-works"
+                    className="hover:text-primary transition-colors"
+                  >
+                    How It Works
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Pricing
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-primary transition-colors">Help Center</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Safety Tips</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Report Issue</Link></li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Safety Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Report Issue
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                <li><Link to="/" className="hover:text-primary transition-colors">Prohibited Items</Link></li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Prohibited Items
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -337,7 +437,8 @@ export default function Index() {
               CampusCrate
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 CampusCrate. All rights reserved. Built for students, by students.
+              © 2024 CampusCrate. All rights reserved. Built for students, by
+              students.
             </p>
           </div>
         </div>

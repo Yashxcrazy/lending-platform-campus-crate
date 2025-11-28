@@ -33,7 +33,9 @@ export default function Signup() {
     { met: /[0-9]/.test(formData.password), text: "One number" },
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -230,10 +232,7 @@ export default function Signup() {
                 </p>
                 <div className="space-y-2">
                   {passwordRequirements.map((req, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 text-xs"
-                    >
+                    <div key={idx} className="flex items-center gap-2 text-xs">
                       <CheckCircle2
                         className={`w-4 h-4 flex-shrink-0 ${
                           req.met
@@ -242,7 +241,11 @@ export default function Signup() {
                         }`}
                       />
                       <span
-                        className={req.met ? "text-foreground" : "text-muted-foreground/50"}
+                        className={
+                          req.met
+                            ? "text-foreground"
+                            : "text-muted-foreground/50"
+                        }
                       >
                         {req.text}
                       </span>
@@ -333,9 +336,7 @@ export default function Signup() {
               </div>
 
               <div className="p-4 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                <p>
-                  ✓ You'll receive an email verification link after signup
-                </p>
+                <p>✓ You'll receive an email verification link after signup</p>
               </div>
 
               <div className="flex gap-3">
@@ -348,11 +349,7 @@ export default function Signup() {
                 >
                   Back
                 </Button>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating Account..." : "Complete Signup"}
                 </Button>
               </div>
@@ -363,7 +360,10 @@ export default function Signup() {
           <div className="text-center pt-4">
             <p className="text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary font-semibold hover:underline">
+              <Link
+                to="/login"
+                className="text-primary font-semibold hover:underline"
+              >
                 Sign in here
               </Link>
             </p>

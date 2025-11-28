@@ -15,7 +15,10 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
     <header className="border-b border-border bg-white sticky top-0 z-50">
       <nav className="container-center flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl md:text-2xl text-primary">
+        <Link
+          to="/"
+          className="flex items-center gap-2 font-bold text-xl md:text-2xl text-primary"
+        >
           <Package className="w-6 h-6 md:w-8 md:h-8" />
           <span className="hidden sm:inline">CampusCrate</span>
           <span className="sm:hidden">CC</span>
@@ -23,13 +26,22 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
+          <Link
+            to="/"
+            className="text-foreground hover:text-primary transition-colors font-medium"
+          >
             Home
           </Link>
-          <Link to="/listings" className="text-foreground hover:text-primary transition-colors font-medium">
+          <Link
+            to="/listings"
+            className="text-foreground hover:text-primary transition-colors font-medium"
+          >
             Browse Items
           </Link>
-          <Link to="/how-it-works" className="text-foreground hover:text-primary transition-colors font-medium">
+          <Link
+            to="/how-it-works"
+            className="text-foreground hover:text-primary transition-colors font-medium"
+          >
             How It Works
           </Link>
         </div>
@@ -110,8 +122,7 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
               onClick={() => setIsMenuOpen(false)}
               className="flex items-center gap-2 py-2 text-foreground hover:text-primary"
             >
-              Home
-              How It Works
+              Home How It Works
             </Link>
 
             <div className="border-t border-border pt-4 flex flex-col gap-2">

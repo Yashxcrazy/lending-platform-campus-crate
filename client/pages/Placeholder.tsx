@@ -9,7 +9,11 @@ interface PlaceholderProps {
   icon?: string;
 }
 
-export default function Placeholder({ title, description, icon = "📄" }: PlaceholderProps) {
+export default function Placeholder({
+  title,
+  description,
+  icon = "📄",
+}: PlaceholderProps) {
   return (
     <div className="min-h-screen bg-white">
       <Header />

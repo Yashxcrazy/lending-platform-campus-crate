@@ -124,7 +124,16 @@ const categories = [
   "Tools",
 ];
 
-const locations = ["All Locations", "Library", "Hostel A", "Hostel B", "Engineering Lab", "Sports Complex", "Maker Space", "Science Building"];
+const locations = [
+  "All Locations",
+  "Library",
+  "Hostel A",
+  "Hostel B",
+  "Engineering Lab",
+  "Sports Complex",
+  "Maker Space",
+  "Science Building",
+];
 
 export default function Listings() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,7 +173,8 @@ export default function Listings() {
         <div className="container-center max-w-6xl">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Browse Items</h1>
           <p className="text-muted-foreground">
-            Find exactly what you need from {mockListings.length} available items
+            Find exactly what you need from {mockListings.length} available
+            items
           </p>
         </div>
       </section>
@@ -172,7 +182,9 @@ export default function Listings() {
       <div className="container-center max-w-6xl py-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Filters */}
-          <div className={`lg:col-span-1 ${showFilters ? "block" : "hidden lg:block"}`}>
+          <div
+            className={`lg:col-span-1 ${showFilters ? "block" : "hidden lg:block"}`}
+          >
             <div className="space-y-6 sticky top-24">
               {/* Search */}
               <div>

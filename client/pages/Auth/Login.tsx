@@ -126,11 +126,7 @@ export default function Login() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
@@ -149,7 +145,10 @@ export default function Login() {
           <div className="text-center">
             <p className="text-muted-foreground">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-primary font-semibold hover:underline">
+              <Link
+                to="/signup"
+                className="text-primary font-semibold hover:underline"
+              >
                 Sign up for free
               </Link>
             </p>
@@ -158,7 +157,8 @@ export default function Login() {
           {/* Security Note */}
           <div className="p-4 bg-muted/50 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              🔒 We never share your email or password. All accounts require verified NITRR email addresses.
+              🔒 We never share your email or password. All accounts require
+              verified NITRR email addresses.
             </p>
           </div>
         </div>
