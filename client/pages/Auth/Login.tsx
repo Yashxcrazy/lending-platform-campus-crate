@@ -83,7 +83,7 @@ export default function Login() {
               </label>
               <Input
                 type="email"
-                placeholder="your.email@college.edu"
+                placeholder="your.email@nitrr.ac.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
