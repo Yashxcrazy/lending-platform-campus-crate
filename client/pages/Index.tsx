@@ -121,7 +121,7 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span>College email verified only</span>
+                  <span>NITRR email verified only</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
@@ -235,7 +235,7 @@ export default function Index() {
 
               <div className="space-y-4">
                 {[
-                  "Verified college email accounts only",
+                  "Verified NITRR email accounts only",
                   "Transparent user ratings and reviews",
                   "Secure handover process with photo confirmation",
                   "Clear, non-refundable rental terms",
@@ -288,7 +288,7 @@ export default function Index() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            No credit card required. Verified college email addresses only.
+            No credit card required. Verified NITRR email addresses only.
           </p>
         </div>
       </section>

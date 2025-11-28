@@ -158,7 +158,7 @@ export default function Login() {
           {/* Security Note */}
           <div className="p-4 bg-muted/50 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              🔒 We never share your email or password. All accounts require verified college email addresses.
+              🔒 We never share your email or password. All accounts require verified NITRR email addresses.
             </p>
           </div>
         </div>
