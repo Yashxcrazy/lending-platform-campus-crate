@@ -17,8 +17,8 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-xl md:text-2xl text-primary">
           <Package className="w-6 h-6 md:w-8 md:h-8" />
-          <span className="hidden sm:inline">ShareHub</span>
-          <span className="sm:hidden">SH</span>
+          <span className="hidden sm:inline">CampusCrate</span>
+          <span className="sm:hidden">CC</span>
         </Link>
 
         {/* Desktop Navigation */}

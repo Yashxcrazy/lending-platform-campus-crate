@@ -172,9 +172,9 @@ export default function Index() {
       {/* Features Section */}
       <section className="py-16 md:py-24">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Why ShareHub?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Why CampusCrate?</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            We make borrowing and lending safe, easy, and affordable for the entire campus community.
+            CampusCrate makes borrowing and lending safe, easy, and affordable for the entire campus community.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -334,10 +334,10 @@ export default function Index() {
           <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 font-bold text-foreground mb-4 md:mb-0">
               <span className="text-primary text-2xl">📦</span>
-              ShareHub
+              CampusCrate
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 ShareHub. All rights reserved. Built for students, by students.
+              © 2024 CampusCrate. All rights reserved. Built for students, by students.
             </p>
           </div>
         </div>

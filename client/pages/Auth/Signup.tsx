@@ -124,7 +124,7 @@ export default function Signup() {
 
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              {step === 1 && "Join ShareHub"}
+              {step === 1 && "Join CampusCrate"}
               {step === 2 && "Create Password"}
               {step === 3 && "Complete Profile"}
             </h1>

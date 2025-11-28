@@ -111,7 +111,7 @@ const App = () => (
             element={
               <Placeholder
                 title="How It Works"
-                description="Learn about the borrowing and lending process on ShareHub."
+                description="Learn about the borrowing and lending process on CampusCrate."
                 icon="❓"
               />
             }
