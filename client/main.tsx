@@ -144,12 +144,14 @@ const App = () => (
   </QueryClientProvider>
 );
 
-let root: Root | null = null;
-
 const container = document.getElementById("root");
 if (container) {
-  if (!root) {
-    root = createRoot(container);
+  const storedRoot = (container as any)._reactRoot as Root | undefined;
+  if (storedRoot) {
+    storedRoot.render(<App />);
+  } else {
+    const newRoot = createRoot(container);
+    (container as any)._reactRoot = newRoot;
+    newRoot.render(<App />);
   }
-  root.render(<App />);
 }
