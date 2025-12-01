@@ -50,7 +50,9 @@ export default function Signup() {
     }
 
     if (!formData.email.endsWith("@cse.nitrr.ac.in")) {
-      setError("Please use your CSE NITRR email address (yourname@cse.nitrr.ac.in)");
+      setError(
+        "Please use your CSE NITRR email address (yourname@cse.nitrr.ac.in)",
+      );
       return;
     }
 

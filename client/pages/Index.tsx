@@ -287,7 +287,9 @@ export default function Index() {
                     return (
                       <div key={idx} className="flex gap-3">
                         <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                        <span className="text-foreground">Verified CSE NITRR email accounts only</span>
+                        <span className="text-foreground">
+                          Verified CSE NITRR email accounts only
+                        </span>
                       </div>
                     );
                   }
