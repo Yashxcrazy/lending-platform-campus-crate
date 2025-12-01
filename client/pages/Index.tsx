@@ -98,20 +98,25 @@ const categories = [
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-white to-secondary/10 py-16 md:py-28">
+      <section className="relative overflow-hidden pt-16 md:pt-28 pb-12">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
+        </div>
+
         <div className="container-center max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 md:space-y-8">
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
+                <h1 className="marvel-title mb-4">
                   Borrow, Lend, Save
-                  <span className="block text-primary mt-2">Together</span>
+                  <span className="block text-cyan-300 mt-2">Together</span>
                 </h1>
-                <p className="text-lg md:text-xl text-muted-foreground mt-4 leading-relaxed">
+                <p className="marvel-subtitle">
                   Stop buying what you'll use once. Rent lab equipment, books,
                   calculators, costumes, and more from fellow students on
                   campus.
@@ -120,33 +125,29 @@ export default function Index() {
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link to="/signup">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Start for Free <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <button className="btn-glow-red px-6 py-3 w-full sm:w-auto flex items-center justify-center gap-2">
+                    Start for Free <ArrowRight className="w-4 h-4" />
+                  </button>
                 </Link>
                 <Link to="/listings">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
+                  <button className="btn-glow-cyan px-6 py-3 w-full sm:w-auto flex items-center justify-center gap-2">
                     Browse Items
-                  </Button>
+                  </button>
                 </Link>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6 text-sm">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span>CSE NITRR email verified only</span>
+                  <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">CSE NITRR email verified only</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span>Secure handover process</span>
+                  <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Secure handover process</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span>Rating & review system</span>
+                  <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Rating & review system</span>
                 </div>
               </div>
             </div>
