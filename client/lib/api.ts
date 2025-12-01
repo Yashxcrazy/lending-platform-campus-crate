@@ -185,15 +185,26 @@ export const listingsAPI = {
     maxPrice?: number,
     page: number = 1,
   ) => {
-    const params = new URLSearchParams();
-    if (category) params.append("category", category);
-    if (search) params.append("search", search);
-    if (minPrice) params.append("minPrice", minPrice.toString());
-    if (maxPrice) params.append("maxPrice", maxPrice.toString());
-    params.append("page", page.toString());
+    try {
+      const params = new URLSearchParams();
+      if (category) params.append("category", category);
+      if (search) params.append("search", search);
+      if (minPrice) params.append("minPrice", minPrice.toString());
+      if (maxPrice) params.append("maxPrice", maxPrice.toString());
+      params.append("page", page.toString());
 
-    const response = await fetch(`${BASE_URL}/listings?${params}`);
-    return response.json();
+      const response = await fetch(`${BASE_URL}/listings?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getAll");
+      // Return mock data if API fails
+      return {
+        data: MOCK_LISTINGS,
+        totalPages: 1,
+        totalCount: MOCK_LISTINGS.length,
+      };
+    }
   },
 
   getById: async (id: string) => {
