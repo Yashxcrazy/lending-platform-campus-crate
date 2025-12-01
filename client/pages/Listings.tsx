@@ -1,426 +1,322 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useListings } from "@/hooks/useAPI";
 import {
   Search,
-  MapPin,
-  Star,
-  Zap,
-  ChevronDown,
   Filter,
-  X,
+  ChevronDown,
+  Star,
+  MapPin,
+  Calendar,
+  Zap,
 } from "lucide-react";
 
-// Mock data
-const mockListings = [
-  {
-    id: "1",
-    title: "Advanced Physics Textbook",
-    category: "Books",
-    price: 50,
-    location: "Library",
-    rating: 4.8,
-    reviews: 12,
-    image: "📚",
-    owner: "Sarah Kumar",
-    isFree: false,
-  },
-  {
-    id: "2",
-    title: "Scientific Calculator (Canon)",
-    category: "Calculators",
-    price: 100,
-    location: "Hostel A",
-    rating: 5,
-    reviews: 8,
-    image: "🧮",
-    owner: "Raj Patel",
-    isFree: false,
-  },
-  {
-    id: "3",
-    title: "Oscilloscope",
-    category: "Lab Equipment",
-    price: 200,
-    location: "Engineering Lab",
-    rating: 4.6,
-    reviews: 5,
-    image: "🔬",
-    owner: "Prof. Ahmed",
-    isFree: false,
-  },
-  {
-    id: "4",
-    title: "Cricket Kit (Full Set)",
-    category: "Sports Gear",
-    price: 150,
-    location: "Sports Complex",
-    rating: 4.9,
-    reviews: 15,
-    image: "⚽",
-    owner: "Virat Singh",
-    isFree: false,
-  },
-  {
-    id: "5",
-    title: "French Costume (Complete)",
-    category: "Costumes",
-    price: 0,
-    location: "Drama Club",
-    rating: 4.7,
-    reviews: 6,
-    image: "🎭",
-    owner: "Drama Society",
-    isFree: true,
-  },
-  {
-    id: "6",
-    title: "Laptop (Intel i7, 16GB RAM)",
-    category: "Electronics",
-    price: 250,
-    location: "Hostel B",
-    rating: 4.5,
-    reviews: 9,
-    image: "💻",
-    owner: "Priya Sharma",
-    isFree: false,
-  },
-  {
-    id: "7",
-    title: "Drill Machine & Toolset",
-    category: "Tools",
-    price: 120,
-    location: "Maker Space",
-    rating: 4.8,
-    reviews: 11,
-    image: "🔧",
-    owner: "Tech Club",
-    isFree: false,
-  },
-  {
-    id: "8",
-    title: "Organic Chemistry Kit",
-    category: "Lab Equipment",
-    price: 80,
-    location: "Science Building",
-    rating: 4.4,
-    reviews: 7,
-    image: "🔬",
-    owner: "Lab Manager",
-    isFree: false,
-  },
-];
-
 const categories = [
-  "All Items",
-  "Books",
-  "Lab Equipment",
-  "Calculators",
-  "Sports Gear",
-  "Costumes",
-  "Electronics",
-  "Tools",
-];
-
-const locations = [
-  "All Locations",
-  "Library",
-  "Hostel A",
-  "Hostel B",
-  "Engineering Lab",
-  "Sports Complex",
-  "Maker Space",
-  "Science Building",
+  { id: "books", name: "Books", emoji: "📚" },
+  { id: "lab-equipment", name: "Lab Equipment", emoji: "🔬" },
+  { id: "calculators", name: "Calculators", emoji: "🧮" },
+  { id: "sports-gear", name: "Sports Gear", emoji: "⚽" },
+  { id: "costumes", name: "Costumes", emoji: "🎭" },
+  { id: "electronics", name: "Electronics", emoji: "💻" },
+  { id: "tools", name: "Tools", emoji: "🔧" },
 ];
 
 export default function Listings() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Items");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || ""
+  );
+  const [priceRange, setPriceRange] = useState([0, 500]);
+  const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredListings = useMemo(() => {
-    return mockListings.filter((item) => {
-      const matchesSearch =
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.owner.toLowerCase().includes(searchQuery.toLowerCase());
+  const { data: listingsData, isLoading } = useListings(
+    selectedCategory,
+    search,
+    priceRange[0],
+    priceRange[1],
+    page
+  );
 
-      const matchesCategory =
-        selectedCategory === "All Items" || item.category === selectedCategory;
+  const listings = listingsData?.data || [];
+  const totalPages = listingsData?.totalPages || 1;
 
-      const matchesLocation =
-        selectedLocation === "All Locations" ||
-        item.location === selectedLocation;
-
-      const matchesPrice =
-        item.price >= priceRange[0] && item.price <= priceRange[1];
-
-      return (
-        matchesSearch && matchesCategory && matchesLocation && matchesPrice
-      );
-    });
-  }, [searchQuery, selectedCategory, selectedLocation, priceRange]);
+  useEffect(() => {
+    const newParams = new URLSearchParams();
+    if (search) newParams.set("search", search);
+    if (selectedCategory) newParams.set("category", selectedCategory);
+    setSearchParams(newParams);
+  }, [search, selectedCategory, setSearchParams]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-secondary/10 border-b border-border py-8 md:py-12">
-        <div className="container-center max-w-6xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Browse Items</h1>
-          <p className="text-muted-foreground">
-            Find exactly what you need from {mockListings.length} available
-            items
-          </p>
+      <section className="relative overflow-hidden pt-20 pb-12 px-4">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
         </div>
-      </section>
 
-      <div className="container-center max-w-6xl py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
-          <div
-            className={`lg:col-span-1 ${showFilters ? "block" : "hidden lg:block"}`}
-          >
-            <div className="space-y-6 sticky top-24">
-              {/* Search */}
+        <div className="container-center max-w-6xl">
+          <div className="text-center mb-12">
+            <h1 className="marvel-title mb-4">Browse Available Items</h1>
+            <p className="marvel-subtitle max-w-2xl mx-auto">
+              Discover thousands of items available for rent from fellow students.
+              Save money, help others, and build your reputation.
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex gap-4 flex-col md:flex-row mb-8">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400/50" />
+              <Input
+                placeholder="Search items..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="pl-12 py-6 glass-card border-cyan-400/30 bg-white/5 text-white placeholder:text-gray-400"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="btn-glow-cyan flex items-center gap-2"
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div className="glass-card p-6 mb-8 space-y-6 animate-in fade-in">
+              {/* Categories */}
               <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  Search
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Categories
                 </h3>
-                <Input
-                  type="text"
-                  placeholder="Search items or owners..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Category Filter */}
-              <div>
-                <h3 className="font-semibold mb-3">Category</h3>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {categories.map((cat) => (
                     <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`block w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedCategory === cat
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-muted text-foreground"
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(
+                          selectedCategory === cat.id ? "" : cat.id
+                        );
+                        setPage(1);
+                      }}
+                      className={`p-3 rounded-lg transition-all ${
+                        selectedCategory === cat.id
+                          ? "neon-border-cyan bg-cyan-400/20"
+                          : "glass-card border-white/10 hover:border-white/20"
                       }`}
                     >
-                      {cat}
+                      <div className="text-2xl mb-2">{cat.emoji}</div>
+                      <div className="text-sm font-medium text-white">
+                        {cat.name}
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Location Filter */}
+              {/* Price Range */}
               <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  Location
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Daily Rate Range
                 </h3>
-                <div className="space-y-2">
-                  {locations.map((loc) => (
-                    <button
-                      key={loc}
-                      onClick={() => setSelectedLocation(loc)}
-                      className={`block w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${
-                        selectedLocation === loc
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-muted text-foreground"
-                      }`}
-                    >
-                      {loc}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Filter */}
-              <div>
-                <h3 className="font-semibold mb-3">Price Range</h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="0"
+                    max="500"
+                    value={priceRange[0]}
+                    onChange={(e) => {
+                      setPriceRange([Number(e.target.value), priceRange[1]]);
+                      setPage(1);
+                    }}
+                    className="w-full"
+                  />
                   <input
                     type="range"
                     min="0"
                     max="500"
                     value={priceRange[1]}
-                    onChange={(e) =>
-                      setPriceRange([priceRange[0], parseInt(e.target.value)])
-                    }
+                    onChange={(e) => {
+                      setPriceRange([priceRange[0], Number(e.target.value)]);
+                      setPage(1);
+                    }}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm text-gray-400">
                     <span>₹{priceRange[0]}</span>
                     <span>₹{priceRange[1]}</span>
                   </div>
                 </div>
               </div>
-
-              {/* Clear Filters */}
-              {(selectedCategory !== "All Items" ||
-                selectedLocation !== "All Locations" ||
-                searchQuery) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCategory("All Items");
-                    setSelectedLocation("All Locations");
-                    setSearchQuery("");
-                  }}
-                  className="w-full"
-                >
-                  Clear All Filters
-                </Button>
-              )}
             </div>
-          </div>
+          )}
 
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Mobile Filter Toggle */}
-            <div className="lg:hidden flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                {showFilters ? "Hide" : "Show"} Filters
-              </Button>
-              {showFilters && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowFilters(false)}
-                  className="ml-auto"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Results Header */}
-            <div className="flex items-center justify-between">
-              <p className="text-muted-foreground">
-                Showing {filteredListings.length} item
-                {filteredListings.length !== 1 ? "s" : ""}
-              </p>
-              <select className="px-3 py-1 border border-input rounded-lg text-sm">
-                <option>Newest First</option>
-                <option>Most Popular</option>
-                <option>Highest Rated</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-              </select>
-            </div>
-
-            {/* Listings Grid */}
-            {filteredListings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredListings.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={`/listing/${item.id}`}
-                    className="group card-highlight overflow-hidden hover:shadow-lg transition-all"
+          {/* Active Filters */}
+          {(search || selectedCategory) && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {search && (
+                <div className="glass-card px-4 py-2 flex items-center gap-2">
+                  <span className="text-sm">Search: {search}</span>
+                  <button
+                    onClick={() => setSearch("")}
+                    className="text-cyan-400 hover:text-cyan-300"
                   >
-                    <div className="relative h-48 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
-                      <div className="text-6xl group-hover:scale-110 transition-transform">
-                        {item.image}
-                      </div>
-                      {item.isFree && (
-                        <div className="absolute top-3 right-3 bg-secondary text-secondary-foreground text-xs font-bold px-2 py-1 rounded-lg">
-                          FREE
-                        </div>
-                      )}
-                    </div>
+                    ✕
+                  </button>
+                </div>
+              )}
+              {selectedCategory && (
+                <div className="glass-card px-4 py-2 flex items-center gap-2">
+                  <span className="text-sm">
+                    Category: {selectedCategory}
+                  </span>
+                  <button
+                    onClick={() => setSelectedCategory("")}
+                    className="text-cyan-400 hover:text-cyan-300"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
 
-                    <div className="p-4 space-y-3">
-                      <div>
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                          {item.title}
+      {/* Listings Grid */}
+      <section className="py-12 px-4">
+        <div className="container-center max-w-6xl">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="text-cyan-400 text-lg">Loading items...</div>
+            </div>
+          ) : listings.length === 0 ? (
+            <div className="text-center py-12 glass-card p-12">
+              <Zap className="w-12 h-12 text-cyan-400/50 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">
+                No items found
+              </h3>
+              <p className="text-gray-400">
+                Try adjusting your search or filters
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {listings.map((listing: any) => (
+                  <Link
+                    key={listing.id}
+                    to={`/listing/${listing.id}`}
+                    className="group"
+                  >
+                    <div className="glass-card-hover overflow-hidden flex flex-col h-full">
+                      {/* Image */}
+                      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600/20 to-purple-600/20 aspect-video">
+                        {listing.images?.[0] ? (
+                          <img
+                            src={listing.images[0]}
+                            alt={listing.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl">
+                            📦
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3 glass-card px-3 py-1 rounded-full">
+                          <span className="text-xs font-semibold text-cyan-300">
+                            ₹{listing.dailyRate}/day
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 p-4 flex flex-col">
+                        <h3 className="font-semibold text-white text-lg group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
+                          {listing.title}
                         </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {item.category}
+
+                        <p className="text-sm text-gray-400 line-clamp-2 mb-4 flex-1">
+                          {listing.description}
                         </p>
-                      </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-secondary text-secondary" />
-                          <span className="text-sm font-medium">
-                            {item.rating}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({item.reviews})
-                          </span>
+                        {/* Details */}
+                        <div className="space-y-2 mb-4 text-sm">
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <MapPin className="w-4 h-4 text-cyan-400" />
+                            <span>{listing.location}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Calendar className="w-4 h-4 text-cyan-400" />
+                            <span>Available now</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        {item.location}
-                      </div>
-
-                      <div className="pt-2 border-t border-border flex items-center justify-between">
-                        <div>
-                          {item.isFree ? (
-                            <p className="font-bold text-secondary text-lg">
-                              Free
-                            </p>
-                          ) : (
-                            <p className="font-bold text-lg">
-                              ₹{item.price}
-                              <span className="text-sm font-normal text-muted-foreground">
-                                /day
-                              </span>
-                            </p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            by {item.owner}
-                          </p>
+                        {/* Lender Rating */}
+                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="text-sm font-semibold text-white">
+                              4.8
+                            </span>
+                            <span className="text-xs text-gray-400">(12)</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="btn-glow-cyan"
+                            onClick={(e) => {
+                              e.preventDefault();
+                            }}
+                          >
+                            View
+                          </Button>
                         </div>
-                        <Zap className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
                   </Link>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  No items found
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Try adjusting your filters or search query
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedCategory("All Items");
-                    setSelectedLocation("All Locations");
-                    setSearchQuery("");
-                    setPriceRange([0, 500]);
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
-          </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => setPage(Math.max(1, page - 1))}
+                    disabled={page === 1}
+                    className="btn-glow-blue disabled:opacity-50"
+                  >
+                    ← Previous
+                  </button>
+                  <span className="text-white">
+                    Page {page} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}
+                    className="btn-glow-blue disabled:opacity-50"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
