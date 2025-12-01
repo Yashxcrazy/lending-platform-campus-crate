@@ -347,56 +347,92 @@ export const usersAPI = {
 
 export const bookingsAPI = {
   create: async (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) => {
-    const response = await fetch(`${BASE_URL}/bookings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(booking),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(booking),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "create booking");
+      return { success: false, error: "Failed to create booking" };
+    }
   },
 
   getById: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/bookings/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `getBooking(${id})`);
+      return null;
+    }
   },
 
   getMyRentals: async () => {
-    const response = await fetch(`${BASE_URL}/bookings/user/rentals`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/user/rentals`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getMyRentals");
+      return { data: [] };
+    }
   },
 
   getMyBookings: async () => {
-    const response = await fetch(`${BASE_URL}/bookings/user/bookings`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/user/bookings`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getMyBookings");
+      return { data: [] };
+    }
   },
 
   updateStatus: async (id: string, status: Booking["status"]) => {
-    const response = await fetch(`${BASE_URL}/bookings/${id}/status`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ status }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `updateStatus(${id})`);
+      return { success: false, error: "Failed to update booking status" };
+    }
   },
 
   cancel: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `cancel(${id})`);
+      return { success: false, error: "Failed to cancel booking" };
+    }
   },
 };
 
