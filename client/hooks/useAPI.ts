@@ -1,0 +1,223 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  listingsAPI,
+  bookingsAPI,
+  messagesAPI,
+  usersAPI,
+  authAPI,
+  reviewsAPI,
+  Listing,
+  Booking,
+  User,
+  Message,
+  Review,
+} from "@/lib/api";
+
+// ============================================================================
+// Listings Hooks
+// ============================================================================
+
+export const useListings = (
+  category?: string,
+  search?: string,
+  minPrice?: number,
+  maxPrice?: number,
+  page: number = 1,
+) => {
+  return useQuery({
+    queryKey: ["listings", category, search, minPrice, maxPrice, page],
+    queryFn: () =>
+      listingsAPI.getAll(category, search, minPrice, maxPrice, page),
+  });
+};
+
+export const useListing = (id: string) => {
+  return useQuery({
+    queryKey: ["listing", id],
+    queryFn: () => listingsAPI.getById(id),
+  });
+};
+
+export const useMyListings = () => {
+  return useQuery({
+    queryKey: ["myListings"],
+    queryFn: () => listingsAPI.getMyListings(),
+  });
+};
+
+export const useCreateListing = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (listing: Omit<Listing, "id" | "createdAt" | "updatedAt">) =>
+      listingsAPI.create(listing),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myListings"] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    },
+  });
+};
+
+export const useUpdateListing = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Listing> }) =>
+      listingsAPI.update(id, updates),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["listing", id] });
+      queryClient.invalidateQueries({ queryKey: ["myListings"] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    },
+  });
+};
+
+export const useDeleteListing = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => listingsAPI.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myListings"] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    },
+  });
+};
+
+// ============================================================================
+// Users Hooks
+// ============================================================================
+
+export const useUser = (userId: string) => {
+  return useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => usersAPI.getProfile(userId),
+  });
+};
+
+export const useUserReviews = (userId: string) => {
+  return useQuery({
+    queryKey: ["userReviews", userId],
+    queryFn: () => usersAPI.getReviews(userId),
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (updates: Partial<User>) =>
+      usersAPI.updateProfile(updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+};
+
+// ============================================================================
+// Bookings Hooks
+// ============================================================================
+
+export const useBooking = (id: string) => {
+  return useQuery({
+    queryKey: ["booking", id],
+    queryFn: () => bookingsAPI.getById(id),
+  });
+};
+
+export const useMyRentals = () => {
+  return useQuery({
+    queryKey: ["myRentals"],
+    queryFn: () => bookingsAPI.getMyRentals(),
+  });
+};
+
+export const useMyBookings = () => {
+  return useQuery({
+    queryKey: ["myBookings"],
+    queryFn: () => bookingsAPI.getMyBookings(),
+  });
+};
+
+export const useCreateBooking = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) =>
+      bookingsAPI.create(booking),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+    },
+  });
+};
+
+export const useUpdateBookingStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Booking["status"] }) =>
+      bookingsAPI.updateStatus(id, status),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["booking", id] });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+    },
+  });
+};
+
+export const useCancelBooking = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bookingsAPI.cancel(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["booking", id] });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+    },
+  });
+};
+
+// ============================================================================
+// Messages Hooks
+// ============================================================================
+
+export const useMessages = (bookingId: string) => {
+  return useQuery({
+    queryKey: ["messages", bookingId],
+    queryFn: () => messagesAPI.getForBooking(bookingId),
+    refetchInterval: 2000,
+  });
+};
+
+export const useSendMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bookingId, content }: { bookingId: string; content: string }) =>
+      messagesAPI.send(bookingId, content),
+    onSuccess: (_, { bookingId }) => {
+      queryClient.invalidateQueries({ queryKey: ["messages", bookingId] });
+    },
+  });
+};
+
+// ============================================================================
+// Reviews Hooks
+// ============================================================================
+
+export const useCreateReview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (review: Omit<Review, "id" | "createdAt">) =>
+      reviewsAPI.create(review),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userReviews"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+};
+
+// ============================================================================
+// Auth Hooks
+// ============================================================================
+
+export const useCurrentUser = () => {
+  return useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => authAPI.getCurrentUser(),
+  });
+};
