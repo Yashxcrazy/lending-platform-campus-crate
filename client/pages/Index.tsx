@@ -138,7 +138,7 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span>NITRR email verified only</span>
+                  <span>CSE NITRR email verified only</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0" />
@@ -282,12 +282,22 @@ export default function Index() {
                   "Clear, non-refundable rental terms",
                   "Admin review system for reported items/users",
                   "Optional 2-step verification for added security",
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">{item}</span>
-                  </div>
-                ))}
+                ].map((item, idx) => {
+                  if (item === "Verified NITRR email accounts only") {
+                    return (
+                      <div key={idx} className="flex gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground">Verified CSE NITRR email accounts only</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={idx} className="flex gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <span className="text-foreground">{item}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -334,7 +344,7 @@ export default function Index() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            No credit card required. Verified NITRR email addresses only.
+            No credit card required. Verified CSE NITRR email addresses only.
           </p>
         </div>
       </section>

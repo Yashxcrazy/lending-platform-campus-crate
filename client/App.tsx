@@ -88,7 +88,7 @@ export const App = () => (
             element={
               <Placeholder
                 title="Verify Your Email"
-                description="Check your college email for a verification link to complete your signup."
+                description="Check your CSE NITRR college email for a verification link to complete your signup."
                 icon="✉️"
               />
             }
