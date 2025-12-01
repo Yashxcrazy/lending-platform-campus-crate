@@ -208,47 +208,78 @@ export const listingsAPI = {
   },
 
   getById: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/listings/${id}`);
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/listings/${id}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `getById(${id})`);
+      // Return mock listing if API fails
+      return MOCK_LISTINGS[0] || null;
+    }
   },
 
   create: async (listing: Omit<Listing, "id" | "createdAt" | "updatedAt">) => {
-    const response = await fetch(`${BASE_URL}/listings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(listing),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/listings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(listing),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "create");
+      return { success: false, error: "Failed to create listing" };
+    }
   },
 
   update: async (id: string, updates: Partial<Listing>) => {
-    const response = await fetch(`${BASE_URL}/listings/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(updates),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/listings/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `update(${id})`);
+      return { success: false, error: "Failed to update listing" };
+    }
   },
 
   delete: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/listings/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/listings/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, `delete(${id})`);
+      return { success: false, error: "Failed to delete listing" };
+    }
   },
 
   getMyListings: async () => {
-    const response = await fetch(`${BASE_URL}/listings/user/my-listings`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/listings/user/my-listings`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getMyListings");
+      return { data: [] };
+    }
   },
 };
 
