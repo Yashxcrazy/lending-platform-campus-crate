@@ -4,7 +4,7 @@
  * Replace BASE_URL and API paths with your actual backend server.
  */
 
-const BASE_URL = process.env.VITE_API_URL || "http://localhost:3001/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 // ============================================================================
 // Types
