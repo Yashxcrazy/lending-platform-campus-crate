@@ -153,14 +153,13 @@ export default function Index() {
             </div>
 
             <div className="relative hidden md:block">
-              <div className="relative bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl p-8 h-96 flex items-center justify-center border border-primary/20">
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent rounded-2xl" />
+              <div className="glass-card p-8 h-96 flex items-center justify-center neon-border-blue">
                 <div className="relative text-center">
                   <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-2xl font-bold text-foreground">
+                  <h3 className="text-2xl font-bold text-white">
                     Student-Powered
                   </h3>
-                  <p className="text-muted-foreground mt-2">
+                  <p className="text-gray-400 mt-2">
                     Community sharing made easy
                   </p>
                 </div>
@@ -171,12 +170,12 @@ export default function Index() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-12 md:py-16 border-b border-border">
+      <section className="py-12 md:py-16 border-b border-cyan-400/20 px-4">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-white">
             What Can You Borrow?
           </h2>
-          <p className="text-center text-muted-foreground mb-10">
+          <p className="text-center text-gray-400 mb-10">
             Browse popular categories or explore more
           </p>
 
@@ -186,9 +185,9 @@ export default function Index() {
                 key={cat.name}
                 to={`/listings?category=${cat.name.toLowerCase()}`}
               >
-                <button className="w-full p-6 bg-muted/50 hover:bg-muted rounded-xl transition-all flex flex-col items-center gap-3 hover:shadow-md">
+                <button className="w-full p-6 glass-card-hover flex flex-col items-center gap-3">
                   <span className="text-4xl">{cat.emoji}</span>
-                  <span className="font-semibold text-foreground text-sm">
+                  <span className="font-semibold text-white text-sm">
                     {cat.name}
                   </span>
                 </button>
@@ -199,12 +198,12 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 px-4">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">
             Why CampusCrate?
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
             CampusCrate makes borrowing and lending safe, easy, and affordable
             for the entire campus community.
           </p>
@@ -215,15 +214,15 @@ export default function Index() {
               return (
                 <div
                   key={idx}
-                  className="p-6 rounded-xl border border-border bg-white hover:shadow-lg hover:border-primary/20 transition-all"
+                  className="glass-card-hover p-6"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-cyan-400/20 flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-cyan-300" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-foreground">
+                  <h3 className="text-xl font-semibold mb-2 text-white">
                     {feature.title}
                   </h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <p className="text-gray-400">{feature.description}</p>
                 </div>
               );
             })}
@@ -232,12 +231,12 @@ export default function Index() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section className="py-16 md:py-24 bg-white/5 border-t border-cyan-400/20 px-4">
         <div className="container-center max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">
             How It Works
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
             Five simple steps to start borrowing or sharing items with your
             campus community.
           </p>
@@ -246,15 +245,15 @@ export default function Index() {
             {steps.map((step, idx) => (
               <div key={idx} className="flex gap-6">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-primary text-primary-foreground font-bold text-lg">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-cyan-400/20 text-cyan-300 font-bold text-lg">
                     {step.number}
                   </div>
                 </div>
                 <div className="pt-1">
-                  <h3 className="text-lg md:text-xl font-semibold mb-2 text-foreground">
+                  <h3 className="text-lg md:text-xl font-semibold mb-2 text-white">
                     {step.title}
                   </h3>
-                  <p className="text-muted-foreground">{step.description}</p>
+                  <p className="text-gray-400">{step.description}</p>
                 </div>
               </div>
             ))}
