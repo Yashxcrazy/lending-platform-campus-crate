@@ -8,6 +8,12 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import Listings from "./pages/Listings";
+import ItemDetails from "./pages/ItemDetails";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import MyListings from "./pages/MyListings";
+import MyRentals from "./pages/MyRentals";
+import AdminDashboard from "./pages/AdminDashboard";
 import Placeholder from "./pages/Placeholder";
 
 const queryClient = new QueryClient();
@@ -23,52 +29,17 @@ export const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/listings" element={<Listings />} />
+          <Route path="/listing/:id" element={<ItemDetails />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-rentals" element={<MyRentals />} />
+          <Route path="/my-listings" element={<MyListings />} />
           <Route
-            path="/listing/:id"
+            path="/my-listings/new"
             element={
               <Placeholder
-                title="Item Details"
-                description="View the full listing details, photos, ratings, and booking information for this item."
-                icon="🔍"
-              />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <Placeholder
-                title="Your Dashboard"
-                description="Manage your listings, view bookings, and track your rental activity."
-                icon="📊"
-              />
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <Placeholder
-                title="Your Profile"
-                description="View and edit your profile, ratings, reviews, and account settings."
-                icon="👤"
-              />
-            }
-          />
-          <Route
-            path="/my-rentals"
-            element={
-              <Placeholder
-                title="My Rentals"
-                description="View all your active rentals, rental history, and manage returns."
-                icon="📦"
-              />
-            }
-          />
-          <Route
-            path="/my-listings"
-            element={
-              <Placeholder
-                title="My Listings"
-                description="Create, edit, and manage the items you're offering to rent."
+                title="Create New Listing"
+                description="Add a new item you want to rent out to fellow students."
                 icon="📝"
               />
             }
@@ -80,6 +51,16 @@ export const App = () => (
                 title="Booking Details"
                 description="View your booking details, handover information, and rental timeline."
                 icon="📅"
+              />
+            }
+          />
+          <Route
+            path="/booking/:id/review"
+            element={
+              <Placeholder
+                title="Leave Review"
+                description="Share your experience with the lender or borrower."
+                icon="⭐"
               />
             }
           />
@@ -113,26 +94,7 @@ export const App = () => (
               />
             }
           />
-          <Route
-            path="/admin"
-            element={
-              <Placeholder
-                title="Admin Dashboard"
-                description="Manage users, review reports, and configure platform settings."
-                icon="⚙️"
-              />
-            }
-          />
-          <Route
-            path="/chat/:userId"
-            element={
-              <Placeholder
-                title="Messages"
-                description="Communicate with other users about rentals and questions."
-                icon="💬"
-              />
-            }
-          />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
