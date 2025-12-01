@@ -131,45 +131,75 @@ export interface Review {
 
 export const authAPI = {
   signup: async (email: string, password: string, name: string) => {
-    const response = await fetch(`${BASE_URL}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "signup");
+      return { success: false, error: "Backend not available. Check connection." };
+    }
   },
 
   login: async (email: string, password: string) => {
-    const response = await fetch(`${BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "login");
+      return { success: false, error: "Backend not available. Check connection." };
+    }
   },
 
   logout: async () => {
-    const response = await fetch(`${BASE_URL}/auth/logout`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "logout");
+      return { success: true };
+    }
   },
 
   verifyEmail: async (token: string) => {
-    const response = await fetch(`${BASE_URL}/auth/verify-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/verify-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "verifyEmail");
+      return { success: false, error: "Email verification failed" };
+    }
   },
 
   getCurrentUser: async () => {
-    const response = await fetch(`${BASE_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getCurrentUser");
+      return null;
+    }
   },
 };
 
