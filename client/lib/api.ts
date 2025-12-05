@@ -397,6 +397,11 @@ export const bookingsAPI = {
   },
 
   getMyRentals: async () => {
+    if (USE_MOCK_DATA) {
+      console.log("Using mock data for getMyRentals");
+      return { data: [] };
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/bookings/user/rentals`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -410,6 +415,11 @@ export const bookingsAPI = {
   },
 
   getMyBookings: async () => {
+    if (USE_MOCK_DATA) {
+      console.log("Using mock data for getMyBookings");
+      return { data: [] };
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/bookings/user/bookings`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
