@@ -28,6 +28,8 @@ export const useListings = (
     queryKey: ["listings", category, search, minPrice, maxPrice, page],
     queryFn: () =>
       listingsAPI.getAll(category, search, minPrice, maxPrice, page),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -35,6 +37,8 @@ export const useListing = (id: string) => {
   return useQuery({
     queryKey: ["listing", id],
     queryFn: () => listingsAPI.getById(id),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -42,6 +46,8 @@ export const useMyListings = () => {
   return useQuery({
     queryKey: ["myListings"],
     queryFn: () => listingsAPI.getMyListings(),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -89,6 +95,8 @@ export const useUser = (userId: string) => {
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => usersAPI.getProfile(userId),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -96,6 +104,8 @@ export const useUserReviews = (userId: string) => {
   return useQuery({
     queryKey: ["userReviews", userId],
     queryFn: () => usersAPI.getReviews(userId),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -118,6 +128,8 @@ export const useBooking = (id: string) => {
   return useQuery({
     queryKey: ["booking", id],
     queryFn: () => bookingsAPI.getById(id),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -125,6 +137,8 @@ export const useMyRentals = () => {
   return useQuery({
     queryKey: ["myRentals"],
     queryFn: () => bookingsAPI.getMyRentals(),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -132,6 +146,8 @@ export const useMyBookings = () => {
   return useQuery({
     queryKey: ["myBookings"],
     queryFn: () => bookingsAPI.getMyBookings(),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -181,6 +197,8 @@ export const useMessages = (bookingId: string) => {
     queryKey: ["messages", bookingId],
     queryFn: () => messagesAPI.getForBooking(bookingId),
     refetchInterval: 2000,
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -219,5 +237,7 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: () => authAPI.getCurrentUser(),
+    retry: 1,
+    retryDelay: 1000,
   });
 };
