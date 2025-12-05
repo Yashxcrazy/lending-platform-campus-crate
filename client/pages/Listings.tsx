@@ -227,21 +227,21 @@ export default function Listings() {
         <section className="py-12 px-4">
           <div className="container-center max-w-6xl">
             {isLoading ? (
-            <div className="text-center py-12">
-              <div className="text-cyan-400 text-lg">Loading items...</div>
-            </div>
-          ) : listings.length === 0 ? (
-            <div className="text-center py-12 glass-card p-12">
-              <Zap className="w-12 h-12 text-cyan-400/50 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">
-                No items found
-              </h3>
-              <p className="text-gray-400">
-                Try adjusting your search or filters
-              </p>
-            </div>
-          ) : (
-            <>
+              <div className="text-center py-12">
+                <div className="text-cyan-400 text-lg">Loading items...</div>
+              </div>
+            ) : listings.length === 0 ? (
+              <div className="text-center py-12 glass-card p-12">
+                <Zap className="w-12 h-12 text-cyan-400/50 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  No items found
+                </h3>
+                <p className="text-gray-400">
+                  Try adjusting your search or filters
+                </p>
+              </div>
+            ) : (
+              <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {listings.map((listing: any) => (
                   <Link
@@ -340,7 +340,7 @@ export default function Listings() {
                 </div>
               )}
             </>
-            )}
+              )}
           </div>
         </section>
       )}
