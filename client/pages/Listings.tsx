@@ -34,7 +34,7 @@ export default function Listings() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data: listingsData, isLoading } = useListings(
+  const { data: listingsData, isLoading, error } = useListings(
     selectedCategory,
     search,
     priceRange[0],
