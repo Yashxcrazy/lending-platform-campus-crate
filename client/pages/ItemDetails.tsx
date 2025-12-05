@@ -25,7 +25,7 @@ export default function ItemDetails() {
   const [endDate, setEndDate] = useState("");
   const [liked, setLiked] = useState(false);
 
-  const { data: listing, isLoading } = useListing(id!);
+  const { data: listing, isLoading, error } = useListing(id!);
   const { data: messagesData } = useMessages(id!);
   const sendMessageMutation = useSendMessage();
   const createBookingMutation = useCreateBooking();
