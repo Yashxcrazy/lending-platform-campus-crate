@@ -5,7 +5,7 @@
  */
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === "true" || !BASE_URL.includes("http");
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === "true" || !import.meta.env.VITE_API_URL;
 
 // Mock data for development without backend
 const MOCK_LISTINGS: Listing[] = [
