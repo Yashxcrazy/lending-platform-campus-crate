@@ -314,6 +314,11 @@ export const listingsAPI = {
   },
 
   getMyListings: async () => {
+    if (USE_MOCK_DATA) {
+      console.log("Using mock data for getMyListings");
+      return { data: MOCK_LISTINGS };
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/listings/user/my-listings`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -322,7 +327,7 @@ export const listingsAPI = {
       return await response.json();
     } catch (error) {
       handleApiError(error, "getMyListings");
-      return { data: [] };
+      return { data: MOCK_LISTINGS };
     }
   },
 };
