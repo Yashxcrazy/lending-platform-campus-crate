@@ -223,9 +223,10 @@ export default function Listings() {
       )}
 
       {/* Listings Grid */}
-      <section className="py-12 px-4">
-        <div className="container-center max-w-6xl">
-          {isLoading ? (
+      {!error && (
+        <section className="py-12 px-4">
+          <div className="container-center max-w-6xl">
+            {isLoading ? (
             <div className="text-center py-12">
               <div className="text-cyan-400 text-lg">Loading items...</div>
             </div>
@@ -339,9 +340,10 @@ export default function Listings() {
                 </div>
               )}
             </>
-          )}
-        </div>
-      </section>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
