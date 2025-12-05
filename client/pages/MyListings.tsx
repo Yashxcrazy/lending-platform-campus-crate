@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 export default function MyListings() {
-  const { data: listingsData, isLoading } = useMyListings();
+  const { data: listingsData, isLoading, error } = useMyListings();
   const deleteListingMutation = useDeleteListing();
   const updateListingMutation = useUpdateListing();
   const [editingId, setEditingId] = useState<string | null>(null);
