@@ -160,6 +160,23 @@ export const authAPI = {
 // Listings API
 // ============================================================================
 
+// Helper function to transform backend item to frontend listing
+const transformItem = (item: any) => ({
+  id: item._id || item.id,
+  title: item.title,
+  description: item.description,
+  category: item.category,
+  dailyRate: item.dailyRate,
+  weeklyRate: item.dailyRate * 6, // Calculate from daily rate
+  monthlyRate: item.dailyRate * 25, // Calculate from daily rate
+  images: item.images || [],
+  condition: item.condition,
+  location: typeof item.location === "string" ? item.location : item.location?.address || "",
+  lenderId: item.owner || item.ownerId,
+  createdAt: item.createdAt,
+  updatedAt: item.updatedAt,
+});
+
 export const listingsAPI = {
   getAll: async (
     category?: string,
@@ -172,13 +189,19 @@ export const listingsAPI = {
       const params = new URLSearchParams();
       if (category) params.append("category", category);
       if (search) params.append("search", search);
-      if (minPrice) params.append("minPrice", minPrice.toString());
-      if (maxPrice) params.append("maxPrice", maxPrice.toString());
+      if (minPrice) params.append("minDailyRate", minPrice.toString());
+      if (maxPrice) params.append("maxDailyRate", maxPrice.toString());
       params.append("page", page.toString());
 
-      const response = await fetch(`${BASE_URL}/listings?${params}`);
+      const response = await fetch(`${BASE_URL}/items?${params}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const data = await response.json();
+
+      return {
+        data: Array.isArray(data.items) ? data.items.map(transformItem) : [],
+        totalPages: data.totalPages || 1,
+        totalCount: data.totalCount || 0,
+      };
     } catch (error) {
       handleApiError(error, "getAll");
       throw error;
@@ -187,9 +210,10 @@ export const listingsAPI = {
 
   getById: async (id: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/listings/${id}`);
+      const response = await fetch(`${BASE_URL}/items/${id}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const item = await response.json();
+      return transformItem(item);
     } catch (error) {
       handleApiError(error, `getById(${id})`);
       throw error;
