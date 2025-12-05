@@ -5,63 +5,10 @@
  */
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === "true" || !import.meta.env.VITE_API_URL;
-
-// Mock data for development without backend
-const MOCK_LISTINGS: Listing[] = [
-  {
-    id: "1",
-    title: "Python Textbook - Data Structures",
-    description: "Comprehensive guide to data structures and algorithms. Great condition, barely used.",
-    category: "books",
-    dailyRate: 50,
-    weeklyRate: 250,
-    monthlyRate: 800,
-    images: [],
-    condition: "excellent",
-    location: "Central Library",
-    lenderId: "user-1",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Oscilloscope - Digital Multimeter",
-    description: "Digital oscilloscope perfect for electronics lab. Fully functional.",
-    category: "lab-equipment",
-    dailyRate: 200,
-    weeklyRate: 1000,
-    monthlyRate: 3000,
-    images: [],
-    condition: "good",
-    location: "Physics Lab",
-    lenderId: "user-2",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    title: "Scientific Calculator - Casio FX-991",
-    description: "Advanced scientific calculator with programming functions.",
-    category: "calculators",
-    dailyRate: 30,
-    weeklyRate: 150,
-    monthlyRate: 500,
-    images: [],
-    condition: "excellent",
-    location: "Student Center",
-    lenderId: "user-3",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
 
 // Error handler utility
 const handleApiError = (error: any, operationName: string) => {
   console.warn(`API call failed (${operationName}):`, error?.message || error);
-  if (USE_MOCK_DATA) {
-    console.log(`Using mock data for: ${operationName}`);
-  }
 };
 
 // ============================================================================
