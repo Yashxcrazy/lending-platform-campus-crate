@@ -23,7 +23,7 @@ const statusColors = {
 };
 
 export default function MyRentals() {
-  const { data: bookingsData, isLoading } = useMyBookings();
+  const { data: bookingsData, isLoading, error } = useMyBookings();
   const cancelBookingMutation = useCancelBooking();
   const [filter, setFilter] = useState<string>("all");
 
