@@ -215,6 +215,15 @@ export const listingsAPI = {
     maxPrice?: number,
     page: number = 1,
   ) => {
+    if (USE_MOCK_DATA) {
+      console.log("Using mock data for getAll listings");
+      return {
+        data: MOCK_LISTINGS,
+        totalPages: 1,
+        totalCount: MOCK_LISTINGS.length,
+      };
+    }
+
     try {
       const params = new URLSearchParams();
       if (category) params.append("category", category);
@@ -238,6 +247,11 @@ export const listingsAPI = {
   },
 
   getById: async (id: string) => {
+    if (USE_MOCK_DATA) {
+      console.log(`Using mock data for getById listing ${id}`);
+      return MOCK_LISTINGS.find(l => l.id === id) || MOCK_LISTINGS[0] || null;
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/listings/${id}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -245,7 +259,7 @@ export const listingsAPI = {
     } catch (error) {
       handleApiError(error, `getById(${id})`);
       // Return mock listing if API fails
-      return MOCK_LISTINGS[0] || null;
+      return MOCK_LISTINGS.find(l => l.id === id) || MOCK_LISTINGS[0] || null;
     }
   },
 
