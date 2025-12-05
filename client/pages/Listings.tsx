@@ -197,6 +197,31 @@ export default function Listings() {
         </div>
       </section>
 
+      {/* Error State */}
+      {error && (
+        <section className="py-8 px-4">
+          <div className="container-center max-w-6xl">
+            <div className="glass-card border border-red-500/30 bg-red-500/10 p-8 rounded-lg flex items-start gap-4">
+              <div className="text-red-400 text-2xl flex-shrink-0">⚠️</div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Unable to Load Items
+                </h3>
+                <p className="text-gray-300 mb-4">
+                  We're having trouble connecting to the server. Please check your internet connection and try again.
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="btn-glow-cyan text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Listings Grid */}
       <section className="py-12 px-4">
         <div className="container-center max-w-6xl">
