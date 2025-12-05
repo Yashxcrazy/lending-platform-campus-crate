@@ -40,6 +40,40 @@ export default function ItemDetails() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container-center py-20">
+          <div className="glass-card border border-red-500/30 bg-red-500/10 p-8 rounded-lg max-w-md mx-auto">
+            <div className="text-red-400 text-4xl text-center mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-white mb-4 text-center">
+              Unable to Load Item
+            </h2>
+            <p className="text-gray-300 mb-6 text-center">
+              We're having trouble connecting to the server. Please check your internet connection and try again.
+            </p>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => window.location.reload()}
+                className="flex-1 btn-glow-cyan"
+              >
+                Retry
+              </Button>
+              <Button
+                onClick={() => navigate("/listings")}
+                variant="outline"
+                className="flex-1"
+              >
+                Back to Listings
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!listing) {
     return (
       <div className="min-h-screen bg-background">
