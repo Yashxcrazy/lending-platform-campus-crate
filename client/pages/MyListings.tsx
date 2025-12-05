@@ -65,6 +65,26 @@ export default function MyListings() {
           </Link>
         </div>
 
+        {error && (
+          <div className="glass-card border border-red-500/30 bg-red-500/10 p-8 rounded-lg flex items-start gap-4 mb-8">
+            <div className="text-red-400 text-2xl flex-shrink-0">⚠️</div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Unable to Load Your Listings
+              </h3>
+              <p className="text-gray-300 mb-4">
+                We're having trouble connecting to the server. Please check your internet connection and try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="btn-glow-cyan text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="text-center py-12">
             <div className="text-cyan-400">Loading...</div>
