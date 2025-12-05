@@ -55,7 +55,9 @@ export default function MyListings() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="marvel-title mb-2">My Listings</h1>
-            <p className="marvel-subtitle">Manage items you're offering to rent</p>
+            <p className="marvel-subtitle">
+              Manage items you're offering to rent
+            </p>
           </div>
           <Link to="/my-listings/new">
             <Button className="btn-glow-red flex items-center gap-2">
@@ -73,7 +75,8 @@ export default function MyListings() {
                 Unable to Load Your Listings
               </h3>
               <p className="text-gray-300 mb-4">
-                We're having trouble connecting to the server. Please check your internet connection and try again.
+                We're having trouble connecting to the server. Please check your
+                internet connection and try again.
               </p>
               <button
                 onClick={() => window.location.reload()}
@@ -99,7 +102,9 @@ export default function MyListings() {
               Start earning by listing items you're not using
             </p>
             <Link to="/my-listings/new">
-              <Button className="btn-glow-red">Create Your First Listing</Button>
+              <Button className="btn-glow-red">
+                Create Your First Listing
+              </Button>
             </Link>
           </div>
         ) : (

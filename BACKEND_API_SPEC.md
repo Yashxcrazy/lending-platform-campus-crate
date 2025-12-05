@@ -11,6 +11,7 @@ VITE_API_URL=http://localhost:3001/api
 ```
 
 Or for production:
+
 ```env
 VITE_API_URL=https://your-backend-domain.com/api
 ```
@@ -20,6 +21,7 @@ VITE_API_URL=https://your-backend-domain.com/api
 ## Data Types
 
 ### Listing
+
 ```typescript
 {
   id: string;
@@ -39,6 +41,7 @@ VITE_API_URL=https://your-backend-domain.com/api
 ```
 
 ### User
+
 ```typescript
 {
   id: string;
@@ -52,6 +55,7 @@ VITE_API_URL=https://your-backend-domain.com/api
 ```
 
 ### Booking
+
 ```typescript
 {
   id: string;
@@ -67,6 +71,7 @@ VITE_API_URL=https://your-backend-domain.com/api
 ```
 
 ### Message
+
 ```typescript
 {
   id: string;
@@ -79,6 +84,7 @@ VITE_API_URL=https://your-backend-domain.com/api
 ```
 
 ### Review
+
 ```typescript
 {
   id: string;
@@ -96,9 +102,11 @@ VITE_API_URL=https://your-backend-domain.com/api
 ## Authentication Endpoints
 
 ### POST `/auth/signup`
+
 Create a new user account.
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -108,20 +116,25 @@ Create a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "token": "jwt-token",
-  "user": { /* User object */ }
+  "user": {
+    /* User object */
+  }
 }
 ```
 
 ---
 
 ### POST `/auth/login`
+
 Authenticate a user.
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -130,25 +143,31 @@ Authenticate a user.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "token": "jwt-token",
-  "user": { /* User object */ }
+  "user": {
+    /* User object */
+  }
 }
 ```
 
 ---
 
 ### POST `/auth/logout`
+
 Logout the current user (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -158,9 +177,11 @@ Authorization: Bearer {token}
 ---
 
 ### POST `/auth/verify-email`
+
 Verify user's email address.
 
 **Request:**
+
 ```json
 {
   "token": "verification-token"
@@ -168,6 +189,7 @@ Verify user's email address.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -177,14 +199,17 @@ Verify user's email address.
 ---
 
 ### GET `/auth/me`
+
 Get current user's profile (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "user-id",
@@ -201,9 +226,11 @@ Authorization: Bearer {token}
 ## Listings Endpoints
 
 ### GET `/listings`
+
 Get all listings with optional filtering.
 
 **Query Parameters:**
+
 - `category` (optional): Filter by category
 - `search` (optional): Search term
 - `minPrice` (optional): Minimum daily rate
@@ -211,9 +238,14 @@ Get all listings with optional filtering.
 - `page` (optional, default: 1): Page number
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Listing objects */ }],
+  "data": [
+    {
+      /* Listing objects */
+    }
+  ],
   "totalPages": 5,
   "totalCount": 42
 }
@@ -222,13 +254,15 @@ Get all listings with optional filtering.
 ---
 
 ### GET `/listings/:id`
+
 Get a single listing by ID.
 
 **Response:**
+
 ```json
 {
   "id": "listing-1",
-  "title": "Python Textbook",
+  "title": "Python Textbook"
   /* ... rest of Listing object ... */
 }
 ```
@@ -236,14 +270,17 @@ Get a single listing by ID.
 ---
 
 ### POST `/listings`
+
 Create a new listing (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:**
+
 ```json
 {
   "title": "Python Textbook",
@@ -259,24 +296,30 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "listing": { /* Created Listing object */ }
+  "listing": {
+    /* Created Listing object */
+  }
 }
 ```
 
 ---
 
 ### PUT `/listings/:id`
+
 Update a listing (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:** (partial Listing object)
+
 ```json
 {
   "title": "Updated Title",
@@ -285,24 +328,30 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "listing": { /* Updated Listing object */ }
+  "listing": {
+    /* Updated Listing object */
+  }
 }
 ```
 
 ---
 
 ### DELETE `/listings/:id`
+
 Delete a listing (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -312,17 +361,24 @@ Authorization: Bearer {token}
 ---
 
 ### GET `/listings/user/my-listings`
+
 Get current user's listings (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Listing objects */ }]
+  "data": [
+    {
+      /* Listing objects */
+    }
+  ]
 }
 ```
 
@@ -331,9 +387,11 @@ Authorization: Bearer {token}
 ## Users Endpoints
 
 ### GET `/users/:userId`
+
 Get a user's profile.
 
 **Response:**
+
 ```json
 {
   "id": "user-id",
@@ -349,14 +407,17 @@ Get a user's profile.
 ---
 
 ### PUT `/users/profile`
+
 Update current user's profile (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:** (partial User object)
+
 ```json
 {
   "name": "Jane Doe",
@@ -365,22 +426,31 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "user": { /* Updated User object */ }
+  "user": {
+    /* Updated User object */
+  }
 }
 ```
 
 ---
 
 ### GET `/users/:userId/reviews`
+
 Get reviews for a user.
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Review objects */ }]
+  "data": [
+    {
+      /* Review objects */
+    }
+  ]
 }
 ```
 
@@ -389,14 +459,17 @@ Get reviews for a user.
 ## Bookings Endpoints
 
 ### POST `/bookings`
+
 Create a new booking (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:**
+
 ```json
 {
   "listingId": "listing-1",
@@ -407,28 +480,34 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "booking": { /* Created Booking object */ }
+  "booking": {
+    /* Created Booking object */
+  }
 }
 ```
 
 ---
 
 ### GET `/bookings/:id`
+
 Get a booking by ID (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "booking-1",
-  "listingId": "listing-1",
+  "listingId": "listing-1"
   /* ... rest of Booking object ... */
 }
 ```
@@ -436,48 +515,65 @@ Authorization: Bearer {token}
 ---
 
 ### GET `/bookings/user/rentals`
+
 Get current user's rentals (listings they own that are booked) (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Booking objects */ }]
+  "data": [
+    {
+      /* Booking objects */
+    }
+  ]
 }
 ```
 
 ---
 
 ### GET `/bookings/user/bookings`
+
 Get current user's bookings (items they've rented) (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Booking objects */ }]
+  "data": [
+    {
+      /* Booking objects */
+    }
+  ]
 }
 ```
 
 ---
 
 ### PUT `/bookings/:id/status`
+
 Update booking status (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:**
+
 ```json
 {
   "status": "confirmed"
@@ -485,24 +581,30 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "booking": { /* Updated Booking object */ }
+  "booking": {
+    /* Updated Booking object */
+  }
 }
 ```
 
 ---
 
 ### POST `/bookings/:id/cancel`
+
 Cancel a booking (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -514,31 +616,41 @@ Authorization: Bearer {token}
 ## Messages Endpoints
 
 ### GET `/messages/booking/:bookingId`
+
 Get all messages for a booking (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Message objects */ }]
+  "data": [
+    {
+      /* Message objects */
+    }
+  ]
 }
 ```
 
 ---
 
 ### POST `/messages`
+
 Send a message for a booking (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:**
+
 ```json
 {
   "bookingId": "booking-1",
@@ -547,10 +659,13 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "message": { /* Created Message object */ }
+  "message": {
+    /* Created Message object */
+  }
 }
 ```
 
@@ -559,14 +674,17 @@ Authorization: Bearer {token}
 ## Reviews Endpoints
 
 ### POST `/reviews`
+
 Create a review (requires Bearer token).
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request:**
+
 ```json
 {
   "bookingId": "booking-1",
@@ -577,22 +695,31 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "review": { /* Created Review object */ }
+  "review": {
+    /* Created Review object */
+  }
 }
 ```
 
 ---
 
 ### GET `/reviews/user/:userId`
+
 Get all reviews for a user.
 
 **Response:**
+
 ```json
 {
-  "data": [{ /* Review objects */ }]
+  "data": [
+    {
+      /* Review objects */
+    }
+  ]
 }
 ```
 
@@ -601,6 +728,7 @@ Get all reviews for a user.
 ## Error Handling
 
 All endpoints should return appropriate HTTP status codes:
+
 - `200`: Success
 - `201`: Created
 - `400`: Bad Request
@@ -610,6 +738,7 @@ All endpoints should return appropriate HTTP status codes:
 - `500`: Internal Server Error
 
 Error response format:
+
 ```json
 {
   "success": false,

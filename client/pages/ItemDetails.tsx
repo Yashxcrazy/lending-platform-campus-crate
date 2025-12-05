@@ -3,7 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useListing, useMessages, useSendMessage, useCreateBooking } from "@/hooks/useAPI";
+import {
+  useListing,
+  useMessages,
+  useSendMessage,
+  useCreateBooking,
+} from "@/hooks/useAPI";
 import {
   Star,
   MapPin,
@@ -51,7 +56,8 @@ export default function ItemDetails() {
               Unable to Load Item
             </h2>
             <p className="text-gray-300 mb-6 text-center">
-              We're having trouble connecting to the server. Please check your internet connection and try again.
+              We're having trouble connecting to the server. Please check your
+              internet connection and try again.
             </p>
             <div className="flex gap-4">
               <Button
@@ -79,10 +85,10 @@ export default function ItemDetails() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container-center py-20 text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
-            Item not found
-          </h1>
-          <Button onClick={() => navigate("/listings")}>Back to Listings</Button>
+          <h1 className="text-2xl font-bold text-white mb-4">Item not found</h1>
+          <Button onClick={() => navigate("/listings")}>
+            Back to Listings
+          </Button>
         </div>
       </div>
     );
@@ -136,9 +142,7 @@ export default function ItemDetails() {
                   >
                     <Heart
                       className={`w-5 h-5 ${
-                        liked
-                          ? "fill-red-500 text-red-500"
-                          : "text-gray-400"
+                        liked ? "fill-red-500 text-red-500" : "text-gray-400"
                       }`}
                     />
                   </button>
@@ -211,8 +215,8 @@ export default function ItemDetails() {
               </h2>
               <p className="text-sm text-gray-400 mb-4">
                 All identities are kept anonymous until both parties confirm the
-                booking. Your real name and contact info will only be shared once
-                you agree to proceed.
+                booking. Your real name and contact info will only be shared
+                once you agree to proceed.
               </p>
 
               <div className="space-y-4">
@@ -242,7 +246,9 @@ export default function ItemDetails() {
                               : "bg-white/5"
                           }`}
                         >
-                          <p className="text-white break-words">{msg.content}</p>
+                          <p className="text-white break-words">
+                            {msg.content}
+                          </p>
                           <p className="text-xs text-gray-400 mt-1">
                             User #{msg.senderAnonymousId}
                           </p>
@@ -279,7 +285,9 @@ export default function ItemDetails() {
           <div className="space-y-6">
             {/* Pricing Card */}
             <div className="glass-card p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Rental Rates</h3>
+              <h3 className="text-lg font-bold text-white mb-4">
+                Rental Rates
+              </h3>
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Daily</span>
@@ -384,9 +392,9 @@ export default function ItemDetails() {
                     How it works
                   </h4>
                   <p className="text-sm text-gray-400">
-                    Chat anonymously first. Once you request the item, both parties
-                    can decide to share contact details. Meeting location and
-                    condition check happen in person.
+                    Chat anonymously first. Once you request the item, both
+                    parties can decide to share contact details. Meeting
+                    location and condition check happen in person.
                   </p>
                 </div>
               </div>

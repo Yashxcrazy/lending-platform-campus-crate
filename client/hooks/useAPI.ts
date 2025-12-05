@@ -112,8 +112,7 @@ export const useUserReviews = (userId: string) => {
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (updates: Partial<User>) =>
-      usersAPI.updateProfile(updates),
+    mutationFn: (updates: Partial<User>) => usersAPI.updateProfile(updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
@@ -205,8 +204,13 @@ export const useMessages = (bookingId: string) => {
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ bookingId, content }: { bookingId: string; content: string }) =>
-      messagesAPI.send(bookingId, content),
+    mutationFn: ({
+      bookingId,
+      content,
+    }: {
+      bookingId: string;
+      content: string;
+    }) => messagesAPI.send(bookingId, content),
     onSuccess: (_, { bookingId }) => {
       queryClient.invalidateQueries({ queryKey: ["messages", bookingId] });
     },

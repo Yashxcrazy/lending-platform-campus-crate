@@ -28,19 +28,17 @@ export default function Listings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(
-    searchParams.get("category") || ""
+    searchParams.get("category") || "",
   );
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data: listingsData, isLoading, error } = useListings(
-    selectedCategory,
-    search,
-    priceRange[0],
-    priceRange[1],
-    page
-  );
+  const {
+    data: listingsData,
+    isLoading,
+    error,
+  } = useListings(selectedCategory, search, priceRange[0], priceRange[1], page);
 
   const listings = listingsData?.data || [];
   const totalPages = listingsData?.totalPages || 1;
@@ -67,8 +65,8 @@ export default function Listings() {
           <div className="text-center mb-12">
             <h1 className="marvel-title mb-4">Browse Available Items</h1>
             <p className="marvel-subtitle max-w-2xl mx-auto">
-              Discover thousands of items available for rent from fellow students.
-              Save money, help others, and build your reputation.
+              Discover thousands of items available for rent from fellow
+              students. Save money, help others, and build your reputation.
             </p>
           </div>
 
@@ -109,7 +107,7 @@ export default function Listings() {
                       key={cat.id}
                       onClick={() => {
                         setSelectedCategory(
-                          selectedCategory === cat.id ? "" : cat.id
+                          selectedCategory === cat.id ? "" : cat.id,
                         );
                         setPage(1);
                       }}
@@ -181,9 +179,7 @@ export default function Listings() {
               )}
               {selectedCategory && (
                 <div className="glass-card px-4 py-2 flex items-center gap-2">
-                  <span className="text-sm">
-                    Category: {selectedCategory}
-                  </span>
+                  <span className="text-sm">Category: {selectedCategory}</span>
                   <button
                     onClick={() => setSelectedCategory("")}
                     className="text-cyan-400 hover:text-cyan-300"
@@ -208,7 +204,8 @@ export default function Listings() {
                   Unable to Load Items
                 </h3>
                 <p className="text-gray-300 mb-4">
-                  We're having trouble connecting to the server. Please check your internet connection and try again.
+                  We're having trouble connecting to the server. Please check
+                  your internet connection and try again.
                 </p>
                 <button
                   onClick={() => window.location.reload()}
@@ -242,105 +239,107 @@ export default function Listings() {
               </div>
             ) : (
               <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {listings.map((listing: any) => (
-                  <Link
-                    key={listing.id}
-                    to={`/listing/${listing.id}`}
-                    className="group"
-                  >
-                    <div className="glass-card-hover overflow-hidden flex flex-col h-full">
-                      {/* Image */}
-                      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600/20 to-purple-600/20 aspect-video">
-                        {listing.images?.[0] ? (
-                          <img
-                            src={listing.images[0]}
-                            alt={listing.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-4xl">
-                            📦
-                          </div>
-                        )}
-                        <div className="absolute top-3 right-3 glass-card px-3 py-1 rounded-full">
-                          <span className="text-xs font-semibold text-cyan-300">
-                            ₹{listing.dailyRate}/day
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 p-4 flex flex-col">
-                        <h3 className="font-semibold text-white text-lg group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
-                          {listing.title}
-                        </h3>
-
-                        <p className="text-sm text-gray-400 line-clamp-2 mb-4 flex-1">
-                          {listing.description}
-                        </p>
-
-                        {/* Details */}
-                        <div className="space-y-2 mb-4 text-sm">
-                          <div className="flex items-center gap-2 text-gray-400">
-                            <MapPin className="w-4 h-4 text-cyan-400" />
-                            <span>{listing.location}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-400">
-                            <Calendar className="w-4 h-4 text-cyan-400" />
-                            <span>Available now</span>
-                          </div>
-                        </div>
-
-                        {/* Lender Rating */}
-                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span className="text-sm font-semibold text-white">
-                              4.8
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {listings.map((listing: any) => (
+                    <Link
+                      key={listing.id}
+                      to={`/listing/${listing.id}`}
+                      className="group"
+                    >
+                      <div className="glass-card-hover overflow-hidden flex flex-col h-full">
+                        {/* Image */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-blue-600/20 to-purple-600/20 aspect-video">
+                          {listing.images?.[0] ? (
+                            <img
+                              src={listing.images[0]}
+                              alt={listing.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-4xl">
+                              📦
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3 glass-card px-3 py-1 rounded-full">
+                            <span className="text-xs font-semibold text-cyan-300">
+                              ₹{listing.dailyRate}/day
                             </span>
-                            <span className="text-xs text-gray-400">(12)</span>
                           </div>
-                          <Button
-                            size="sm"
-                            className="btn-glow-cyan"
-                            onClick={(e) => {
-                              e.preventDefault();
-                            }}
-                          >
-                            View
-                          </Button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 p-4 flex flex-col">
+                          <h3 className="font-semibold text-white text-lg group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
+                            {listing.title}
+                          </h3>
+
+                          <p className="text-sm text-gray-400 line-clamp-2 mb-4 flex-1">
+                            {listing.description}
+                          </p>
+
+                          {/* Details */}
+                          <div className="space-y-2 mb-4 text-sm">
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <MapPin className="w-4 h-4 text-cyan-400" />
+                              <span>{listing.location}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Calendar className="w-4 h-4 text-cyan-400" />
+                              <span>Available now</span>
+                            </div>
+                          </div>
+
+                          {/* Lender Rating */}
+                          <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-sm font-semibold text-white">
+                                4.8
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                (12)
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="btn-glow-cyan"
+                              onClick={(e) => {
+                                e.preventDefault();
+                              }}
+                            >
+                              View
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4">
-                  <button
-                    onClick={() => setPage(Math.max(1, page - 1))}
-                    disabled={page === 1}
-                    className="btn-glow-blue disabled:opacity-50"
-                  >
-                    ← Previous
-                  </button>
-                  <span className="text-white">
-                    Page {page} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => setPage(Math.min(totalPages, page + 1))}
-                    disabled={page === totalPages}
-                    className="btn-glow-blue disabled:opacity-50"
-                  >
-                    Next →
-                  </button>
+                    </Link>
+                  ))}
                 </div>
-              )}
-            </>
-              )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-4">
+                    <button
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1}
+                      className="btn-glow-blue disabled:opacity-50"
+                    >
+                      ← Previous
+                    </button>
+                    <span className="text-white">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
+                      disabled={page === totalPages}
+                      className="btn-glow-blue disabled:opacity-50"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </section>
       )}

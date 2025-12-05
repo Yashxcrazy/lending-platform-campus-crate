@@ -88,7 +88,10 @@ export const authAPI = {
       return await response.json();
     } catch (error) {
       handleApiError(error, "signup");
-      return { success: false, error: "Backend not available. Check connection." };
+      return {
+        success: false,
+        error: "Backend not available. Check connection.",
+      };
     }
   },
 
@@ -103,7 +106,10 @@ export const authAPI = {
       return await response.json();
     } catch (error) {
       handleApiError(error, "login");
-      return { success: false, error: "Backend not available. Check connection." };
+      return {
+        success: false,
+        error: "Backend not available. Check connection.",
+      };
     }
   },
 
