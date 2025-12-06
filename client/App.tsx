@@ -37,6 +37,7 @@ export const App = () => (
           <Route path="/my-rentals" element={<MyRentals />} />
           <Route path="/my-listings" element={<MyListings />} />
           <Route path="/lending/:id/chat" element={<Chat />} />
+          <Route path="/lending/:id/review" element={<LendingReview />} />
           <Route
             path="/my-listings/new"
             element={
