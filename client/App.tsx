@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyListings from "./pages/MyListings";
 import MyRentals from "./pages/MyRentals";
+import Chat from "./pages/Chat";
 import AdminDashboard from "./pages/AdminDashboard";
 import Placeholder from "./pages/Placeholder";
 
