@@ -89,23 +89,44 @@ export default function Signup() {
     try {
       if (!formData.course || !formData.year) {
         setError("Please complete your profile information");
+        setIsLoading(false);
         return;
       }
 
-      // Mock successful signup - replace with actual API call
-      const mockUser = {
-        id: `user-${Date.now()}`,
-        email: formData.email,
-        name: formData.name,
-        role: "student",
-        course: formData.course,
-        year: formData.year,
-      };
+      // Call signup API
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      const response = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          university: "NITRR",
+          studentId: formData.name,
+          campus: "CSE",
+        }),
+      });
 
-      localStorage.setItem("user", JSON.stringify(mockUser));
-      navigate("/verify-email");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || data.error || "Signup failed. Please try again.");
+        return;
+      }
+
+      // Store token and user data
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      navigate("/dashboard");
     } catch (err) {
-      setError("Signup failed. Please try again.");
+      console.error("Signup error:", err);
+      setError("Signup failed. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
