@@ -79,7 +79,7 @@ export interface Review {
 export const authAPI = {
   signup: async (email: string, password: string, name: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/signup`, {
+      const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
@@ -222,7 +222,7 @@ export const listingsAPI = {
 
   create: async (listing: Omit<Listing, "id" | "createdAt" | "updatedAt">) => {
     try {
-      const response = await fetch(`${BASE_URL}/listings`, {
+      const response = await fetch(`${BASE_URL}/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -240,7 +240,7 @@ export const listingsAPI = {
 
   update: async (id: string, updates: Partial<Listing>) => {
     try {
-      const response = await fetch(`${BASE_URL}/listings/${id}`, {
+      const response = await fetch(`${BASE_URL}/items/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +258,7 @@ export const listingsAPI = {
 
   delete: async (id: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/listings/${id}`, {
+      const response = await fetch(`${BASE_URL}/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -272,7 +272,7 @@ export const listingsAPI = {
 
   getMyListings: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/listings/user/my-listings`, {
+      const response = await fetch(`${BASE_URL}/items?owner=me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -319,7 +319,7 @@ export const usersAPI = {
 export const bookingsAPI = {
   create: async (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings`, {
+      const response = await fetch(`${BASE_URL}/lending/request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -337,7 +337,7 @@ export const bookingsAPI = {
 
   getById: async (id: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings/${id}`, {
+      const response = await fetch(`${BASE_URL}/lending/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -350,7 +350,7 @@ export const bookingsAPI = {
 
   getMyRentals: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings/user/rentals`, {
+      const response = await fetch(`${BASE_URL}/lending/my-requests`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -363,7 +363,7 @@ export const bookingsAPI = {
 
   getMyBookings: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings/user/bookings`, {
+      const response = await fetch(`${BASE_URL}/lending/my-requests`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -376,7 +376,8 @@ export const bookingsAPI = {
 
   updateStatus: async (id: string, status: Booking["status"]) => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings/${id}/status`, {
+      const endpoint = status === "confirmed" || status === "active" ? `accept` : status === "completed" ? `complete` : `reject`;
+      const response = await fetch(`${BASE_URL}/lending/${id}/${endpoint}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -394,8 +395,8 @@ export const bookingsAPI = {
 
   cancel: async (id: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/bookings/${id}/cancel`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/lending/${id}/reject`, {
+        method: "PUT",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -413,14 +414,14 @@ export const bookingsAPI = {
 
 export const messagesAPI = {
   getForBooking: async (bookingId: string) => {
-    const response = await fetch(`${BASE_URL}/messages/booking/${bookingId}`, {
+    const response = await fetch(`${BASE_URL}/lending/${bookingId}/messages`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return response.json();
   },
 
   send: async (bookingId: string, content: string) => {
-    const response = await fetch(`${BASE_URL}/messages`, {
+    const response = await fetch(`${BASE_URL}/lending/${bookingId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
