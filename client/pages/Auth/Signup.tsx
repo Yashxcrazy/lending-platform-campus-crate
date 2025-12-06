@@ -95,7 +95,8 @@ export default function Signup() {
       }
 
       // Call signup API
-      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      const BASE_URL =
+        import.meta.env.VITE_API_URL || "http://localhost:3001/api";
       const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +113,9 @@ export default function Signup() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || data.error || "Signup failed. Please try again.");
+        setError(
+          data.message || data.error || "Signup failed. Please try again.",
+        );
         return;
       }
 

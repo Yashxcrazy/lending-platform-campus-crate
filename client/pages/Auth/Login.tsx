@@ -33,7 +33,8 @@ export default function Login() {
       }
 
       // Call login API
-      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      const BASE_URL =
+        import.meta.env.VITE_API_URL || "http://localhost:3001/api";
       const response = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,7 +44,9 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || data.error || "Login failed. Please try again.");
+        setError(
+          data.message || data.error || "Login failed. Please try again.",
+        );
         return;
       }
 

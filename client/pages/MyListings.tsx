@@ -3,7 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMyListings, useDeleteListing, useUpdateListing, useCreateListing } from "@/hooks/useAPI";
+import {
+  useMyListings,
+  useDeleteListing,
+  useUpdateListing,
+  useCreateListing,
+} from "@/hooks/useAPI";
 import { Plus, Edit2, Trash2, Package, Eye, MoreVertical } from "lucide-react";
 
 const categories = [
@@ -97,7 +102,9 @@ export default function MyListings() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="marvel-title mb-2">My Items</h1>
-            <p className="marvel-subtitle">Manage items you're lending to students</p>
+            <p className="marvel-subtitle">
+              Manage items you're lending to students
+            </p>
           </div>
           <Button
             onClick={() => setShowForm(true)}
@@ -116,7 +123,8 @@ export default function MyListings() {
                 Unable to Load Your Listings
               </h3>
               <p className="text-gray-300 mb-4">
-                We're having trouble connecting to the server. Please check your internet connection and try again.
+                We're having trouble connecting to the server. Please check your
+                internet connection and try again.
               </p>
               <button
                 onClick={() => window.location.reload()}
@@ -131,7 +139,9 @@ export default function MyListings() {
         {/* Create/Edit Form */}
         {showForm && (
           <div className="glass-card border border-cyan-400/30 p-8 rounded-lg mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">List a New Item</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">
+              List a New Item
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -338,7 +348,11 @@ export default function MyListings() {
                           />
                           <Input
                             type="number"
-                            value={editData.securityDeposit || listing.securityDeposit || 0}
+                            value={
+                              editData.securityDeposit ||
+                              listing.securityDeposit ||
+                              0
+                            }
                             onChange={(e) =>
                               setEditData({
                                 ...editData,

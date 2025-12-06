@@ -95,7 +95,10 @@ export default function LendingReview() {
                     { id: "condition", label: "Item Condition" },
                     { id: "punctuality", label: "Punctuality" },
                   ].map((category) => (
-                    <div key={category.id} className="flex justify-between items-center">
+                    <div
+                      key={category.id}
+                      className="flex justify-between items-center"
+                    >
                       <span className="text-white">{category.label}</span>
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -130,9 +133,14 @@ export default function LendingReview() {
 
             {/* Recommendations */}
             <div className="glass-card bg-cyan-400/10 border border-cyan-400/30 p-6 rounded-lg">
-              <h3 className="font-semibold text-white mb-3">Would you recommend this {rating >= 4 ? "lender" : "user"} to others?</h3>
+              <h3 className="font-semibold text-white mb-3">
+                Would you recommend this {rating >= 4 ? "lender" : "user"} to
+                others?
+              </h3>
               <div className="flex gap-4">
-                <Button className="flex-1 btn-glow-cyan">Yes, Definitely!</Button>
+                <Button className="flex-1 btn-glow-cyan">
+                  Yes, Definitely!
+                </Button>
                 <Button variant="outline" className="flex-1">
                   Not Sure
                 </Button>
@@ -155,7 +163,9 @@ export default function LendingReview() {
 
         {/* Safety Info */}
         <div className="mt-8 glass-card bg-yellow-400/10 border border-yellow-400/30 p-4 rounded-lg text-sm text-gray-300">
-          <p className="font-semibold text-yellow-300 mb-2">⚠️ Review Guidelines:</p>
+          <p className="font-semibold text-yellow-300 mb-2">
+            ⚠️ Review Guidelines:
+          </p>
           <ul className="space-y-1 text-xs">
             <li>• Be honest and constructive</li>
             <li>• No personal attacks or harassment</li>

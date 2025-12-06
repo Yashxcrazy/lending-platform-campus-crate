@@ -51,16 +51,17 @@ export default function ItemDetails() {
               Unable to Load Item
             </h2>
             <p className="text-gray-300 mb-6 text-center">
-              We're having trouble connecting to the server. Please check your internet connection and try again.
+              We're having trouble connecting to the server. Please check your
+              internet connection and try again.
             </p>
             <div className="flex gap-4">
-              <Button 
+              <Button
                 onClick={() => window.location.reload()}
                 className="flex-1 btn-glow-cyan"
               >
                 Retry
               </Button>
-              <Button 
+              <Button
                 onClick={() => navigate("/listings")}
                 variant="outline"
                 className="flex-1"
@@ -79,10 +80,10 @@ export default function ItemDetails() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container-center py-20 text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
-            Item not found
-          </h1>
-          <Button onClick={() => navigate("/listings")}>Back to Listings</Button>
+          <h1 className="text-2xl font-bold text-white mb-4">Item not found</h1>
+          <Button onClick={() => navigate("/listings")}>
+            Back to Listings
+          </Button>
         </div>
       </div>
     );
@@ -103,7 +104,7 @@ export default function ItemDetails() {
     try {
       const days = Math.ceil(
         (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       );
       const totalCost = days * listing.dailyRate;
 
@@ -135,7 +136,7 @@ export default function ItemDetails() {
     if (!startDate || !endDate) return 0;
     const days = Math.ceil(
       (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
     return days * listing.dailyRate;
   };
@@ -210,7 +211,9 @@ export default function ItemDetails() {
                           : "glass-card text-gray-400"
                       }`}
                     >
-                      <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
+                      <Heart
+                        className={`w-5 h-5 ${liked ? "fill-current" : ""}`}
+                      />
                     </button>
                     <button className="p-3 glass-card rounded-lg text-gray-400 hover:text-cyan-400">
                       <Share2 className="w-5 h-5" />
@@ -331,8 +334,9 @@ export default function ItemDetails() {
                         <span className="text-gray-400">Rental Duration:</span>
                         <span className="text-white font-semibold">
                           {Math.ceil(
-                            (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
+                            (new Date(endDate).getTime() -
+                              new Date(startDate).getTime()) /
+                              (1000 * 60 * 60 * 24),
                           )}{" "}
                           days
                         </span>
@@ -344,7 +348,9 @@ export default function ItemDetails() {
                         </span>
                       </div>
                       <div className="border-t border-cyan-400/20 pt-3 flex justify-between items-center">
-                        <span className="text-gray-400">Security Deposit (20%):</span>
+                        <span className="text-gray-400">
+                          Security Deposit (20%):
+                        </span>
                         <span className="text-cyan-300 font-semibold">
                           ₹{Math.round(calculatePrice() * 0.2)}
                         </span>
@@ -385,9 +391,7 @@ export default function ItemDetails() {
                   </div>
                   <div>
                     <p className="text-white font-semibold">Campus Lender</p>
-                    <p className="text-sm text-gray-400">
-                      Joined 3 months ago
-                    </p>
+                    <p className="text-sm text-gray-400">Joined 3 months ago</p>
                   </div>
                 </div>
 
@@ -430,9 +434,12 @@ export default function ItemDetails() {
               <div className="flex gap-3">
                 <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-white mb-1">Safe Renting Tips</h4>
+                  <h4 className="font-semibold text-white mb-1">
+                    Safe Renting Tips
+                  </h4>
                   <p className="text-sm text-gray-300">
-                    Meet in public places, inspect items before finalizing, and use anonymous chat.
+                    Meet in public places, inspect items before finalizing, and
+                    use anonymous chat.
                   </p>
                 </div>
               </div>

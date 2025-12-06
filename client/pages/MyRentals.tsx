@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useMyRentals, useMyBookings, useUpdateBookingStatus } from "@/hooks/useAPI";
+import {
+  useMyRentals,
+  useMyBookings,
+  useUpdateBookingStatus,
+} from "@/hooks/useAPI";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +38,16 @@ const statusIcons = {
 
 export default function MyRentals() {
   const [filter, setFilter] = useState("all");
-  const { data: rentalsData, isLoading: rentalsLoading, error: rentalsError } = useMyRentals();
-  const { data: bookingsData, isLoading: bookingsLoading, error: bookingsError } = useMyBookings();
+  const {
+    data: rentalsData,
+    isLoading: rentalsLoading,
+    error: rentalsError,
+  } = useMyRentals();
+  const {
+    data: bookingsData,
+    isLoading: bookingsLoading,
+    error: bookingsError,
+  } = useMyBookings();
   const updateStatus = useUpdateBookingStatus();
 
   const [activeTab, setActiveTab] = useState<"rentals" | "bookings">("rentals");
@@ -126,7 +138,8 @@ export default function MyRentals() {
                 Unable to Load Your Rentals
               </h3>
               <p className="text-gray-300 mb-4">
-                We're having trouble connecting to the server. Please check your internet connection and try again.
+                We're having trouble connecting to the server. Please check your
+                internet connection and try again.
               </p>
               <button
                 onClick={() => window.location.reload()}
@@ -203,7 +216,9 @@ export default function MyRentals() {
                             ITEM
                           </h3>
                           <p className="font-semibold text-white mb-2 line-clamp-2">
-                            {request.itemTitle || request.item?.title || "Item Name"}
+                            {request.itemTitle ||
+                              request.item?.title ||
+                              "Item Name"}
                           </p>
                           <div className="flex items-center gap-2 text-sm text-gray-400">
                             <MapPin className="w-4 h-4" />
@@ -225,7 +240,7 @@ export default function MyRentals() {
                               <Calendar className="w-4 h-4 text-cyan-400" />
                               <span className="text-white font-semibold">
                                 {new Date(
-                                  request.startDate
+                                  request.startDate,
                                 ).toLocaleDateString()}
                               </span>
                             </div>
@@ -283,16 +298,12 @@ export default function MyRentals() {
                               {request.status === "Active" && (
                                 <>
                                   <Button
-                                    onClick={() =>
-                                      handleComplete(request.id)
-                                    }
+                                    onClick={() => handleComplete(request.id)}
                                     className="btn-glow-cyan text-sm"
                                   >
                                     Complete
                                   </Button>
-                                  <Link
-                                    to={`/lending/${request.id}/chat`}
-                                  >
+                                  <Link to={`/lending/${request.id}/chat`}>
                                     <Button
                                       variant="outline"
                                       className="w-full text-sm flex items-center gap-2 justify-center"
@@ -304,9 +315,7 @@ export default function MyRentals() {
                                 </>
                               )}
                               {request.status === "Completed" && (
-                                <Link
-                                  to={`/lending/${request.id}/review`}
-                                >
+                                <Link to={`/lending/${request.id}/review`}>
                                   <Button className="w-full btn-glow-red text-sm">
                                     Leave Review
                                   </Button>
@@ -318,9 +327,7 @@ export default function MyRentals() {
                           {activeTab === "bookings" && (
                             <>
                               {request.status === "Active" && (
-                                <Link
-                                  to={`/lending/${request.id}/chat`}
-                                >
+                                <Link to={`/lending/${request.id}/chat`}>
                                   <Button className="w-full btn-glow-cyan text-sm flex items-center gap-2 justify-center">
                                     <MessageSquare className="w-4 h-4" />
                                     Contact Lender
@@ -328,9 +335,7 @@ export default function MyRentals() {
                                 </Link>
                               )}
                               {request.status === "Completed" && (
-                                <Link
-                                  to={`/lending/${request.id}/review`}
-                                >
+                                <Link to={`/lending/${request.id}/review`}>
                                   <Button className="w-full btn-glow-red text-sm">
                                     Leave Review
                                   </Button>
