@@ -19,29 +19,45 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Simulated login - replace with actual API call
       if (!email || !password) {
         setError("Please fill in all fields");
+        setIsLoading(false);
         return;
       }
 
       if (!email.includes("@")) {
         setError("Please enter a valid email");
+        setIsLoading(false);
         return;
       }
 
-      // Mock successful login
-      const mockUser = {
-        id: "user-1",
-        email: email,
-        name: email.split("@")[0],
-        role: "student",
-      };
+      // Call login API
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      localStorage.setItem("user", JSON.stringify(mockUser));
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || data.error || "Login failed. Please try again.");
+        return;
+      }
+
+      // Store token and user data
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
       navigate("/dashboard");
     } catch (err) {
-      setError("Login failed. Please try again.");
+      console.error("Login error:", err);
+      setError("Login failed. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
