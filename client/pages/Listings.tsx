@@ -15,13 +15,14 @@ import {
 } from "lucide-react";
 
 const categories = [
-  { id: "books", name: "Books", emoji: "📚" },
-  { id: "lab-equipment", name: "Lab Equipment", emoji: "🔬" },
-  { id: "calculators", name: "Calculators", emoji: "🧮" },
-  { id: "sports-gear", name: "Sports Gear", emoji: "⚽" },
-  { id: "costumes", name: "Costumes", emoji: "🎭" },
-  { id: "electronics", name: "Electronics", emoji: "💻" },
-  { id: "tools", name: "Tools", emoji: "🔧" },
+  { id: "Electronics", name: "Electronics", emoji: "💻" },
+  { id: "Books", name: "Books", emoji: "📚" },
+  { id: "Sports Equipment", name: "Sports Equipment", emoji: "⚽" },
+  { id: "Tools", name: "Tools", emoji: "🔧" },
+  { id: "Musical Instruments", name: "Musical Instruments", emoji: "🎸" },
+  { id: "Furniture", name: "Furniture", emoji: "🪑" },
+  { id: "Appliances", name: "Appliances", emoji: "🍳" },
+  { id: "Other", name: "Other", emoji: "📦" },
 ];
 
 export default function Listings() {
