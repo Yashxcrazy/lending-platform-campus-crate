@@ -171,7 +171,10 @@ const transformItem = (item: any) => ({
   monthlyRate: item.dailyRate * 25, // Calculate from daily rate
   images: item.images || [],
   condition: item.condition,
-  location: typeof item.location === "string" ? item.location : item.location?.address || "",
+  location:
+    typeof item.location === "string"
+      ? item.location
+      : item.location?.address || "",
   lenderId: item.owner || item.ownerId,
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
@@ -376,7 +379,12 @@ export const bookingsAPI = {
 
   updateStatus: async (id: string, status: Booking["status"]) => {
     try {
-      const endpoint = status === "confirmed" || status === "active" ? `accept` : status === "completed" ? `complete` : `reject`;
+      const endpoint =
+        status === "confirmed" || status === "active"
+          ? `accept`
+          : status === "completed"
+            ? `complete`
+            : `reject`;
       const response = await fetch(`${BASE_URL}/lending/${id}/${endpoint}`, {
         method: "PUT",
         headers: {
