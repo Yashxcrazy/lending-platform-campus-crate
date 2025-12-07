@@ -352,7 +352,7 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-foreground-contrast py-12 border-t border-border bg-white text-muted-foreground border-t">
+      <footer className="py-12 border-t border-border text-muted-foreground">
         <div className="container-center max-w-6xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>

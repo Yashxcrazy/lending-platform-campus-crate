@@ -15,7 +15,7 @@ export default function Placeholder({
   icon = "📄",
 }: PlaceholderProps) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
