@@ -4,7 +4,7 @@
  * Replace BASE_URL and API paths with your actual backend server.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const BASE_URL = "https://campus-crate-backend.onrender.com/api";
 
 console.log('🔗 API Base URL:', BASE_URL); // Debug log to verify
 
