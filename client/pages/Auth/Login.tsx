@@ -32,7 +32,7 @@ export default function Login() {
       }
 
       // Call login API
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('https://campus-crate-backend.onrender.com/api/auth/login', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
