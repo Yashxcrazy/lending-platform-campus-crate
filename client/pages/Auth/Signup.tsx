@@ -94,7 +94,7 @@ export default function Signup() {
       }
 
       // Call signup API
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('https://campus-crate-backend.onrender.com/api/auth/register', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
