@@ -136,7 +136,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4">

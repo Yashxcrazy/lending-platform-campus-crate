@@ -67,7 +67,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <div className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4">
@@ -156,7 +156,7 @@ export default function Login() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-muted-foreground">Or</span>
+              <span className="px-2 bg-background text-muted-foreground">Or</span>
             </div>
           </div>
 
