@@ -6,6 +6,8 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
+console.log('🔗 API Base URL:', BASE_URL); // Debug log to verify
+
 // Error handler utility
 const handleApiError = (error: any, operationName: string) => {
   console.warn(`API call failed (${operationName}):`, error?.message || error);
