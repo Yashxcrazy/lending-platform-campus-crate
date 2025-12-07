@@ -94,9 +94,7 @@ export default function Signup() {
       }
 
       // Call signup API
-      const BASE_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-      const response = await fetch(`${BASE_URL}/auth/register`, {
+      const response = await fetch('/api/auth/register', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
