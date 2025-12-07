@@ -13,6 +13,8 @@ dotenv.config();
 console.log('Creating Express app...');
 const app = express();
 
+app.set('trust proxy', 1);
+
 console.log('Setting up middleware...');
 app.use(helmet());
 app.use(cors({
@@ -60,8 +62,8 @@ if (!MONGODB_URI) {
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('Note: If using MongoDB Atlas, ensure your IP is whitelisted (use 0.0.0.0/0 to allow all IPs)');
   });
 
 console.log('Loading routes...');
