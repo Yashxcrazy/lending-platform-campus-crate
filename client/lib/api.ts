@@ -4,7 +4,14 @@
  * Replace BASE_URL and API paths with your actual backend server.
  */
 
-const BASE_URL = "https://campus-crate-backend.onrender.com/api";
+const BASE_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') 
+    ? 'https://campus-crate-backend.onrender.com/api' 
+    : '/api');
+
+console.log('🔗 Environment:', import.meta.env.MODE);
+console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('🔗 Final BASE_URL:', BASE_URL);
 
 console.log('🔗 API Base URL:', BASE_URL); // Debug log to verify
 
