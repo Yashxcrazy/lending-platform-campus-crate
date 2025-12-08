@@ -146,7 +146,7 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/me`, {
+      const response = await fetch(`https://campus-crate-backend.onrender.com/api/items?owner=me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
