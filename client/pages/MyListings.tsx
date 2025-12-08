@@ -45,7 +45,7 @@ export default function MyListings() {
     images: [],
   });
 
-  const listings = listingsData?.data || [];
+  const listings = listingsData?.items || listingsData?.data || [];
 
   const handleCreate = async () => {
     if (!formData.title || !formData.description) {
