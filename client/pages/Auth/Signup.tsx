@@ -124,7 +124,7 @@ export default function Signup() {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      navigate("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error("Signup error:", err);
       setError("Signup failed. Please check your connection and try again.");
