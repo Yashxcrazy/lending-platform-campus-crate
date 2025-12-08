@@ -23,10 +23,13 @@ const categories = [
 ];
 
 const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
-console.log('🚀 MyListings component is RENDERING');
+
 export default function MyListings() {
   const navigate = useNavigate();
   const { data: listingsData, isLoading, error } = useMyListings();
+  console.log('🚀 MyListings component IS RENDERING!');
+  console.log('📊 Hook data:', { listingsData, isLoading, error });
+  console.log('📊 Items array:', listingsData?.items);
   const deleteListing = useDeleteListing();
   const updateListing = useUpdateListing();
   const createListing = useCreateListing();
