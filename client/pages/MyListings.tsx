@@ -23,7 +23,7 @@ const categories = [
 ];
 
 const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
-
+console.log('🚀 MyListings component is RENDERING');
 export default function MyListings() {
   const navigate = useNavigate();
   const { data: listingsData, isLoading, error } = useMyListings();
