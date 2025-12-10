@@ -3,7 +3,8 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Package, Search } from "lucide-react";
-import { BASE_URL, getAuthToken } from "@/lib/api";
+import { BASE_URL, getAuthToken, User } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * AdminDashboard (real data)
@@ -15,6 +16,7 @@ import { BASE_URL, getAuthToken } from "@/lib/api";
  */
 
 export default function AdminDashboard() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -27,7 +29,7 @@ export default function AdminDashboard() {
   });
 
   // Real data
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [changingRoleFor, setChangingRoleFor] = useState<string | null>(null);
 
@@ -62,6 +64,11 @@ export default function AdminDashboard() {
     // Optionally fetch stats if your backend exposes endpoints
   }, []);
 
+  // Helper to get consistent user ID (supports both MongoDB _id and standard id)
+  const getUserId = (user: User): string => {
+    return (user as any)._id || user.id;
+  };
+
   // Promote / demote user
   const setRole = async (id: string, role: "admin" | "user") => {
     setChangingRoleFor(id);
@@ -78,13 +85,25 @@ export default function AdminDashboard() {
       if (!res.ok) {
         const txt = await res.text();
         console.error("Failed to change role:", txt);
-        alert("Failed to change role: " + (txt || res.status));
+        toast({
+          title: "Error",
+          description: "Failed to change role: " + (txt || res.status),
+          variant: "destructive",
+        });
         return;
       }
       await fetchAllUsers();
+      toast({
+        title: "Success",
+        description: `User role updated to ${role}`,
+      });
     } catch (err) {
       console.error("Failed to change role:", err);
-      alert("Failed to change role");
+      toast({
+        title: "Error",
+        description: "Failed to change role",
+        variant: "destructive",
+      });
     } finally {
       setChangingRoleFor(null);
     }
@@ -173,35 +192,38 @@ export default function AdminDashboard() {
                           if (!searchQuery) return true;
                           return `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase());
                         })
-                        .map((u) => (
-                          <tr key={u._id || u.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                            <td className="px-4 py-3 text-white font-semibold">{u.name}</td>
-                            <td className="px-4 py-3 text-gray-400 text-sm">{u.email}</td>
-                            <td className="px-4 py-3">
-                              <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${u.role === "admin" ? "bg-green-400/10 text-green-400" : "bg-gray-400/10 text-gray-300"}`}>
-                                {u.role}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              {u.role === "admin" ? (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setRole(u._id || u.id, "user")}
-                                  disabled={changingRoleFor === (u._id || u.id)}
-                                >
-                                  {changingRoleFor === (u._id || u.id) ? "Updating..." : "Remove Admin"}
-                                </Button>
-                              ) : (
-                                <Button
-                                  onClick={() => setRole(u._id || u.id, "admin")}
-                                  disabled={changingRoleFor === (u._id || u.id)}
-                                >
-                                  {changingRoleFor === (u._id || u.id) ? "Updating..." : "Make Admin"}
-                                </Button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                        .map((u) => {
+                          const userId = getUserId(u);
+                          return (
+                            <tr key={userId} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-3 text-white font-semibold">{u.name}</td>
+                              <td className="px-4 py-3 text-gray-400 text-sm">{u.email}</td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${u.role === "admin" ? "bg-green-400/10 text-green-400" : "bg-gray-400/10 text-gray-300"}`}>
+                                  {u.role}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                {u.role === "admin" ? (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setRole(userId, "user")}
+                                    disabled={changingRoleFor === userId}
+                                  >
+                                    {changingRoleFor === userId ? "Updating..." : "Remove Admin"}
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    onClick={() => setRole(userId, "admin")}
+                                    disabled={changingRoleFor === userId}
+                                  >
+                                    {changingRoleFor === userId ? "Updating..." : "Make Admin"}
+                                  </Button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
