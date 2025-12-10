@@ -13,8 +13,17 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
 
   const isUserLoggedIn =
     isLoggedIn || !!localStorage.getItem("user");
-  const userNameDisplay =
-    userName || JSON.parse(localStorage.getItem("user") || "{}")?.name || "User";
+  
+  // Parse stored user safely
+  let storedUser: any = {};
+  try {
+    storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (e) {
+    storedUser = {};
+  }
+  
+  const userNameDisplay = userName || storedUser?.name || "User";
+  const isAdminUser = storedUser?.role === "admin";
 
   return (
     <header className="glass-card border-b border-cyan-400/20 sticky top-0 z-50 rounded-none">
@@ -89,13 +98,15 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
                     <User className="w-4 h-4" />
                     Profile
                   </Link>
-                  <Link
-                    to="/admin"
-                    className="flex items-center gap-2 px-4 py-3 text-white hover:bg-white/10 transition-colors border-t border-white/10"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Admin
-                  </Link>
+                  {isAdminUser && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-2 px-4 py-3 text-white hover:bg-white/10 transition-colors border-t border-white/10"
+                    >
+                      <Settings className="w-4 h-4" />
+                      Admin
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       localStorage.removeItem("user");
@@ -197,6 +208,14 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
                       Profile
                     </button>
                   </Link>
+                  {isAdminUser && (
+                    <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                      <button className="w-full btn-glow-blue flex items-center justify-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Admin
+                      </button>
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       localStorage.removeItem("user");

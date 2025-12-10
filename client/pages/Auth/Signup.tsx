@@ -189,13 +189,13 @@ export default function Signup() {
                 <Input
                   type="email"
                   name="email"
-                  placeholder="your.email@cse.nitrr.ac.in"
+                  placeholder="your.email@nitrr.ac.in"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Use your official CSE NITRR email address
+                  Use your official NITRR email address
                 </p>
               </div>
 
@@ -332,7 +332,7 @@ export default function Signup() {
                   name="year"
                   value={formData.year}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground bg-background"
                   disabled={isLoading}
                 >
                   <option value="">Select your year</option>
