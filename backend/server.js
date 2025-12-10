@@ -70,10 +70,12 @@ console.log('Loading routes...');
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/Items');
 const lendingRoutes = require('./routes/Lending');
+const adminRoutes = require('./routes/admin');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/lending', lendingRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 

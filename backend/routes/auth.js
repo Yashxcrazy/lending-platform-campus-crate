@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -40,7 +40,8 @@ router.post('/register', async (req, res) => {
         name: user.name,
         email: user.email,
         university: user.university,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        role: user.role
       }
     });
   } catch (error) {
@@ -67,7 +68,7 @@ router.post('/login', async (req, res) => {
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -82,7 +83,8 @@ router.post('/login', async (req, res) => {
         university: user.university,
         profileImage: user.profileImage,
         rating: user.rating,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        role: user.role
       }
     });
   } catch (error) {
