@@ -31,7 +31,7 @@ export default function Login() {
         return;
       }
 
-      if (!email.match(/@[a-zA-Z0-9.-]*nitrr\.ac\.in$/)) {
+      if (!email.match(/@[a-zA-Z0-9.-]*nitrr\.ac\.in$/i)) {
         setError("Please use your NITRR email address (e.g., name@nitrr.ac.in or name@cse.nitrr.ac.in)");
         setIsLoading(false);
         return;
@@ -96,7 +96,7 @@ navigate("/dashboard");
               </label>
               <Input
                 type="email"
-                placeholder="your.email@cse.nitrr.ac.in"
+                placeholder="your.email@nitrr.ac.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
