@@ -16,6 +16,7 @@ import MyRentals from "./pages/MyRentals";
 import Chat from "./pages/Chat";
 import LendingReview from "./pages/LendingReview";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminRoute from "@/components/AdminRoute";
 import Placeholder from "./pages/Placeholder";
 
 const queryClient = new QueryClient();
@@ -98,7 +99,7 @@ export const App = () => (
               />
             }
           />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
