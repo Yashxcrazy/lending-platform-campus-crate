@@ -14,7 +14,12 @@ const authenticateToken = (req, res, next) => {
     }
     req.userId = decoded.userId;
     // Populate req.user with decoded JWT payload for middleware that needs it (e.g., isAdmin)
-    req.user = { id: decoded.userId, email: decoded.email, role: decoded.role };
+    // Backward compatibility: if email/role not in JWT, set to undefined (admin middleware will reject)
+    req.user = { 
+      id: decoded.userId, 
+      email: decoded.email || undefined, 
+      role: decoded.role || 'user' 
+    };
     next();
   });
 };
