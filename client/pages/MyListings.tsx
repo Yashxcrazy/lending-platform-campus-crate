@@ -27,9 +27,6 @@ const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
 export default function MyListings() {
   const navigate = useNavigate();
   const { data: listingsData, isLoading, error } = useMyListings();
-  console.log('🚀 MyListings component IS RENDERING!');
-  console.log('📊 Hook data:', { listingsData, isLoading, error });
-  console.log('📊 Items array:', listingsData?.items);
   const deleteListing = useDeleteListing();
   const updateListing = useUpdateListing();
   const createListing = useCreateListing();
@@ -42,8 +39,8 @@ export default function MyListings() {
     description: "",
     category: "Electronics",
     condition: "Good",
-    dailyRate: 0,
-    securityDeposit: 0,
+    dailyRate: "",
+    securityDeposit: "",
     location: { address: "" },
     images: [],
   });
@@ -56,16 +53,38 @@ export default function MyListings() {
       return;
     }
 
+    if (formData.dailyRate === "" || formData.securityDeposit === "") {
+      alert("Please fill in daily rate and security deposit");
+      return;
+    }
+
+    const dailyRateNum = parseInt(formData.dailyRate as any);
+    const securityDepositNum = parseInt(formData.securityDeposit as any);
+
+    if (isNaN(dailyRateNum) || dailyRateNum < 0 || !Number.isInteger(dailyRateNum)) {
+      alert("Daily rate must be a positive integer or 0");
+      return;
+    }
+
+    if (isNaN(securityDepositNum) || securityDepositNum < 0 || !Number.isInteger(securityDepositNum)) {
+      alert("Security deposit must be a positive integer or 0");
+      return;
+    }
+
     try {
-      await createListing.mutateAsync(formData);
+      await createListing.mutateAsync({
+        ...formData,
+        dailyRate: dailyRateNum,
+        securityDeposit: securityDepositNum,
+      });
       setShowForm(false);
       setFormData({
         title: "",
         description: "",
         category: "Electronics",
         condition: "Good",
-        dailyRate: 0,
-        securityDeposit: 0,
+        dailyRate: "",
+        securityDeposit: "",
         location: { address: "" },
         images: [],
       });
@@ -218,7 +237,7 @@ export default function MyListings() {
 
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
-                  Daily Rate (₹)
+                  Daily Rate (₹) *
                 </label>
                 <Input
                   type="number"
@@ -226,17 +245,18 @@ export default function MyListings() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      dailyRate: parseInt(e.target.value) || 0,
+                      dailyRate: e.target.value,
                     })
                   }
-                  placeholder="50"
+                  placeholder="e.g., 50"
                   className="glass-card border-cyan-400/30"
+                  min="0"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
-                  Security Deposit (₹)
+                  Security Deposit (₹) *
                 </label>
                 <Input
                   type="number"
@@ -244,11 +264,12 @@ export default function MyListings() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      securityDeposit: parseInt(e.target.value) || 0,
+                      securityDeposit: e.target.value,
                     })
                   }
-                  placeholder="100"
+                  placeholder="e.g., 100"
                   className="glass-card border-cyan-400/30"
+                  min="0"
                 />
               </div>
 

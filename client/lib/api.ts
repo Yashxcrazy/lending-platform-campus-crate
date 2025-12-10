@@ -9,12 +9,6 @@ const BASE_URL = import.meta.env.VITE_API_URL ||
     ? 'https://campus-crate-backend.onrender.com/api' 
     : '/api');
 
-console.log('🔗 Environment:', import.meta.env.MODE);
-console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🔗 Final BASE_URL:', BASE_URL);
-
-console.log('🔗 API Base URL:', BASE_URL); // Debug log to verify
-
 // Error handler utility
 const handleApiError = (error: any, operationName: string) => {
   console.warn(`API call failed (${operationName}):`, error?.message || error);
