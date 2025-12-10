@@ -49,7 +49,7 @@ export default function Signup() {
       return;
     }
 
-    if (!formData.email.match(/@[a-zA-Z0-9.-]*nitrr\.ac\.in$/)) {
+    if (!formData.email.match(/@[a-zA-Z0-9.-]*nitrr\.ac\.in$/i)) {
       setError(
         "Please use your NITRR email address (e.g., name@nitrr.ac.in or name@cse.nitrr.ac.in)",
       );
