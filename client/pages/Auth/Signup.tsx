@@ -49,9 +49,9 @@ export default function Signup() {
       return;
     }
 
-    if (!formData.email.endsWith("@cse.nitrr.ac.in")) {
+    if (!formData.email.match(/@[a-zA-Z0-9.-]*nitrr\.ac\.in$/)) {
       setError(
-        "Please use your CSE NITRR email address (yourname@cse.nitrr.ac.in)",
+        "Please use your NITRR email address (e.g., name@nitrr.ac.in or name@cse.nitrr.ac.in)",
       );
       return;
     }
