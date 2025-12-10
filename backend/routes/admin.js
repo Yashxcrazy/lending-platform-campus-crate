@@ -29,8 +29,8 @@ router.put('/users/:id/role', async (req, res) => {
       return res.status(400).json({ message: 'Invalid role. Must be "user" or "admin"' });
     }
 
-    // Prevent self-demotion
-    if (id === req.user.id && role === 'user') {
+    // Prevent self-demotion (compare as strings to handle ObjectId)
+    if (id.toString() === req.user.id.toString() && role === 'user') {
       return res.status(400).json({ message: 'Cannot demote yourself from admin' });
     }
 
