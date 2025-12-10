@@ -1,12 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const authenticateToken = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 
+// Apply authentication and admin middleware to all routes
+router.use(authenticateToken);
+router.use(isAdmin);
+
 // GET /api/admin/users - list users (admin only)
-router.get('/users', isAdmin, async (req, res) => {
+router.get('/users', async (req, res) => {
   try {
-    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 }).lean();
+    const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
     res.json({ success: true, users });
   } catch (err) {
     console.error('GET /admin/users error', err);
@@ -15,7 +20,7 @@ router.get('/users', isAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/users/:id/role - change user role (admin only)
-router.put('/users/:id/role', isAdmin, async (req, res) => {
+router.put('/users/:id/role', async (req, res) => {
   try {
     const targetId = req.params.id;
     const { role } = req.body;
