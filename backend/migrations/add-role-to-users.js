@@ -1,15 +1,19 @@
+#!/usr/bin/env node
 /**
  * Migration script:
  * - Sets role: 'user' where missing
  * - Optionally promotes ADMIN_EMAIL (env) to admin
  *
  * Usage:
- *   $env:MONGODB_URI="..."; $env:DB_NAME="..."; node backend/migrations/add-role-to-users.js
+ *   node backend/migrations/add-role-to-users.js
+ *   or with environment variables:
+ *   MONGODB_URI="..." DB_NAME="..." node backend/migrations/add-role-to-users.js
  *   or to promote an email:
- *   $env:MONGODB_URI="..."; $env:DB_NAME="..."; $env:ADMIN_EMAIL="you@nitrr.ac.in"; node backend/migrations/add-role-to-users.js
+ *   MONGODB_URI="..." DB_NAME="..." ADMIN_EMAIL="you@nitrr.ac.in" node backend/migrations/add-role-to-users.js
  *
  * IMPORTANT: backup users collection before running.
  */
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.MONGODB_URI;
