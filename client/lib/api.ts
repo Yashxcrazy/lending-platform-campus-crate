@@ -30,12 +30,20 @@ export interface Listing {
   description: string;
   category: string;
   dailyRate: number;
-  weeklyRate: number;
-  monthlyRate: number;
+  weeklyRate?: number; // derived from dailyRate on the client
+  monthlyRate?: number; // derived from dailyRate on the client
+  securityDeposit?: number;
   images: string[];
   condition: string;
-  location: string;
-  lenderId: string;
+  location:
+    | string
+    | {
+        address?: string;
+        campus?: string;
+        coordinates?: { lat?: number; lng?: number };
+      };
+  lenderId?: string; // set by server from auth token
+  owner?: string; // backend uses owner/ownerId
   createdAt: string;
   updatedAt: string;
 }
@@ -153,9 +161,9 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     try {
-      const response = await fetch(`https://campus-crate-backend.onrender.com/api/items?owner=me`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+  const response = await fetch(`${BASE_URL}/items?owner=me`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     } catch (error) {

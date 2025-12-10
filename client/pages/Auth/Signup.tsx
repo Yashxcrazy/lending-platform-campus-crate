@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Header } from "@/components/Header";
 import { Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react";
-
+import { authAPI } from "@/lib/api";
 export default function Signup() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -93,38 +93,23 @@ export default function Signup() {
         return;
       }
 
-      // Call signup API
-      const response = await fetch('https://campus-crate-backend.onrender.com/api/auth/register', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          university: "NITRR",
-          studentId: formData.name,
-          campus: "CSE",
-        }),
-      });
+  // Use centralized authAPI.signup to avoid hard-coded URLs
+  const data = await authAPI.signup(formData.email, formData.password, formData.name);
 
-      const data = await response.json();
+  if (!data || !data.token) {
+    setError(data?.message || data?.error || "Signup failed. Please try again.");
+    setIsLoading(false);
+    return;
+  }
 
-      if (!response.ok) {
-        setError(
-          data.message || data.error || "Signup failed. Please try again.",
-        );
-        return;
-      }
+  // Store token and user data
+  localStorage.setItem("token", data.token);
+  if (data.user) {
+    localStorage.setItem("user", JSON.stringify(data.user));
+  }
 
-      // Store token and user data
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      window.location.href = "/dashboard";
+  window.location.href = "/dashboard";
+  
     } catch (err) {
       console.error("Signup error:", err);
       setError("Signup failed. Please check your connection and try again.");

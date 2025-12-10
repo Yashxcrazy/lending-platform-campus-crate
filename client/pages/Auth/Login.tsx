@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Header } from "@/components/Header";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-
+import { authAPI } from "@/lib/api";
 export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -31,31 +31,21 @@ export default function Login() {
         return;
       }
 
-      // Call login API
-      const response = await fetch('https://campus-crate-backend.onrender.com/api/auth/login', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      // Call login API via centralized authAPI
+const data = await authAPI.login(email, password);
 
-      const data = await response.json();
+if (!data || !data.token) {
+  setError(data?.message || data?.error || "Login failed. Please try again.");
+  return;
+}
 
-      if (!response.ok) {
-        setError(
-          data.message || data.error || "Login failed. Please try again.",
-        );
-        return;
-      }
+// Store token and user data
+localStorage.setItem("token", data.token);
+if (data.user) {
+  localStorage.setItem("user", JSON.stringify(data.user));
+}
 
-      // Store token and user data
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      navigate("/dashboard");
+navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
       setError("Login failed. Please check your connection and try again.");
