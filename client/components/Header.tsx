@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, LogOut, Home, Package, User, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { User as UserType } from "@/lib/api";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -15,7 +16,7 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
     isLoggedIn || !!localStorage.getItem("user");
   
   // Parse stored user safely
-  let storedUser: any = {};
+  let storedUser: Partial<UserType> = {};
   try {
     storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   } catch (e) {
@@ -23,6 +24,9 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
   }
   
   const userNameDisplay = userName || storedUser?.name || "User";
+  // Note: This is UI-only admin check from localStorage for showing/hiding the link.
+  // The AdminRoute component provides the actual security by validating via /api/auth/me.
+  // Users could modify localStorage, but they'll be redirected by AdminRoute if not admin.
   const isAdminUser = storedUser?.role === "admin";
 
   return (
