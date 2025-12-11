@@ -81,8 +81,8 @@ router.get('/my-requests', authenticateToken, async (req, res) => {
 
     const requests = await LendingRequest.find(query)
       .populate('item')
-      .populate('borrower', 'name profileImage rating university')
-      .populate('lender', 'name profileImage rating university')
+      .populate('borrower', 'name profileImage rating')
+      .populate('lender', 'name profileImage rating')
       .sort({ createdAt: -1 });
 
     res.json(requests);
@@ -96,8 +96,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
-      .populate('borrower', 'name profileImage rating reviewCount university campus phone email')
-      .populate('lender', 'name profileImage rating reviewCount university campus phone email');
+      .populate('borrower', 'name profileImage rating reviewCount campus phone email')
+      .populate('lender', 'name profileImage rating reviewCount campus phone email');
 
     if (!request) {
       return res.status(404).json({ message: 'Lending request not found' });

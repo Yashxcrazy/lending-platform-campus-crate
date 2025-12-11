@@ -7,7 +7,7 @@ const authenticateToken = require('../middleware/auth');
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, phone, university, campus, studentId } = req.body;
+    const { name, email, password, phone, campus, studentId } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,7 +19,6 @@ router.post('/register', async (req, res) => {
       email,
       password,
       phone,
-      university,
       campus,
       studentId
     });
@@ -39,7 +38,6 @@ router.post('/register', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        university: user.university,
         isVerified: user.isVerified
       }
     });

@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     const items = await Item.find(query)
-      .populate('owner', 'name profileImage rating university campus')
+      .populate('owner', 'name profileImage rating campus')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const item = await Item.findById(req.params.id)
-      .populate('owner', 'name profileImage rating reviewCount university campus phone email');
+      .populate('owner', 'name profileImage rating reviewCount campus phone email');
 
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
