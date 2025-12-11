@@ -19,6 +19,7 @@ console.log('Setting up middleware...');
 app.use(helmet());
 app.use(cors({
   origin: function(origin, callback) {
+    // Base allowed origins
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5000',
@@ -27,16 +28,29 @@ app.use(cors({
       'https://campus-crate-jog4fiqpd-yashxcrazys-projects.vercel.app'
     ];
     
+    // Add Replit domain if present
     const replitDomain = process.env.REPLIT_DEV_DOMAIN;
     if (replitDomain) {
       allowedOrigins.push(`https://${replitDomain}`);
     }
     
-    if (!origin || allowedOrigins.some(allowed => origin.includes(allowed.replace('https://', '').replace('http://', '')))) {
+    // Add custom allowed origins from environment variable (comma-separated)
+    const customOrigins = process.env.ALLOWED_ORIGINS;
+    if (customOrigins) {
+      allowedOrigins.push(...customOrigins.split(',').map(o => o.trim()));
+    }
+    
+    // Allow requests with no origin (e.g., mobile apps, Postman, server-to-server)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
-      callback(null, true);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
@@ -55,16 +69,17 @@ console.log('Connecting to MongoDB...');
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  console.error('❌ MONGODB_URI environment variable is required');
-  process.exit(1);
+  console.warn('⚠️  MONGODB_URI not set — running in DEGRADED MODE (no database)');
+  console.warn('⚠️  Database-dependent endpoints will fail');
+} else {
+  mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ MongoDB connected successfully'))
+    .catch(err => {
+      console.error('❌ MongoDB connection error:', err.message);
+      console.error('Note: If using MongoDB Atlas, ensure your IP is whitelisted (use 0.0.0.0/0 to allow all IPs)');
+      console.warn('⚠️  Server running in DEGRADED MODE (database unavailable)');
+    });
 }
-
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected successfully'))
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.error('Note: If using MongoDB Atlas, ensure your IP is whitelisted (use 0.0.0.0/0 to allow all IPs)');
-  });
 
 console.log('Loading routes...');
 const authRoutes = require('./routes/auth');
