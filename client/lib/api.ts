@@ -89,12 +89,12 @@ export interface Review {
 // ============================================================================
 
 export const authAPI = {
-  signup: async (email: string, password: string, name: string) => {
+  signup: async (email: string, password: string, name: string, additionalData?: { phone?: string; campus?: string; studentId?: string }) => {
     try {
       const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ email, password, name, ...additionalData }),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
@@ -156,9 +156,9 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     try {
-  const response = await fetch(`${BASE_URL}/items?owner=me`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
+      const response = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -204,8 +204,8 @@ export const listingsAPI = {
       const params = new URLSearchParams();
       if (category) params.append("category", category);
       if (search) params.append("search", search);
-      if (minPrice) params.append("minDailyRate", minPrice.toString());
-      if (maxPrice) params.append("maxDailyRate", maxPrice.toString());
+      if (minPrice) params.append("minPrice", minPrice.toString());
+      if (maxPrice) params.append("maxPrice", maxPrice.toString());
       params.append("page", page.toString());
 
       const response = await fetch(`${BASE_URL}/items?${params}`);
@@ -334,13 +334,21 @@ export const usersAPI = {
 export const bookingsAPI = {
   create: async (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) => {
     try {
+      // Transform frontend booking format to backend lending request format
+      const requestData = {
+        itemId: booking.listingId,
+        startDate: booking.startDate,
+        endDate: booking.endDate,
+        message: "" // Optional message field
+      };
+      
       const response = await fetch(`${BASE_URL}/lending/request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(booking),
+        body: JSON.stringify(requestData),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
@@ -398,7 +406,7 @@ export const bookingsAPI = {
             ? `complete`
             : `reject`;
       const response = await fetch(`${BASE_URL}/lending/${id}/${endpoint}`, {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -413,11 +421,15 @@ export const bookingsAPI = {
     }
   },
 
-  cancel: async (id: string) => {
+  cancel: async (id: string, reason?: string) => {
     try {
       const response = await fetch(`${BASE_URL}/lending/${id}/reject`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ reason }),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
@@ -490,4 +502,41 @@ export const getAuthToken = () => {
 
 export const clearAuthToken = () => {
   localStorage.removeItem("token");
+};
+
+// ============================================================================
+// Admin API
+// ============================================================================
+
+export const adminAPI = {
+  getUsers: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/admin/users`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "getUsers");
+      return { success: false, error: "Failed to fetch users" };
+    }
+  },
+
+  updateUserRole: async (userId: string, role: "user" | "admin") => {
+    try {
+      const response = await fetch(`${BASE_URL}/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ role }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      handleApiError(error, "updateUserRole");
+      return { success: false, error: "Failed to update user role" };
+    }
+  },
 };

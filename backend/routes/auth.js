@@ -77,9 +77,10 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        university: user.university,
+        campus: user.campus,
         profileImage: user.profileImage,
         rating: user.rating,
+        role: user.role,
         isVerified: user.isVerified
       }
     });

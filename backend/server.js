@@ -70,10 +70,17 @@ console.log('Loading routes...');
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/Items');
 const lendingRoutes = require('./routes/Lending');
+const adminRoutes = require('./routes/admin');
+const userRoutes = require('./routes/users');
+const reviewRoutes = require('./routes/reviews');
+const authenticateToken = require('./middleware/auth');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/lending', lendingRoutes);
+app.use('/api/admin', authenticateToken, adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -91,7 +98,10 @@ app.get('/', (req, res) => {
       health: '/health',
       auth: '/api/auth',
       items: '/api/items',
-      lending: '/api/lending'
+      lending: '/api/lending',
+      admin: '/api/admin',
+      users: '/api/users',
+      reviews: '/api/reviews'
     }
   });
 });

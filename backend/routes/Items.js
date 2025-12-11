@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
       availability,
       search,
       campus,
+      owner,
       page = 1,
       limit = 20,
       sortBy = 'createdAt',
@@ -20,6 +21,26 @@ router.get('/', async (req, res) => {
     } = req.query;
 
     const query = { isActive: true };
+
+    // Support owner=me for getting current user's items
+    if (owner === 'me') {
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+      
+      if (token) {
+        try {
+          const jwt = require('jsonwebtoken');
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          query.owner = decoded.userId;
+        } catch (err) {
+          return res.status(401).json({ message: 'Invalid token' });
+        }
+      } else {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+    } else if (owner) {
+      query.owner = owner;
+    }
 
     if (category) query.category = category;
     if (availability) query.availability = availability;
