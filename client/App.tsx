@@ -19,7 +19,16 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "@/components/AdminRoute";
 import Placeholder from "./pages/Placeholder";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      staleTime: 0,
+      retry: 1,
+    },
+  },
+});
 
 export const App = () => (
   <QueryClientProvider client={queryClient}>

@@ -57,8 +57,8 @@ export const useCreateListing = () => {
     mutationFn: (listing: Omit<Listing, "id" | "createdAt" | "updatedAt">) =>
       listingsAPI.create(listing),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myListings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      queryClient.invalidateQueries({ queryKey: ["myListings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["listings"], refetchType: 'active' });
     },
   });
 };
@@ -69,9 +69,9 @@ export const useUpdateListing = () => {
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Listing> }) =>
       listingsAPI.update(id, updates),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["listing", id] });
-      queryClient.invalidateQueries({ queryKey: ["myListings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      queryClient.invalidateQueries({ queryKey: ["listing", id], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myListings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["listings"], refetchType: 'active' });
     },
   });
 };
@@ -81,8 +81,8 @@ export const useDeleteListing = () => {
   return useMutation({
     mutationFn: (id: string) => listingsAPI.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myListings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      queryClient.invalidateQueries({ queryKey: ["myListings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["listings"], refetchType: 'active' });
     },
   });
 };
@@ -114,7 +114,7 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: (updates: Partial<User>) => usersAPI.updateProfile(updates),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user"], refetchType: 'active' });
     },
   });
 };
@@ -156,8 +156,8 @@ export const useCreateBooking = () => {
     mutationFn: (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) =>
       bookingsAPI.create(booking),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
-      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"], refetchType: 'active' });
     },
   });
 };
@@ -168,9 +168,9 @@ export const useUpdateBookingStatus = () => {
     mutationFn: ({ id, status }: { id: string; status: Booking["status"] }) =>
       bookingsAPI.updateStatus(id, status),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["booking", id] });
-      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
-      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["booking", id], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"], refetchType: 'active' });
     },
   });
 };
@@ -180,9 +180,9 @@ export const useCancelBooking = () => {
   return useMutation({
     mutationFn: (id: string) => bookingsAPI.cancel(id),
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ["booking", id] });
-      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
-      queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["booking", id], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["myRentals"], refetchType: 'active' });
     },
   });
 };
@@ -212,7 +212,7 @@ export const useSendMessage = () => {
       content: string;
     }) => messagesAPI.send(bookingId, content),
     onSuccess: (_, { bookingId }) => {
-      queryClient.invalidateQueries({ queryKey: ["messages", bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["messages", bookingId], refetchType: 'active' });
     },
   });
 };
@@ -227,8 +227,8 @@ export const useCreateReview = () => {
     mutationFn: (review: Omit<Review, "id" | "createdAt">) =>
       reviewsAPI.create(review),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userReviews"] });
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["userReviews"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["user"], refetchType: 'active' });
     },
   });
 };

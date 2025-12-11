@@ -150,17 +150,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const item = await Item.findById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Item not found' 
-      });
+      return res.status(404).json({ message: 'Item not found' });
     }
 
     if (item.owner.toString() !== req.userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Not authorized to update this item' 
-      });
+      return res.status(403).json({ message: 'Not authorized to update this item' });
     }
 
     // Only allow updating specific fields (security)
@@ -187,25 +181,15 @@ router.put('/:id', authenticateToken, async (req, res) => {
     });
 
     await item.save();
-    
-    // Populate owner details and return the updated document
-    const updatedItem = await Item.findById(item._id)
-      .populate('owner', 'name profileImage rating campus')
-      .lean();
+    await item.populate('owner', 'name profileImage rating');
 
-    res.status(200).json({
-      success: true,
+    res.json({
       message: 'Item updated successfully',
-      item: updatedItem
+      item
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error', 
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
 });
 
 // Delete item
@@ -214,34 +198,19 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const item = await Item.findById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Item not found' 
-      });
+      return res.status(404).json({ message: 'Item not found' });
     }
 
     if (item.owner.toString() !== req.userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Not authorized to delete this item' 
-      });
+      return res.status(403).json({ message: 'Not authorized to delete this item' });
     }
 
-    // Actually remove the item from database
-    await Item.findByIdAndDelete(req.params.id);
+    item.isActive = false;
+    await item.save();
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Item deleted successfully' 
-    });
+    res.json({ message: 'Item deleted successfully' });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error', 
-      error: error.message 
-    });
-  }
-});
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
