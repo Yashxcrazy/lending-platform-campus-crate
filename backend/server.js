@@ -97,11 +97,22 @@ app.get('/', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
-  res.status(err.status || 500).json({
+  // Log full error details server-side
+  console.error('=== Error Details ===');
+  console.error('Message:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('Status:', err.status || 500);
+  if (err.name) console.error('Error Name:', err.name);
+  if (err.code) console.error('Error Code:', err.code);
+  console.error('====================');
+  
+  // Return safe JSON response based on error type
+  const statusCode = err.status || (err.name === 'ValidationError' ? 400 : 500);
+  
+  res.status(statusCode).json({
     error: {
       message: err.message || 'Internal Server Error',
-      status: err.status || 500
+      status: statusCode
     }
   });
 });
