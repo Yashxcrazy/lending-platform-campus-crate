@@ -29,3 +29,6 @@ yarn.lock
 
 .config/
 !.env
+
+# Backup files
+*.bak

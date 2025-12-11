@@ -11,7 +11,37 @@ export const BASE_URL = import.meta.env.VITE_API_URL ||
 
 // Error handler utility
 const handleApiError = (error: any, operationName: string) => {
-  console.warn(`API call failed (${operationName}):`, error?.message || error);
+  console.error(`❌ API call failed (${operationName}):`, error?.message || error);
+  if (error instanceof TypeError && error.message.includes('fetch')) {
+    console.error('   Network error - backend may be unreachable');
+  }
+};
+
+// Health check utility - call on app startup
+export const checkBackendHealth = async (): Promise<boolean> => {
+  try {
+    const healthUrl = BASE_URL.replace('/api', '') + '/health';
+    console.log('🏥 Checking backend health at:', healthUrl);
+    
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Backend is healthy:', data.message || 'OK');
+      return true;
+    } else {
+      console.warn('⚠️  Backend responded but returned:', response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Backend health check failed:', error instanceof Error ? error.message : error);
+    console.error('   Make sure VITE_API_URL is set correctly and backend is running');
+    console.error('   Current API URL:', BASE_URL);
+    return false;
+  }
 };
 
 // ============================================================================
@@ -91,18 +121,36 @@ export interface Review {
 export const authAPI = {
   signup: async (email: string, password: string, name: string) => {
     try {
+      console.log('🔐 Attempting signup at:', `${BASE_URL}/auth/register`);
       const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Signup failed:', response.status, errorData);
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Signup successful');
+      return data;
     } catch (error) {
       handleApiError(error, "signup");
+      
+      // Return user-friendly error message
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        return {
+          success: false,
+          error: "Cannot connect to backend. Please check your network connection and ensure the backend server is running.",
+        };
+      }
+      
       return {
         success: false,
-        error: "Backend not available. Check connection.",
+        error: error instanceof Error ? error.message : "Signup failed. Please try again.",
       };
     }
   },
