@@ -13,9 +13,9 @@ router.get('/users', async (req, res) => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
     res.json({ success: true, users });
-  } catch (err) {
-    console.error('GET /admin/users error', err);
-    res.status(500).json({ success: false, error: 'Server error' });
+  } catch (error) {
+    console.error('GET /admin/users error', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
