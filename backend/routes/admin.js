@@ -13,9 +13,9 @@ router.get('/users', async (req, res) => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
     res.json({ success: true, users });
-  } catch (err) {
-    console.error('GET /admin/users error', err);
-    res.status(500).json({ success: false, error: 'Server error' });
+  } catch (error) {
+    console.error('GET /admin/users error', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -48,9 +48,9 @@ router.put('/users/:id/role', async (req, res) => {
     await target.save();
 
     res.json({ success: true, user: { _id: target._id, name: target.name, email: target.email, role: target.role } });
-  } catch (err) {
-    console.error('PUT /admin/users/:id/role error', err);
-    res.status(500).json({ success: false, error: 'Server error' });
+  } catch (error) {
+    console.error('PUT /admin/users/:id/role error', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
