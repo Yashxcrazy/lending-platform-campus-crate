@@ -157,9 +157,27 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this item' });
     }
 
+    // Only allow updating specific fields (security)
+    const allowedUpdates = [
+      'title',
+      'description',
+      'category',
+      'images',
+      'condition',
+      'dailyRate',
+      'securityDeposit',
+      'availability',
+      'location',
+      'tags',
+      'minLendingPeriod',
+      'maxLendingPeriod'
+    ];
+
     const updates = req.body;
     Object.keys(updates).forEach(key => {
-      item[key] = updates[key];
+      if (allowedUpdates.includes(key)) {
+        item[key] = updates[key];
+      }
     });
 
     await item.save();

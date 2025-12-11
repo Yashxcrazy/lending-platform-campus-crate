@@ -31,12 +31,12 @@ router.put('/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update allowed fields
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (campus) user.campus = campus;
-    if (studentId) user.studentId = studentId;
-    if (profileImage) user.profileImage = profileImage;
+    // Update allowed fields only
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    if (campus !== undefined) user.campus = campus;
+    if (studentId !== undefined) user.studentId = studentId;
+    if (profileImage !== undefined) user.profileImage = profileImage;
 
     await user.save();
 

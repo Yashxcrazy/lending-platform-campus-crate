@@ -130,25 +130,33 @@ router.post('/:id/accept', authenticateToken, async (req, res) => {
     }
 
     if (request.status !== 'Pending') {
-      return res.status(400).json({ message: 'Request cannot be accepted' });
+      return res.status(400).json({ message: 'Request cannot be accepted. Current status: ' + request.status });
     }
 
+    // Update request status
     request.status = 'Accepted';
     await request.save();
 
+    // Update item availability
     const item = await Item.findById(request.item._id);
-    item.availability = 'Rented';
-    await item.save();
+    if (item) {
+      item.availability = 'Rented';
+      await item.save();
+    }
 
+    // Create notification
     const notification = new Notification({
       user: request.borrower._id,
       type: 'RequestAccepted',
       title: 'Request Accepted',
-      message: `Your request to borrow ${item.title} has been accepted`,
+      message: `Your request to borrow ${request.item.title} has been accepted`,
       relatedId: request._id,
       link: `/lending/${request._id}`
     });
     await notification.save();
+
+    // Re-populate after save
+    await request.populate(['item', 'borrower', 'lender']);
 
     res.json({
       message: 'Request accepted successfully',
@@ -175,10 +183,16 @@ router.post('/:id/reject', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to reject this request' });
     }
 
+    if (request.status !== 'Pending') {
+      return res.status(400).json({ message: 'Only pending requests can be rejected. Current status: ' + request.status });
+    }
+
+    // Update request status
     request.status = 'Rejected';
     request.cancellationReason = reason;
     await request.save();
 
+    // Create notification
     const notification = new Notification({
       user: request.borrower._id,
       type: 'RequestRejected',
@@ -187,6 +201,9 @@ router.post('/:id/reject', authenticateToken, async (req, res) => {
       relatedId: request._id
     });
     await notification.save();
+
+    // Re-populate after save
+    await request.populate(['item', 'borrower', 'lender']);
 
     res.json({
       message: 'Request rejected',
@@ -201,7 +218,8 @@ router.post('/:id/reject', authenticateToken, async (req, res) => {
 router.post('/:id/complete', authenticateToken, async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
-      .populate('item');
+      .populate('item')
+      .populate(['borrower', 'lender']);
 
     if (!request) {
       return res.status(404).json({ message: 'Lending request not found' });
@@ -212,9 +230,15 @@ router.post('/:id/complete', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    if (request.status !== 'Accepted' && request.status !== 'Active') {
+      return res.status(400).json({ message: 'Only accepted or active requests can be completed. Current status: ' + request.status });
+    }
+
+    // Update request status and return date
     request.status = 'Completed';
     request.actualReturnDate = new Date();
 
+    // Calculate late fees if applicable
     const expectedReturn = new Date(request.endDate);
     const actualReturn = new Date(request.actualReturnDate);
     
@@ -226,9 +250,15 @@ router.post('/:id/complete', authenticateToken, async (req, res) => {
 
     await request.save();
 
+    // Update item availability back to Available
     const item = await Item.findById(request.item._id);
-    item.availability = 'Available';
-    await item.save();
+    if (item) {
+      item.availability = 'Available';
+      await item.save();
+    }
+
+    // Re-populate after save
+    await request.populate(['item', 'borrower', 'lender']);
 
     res.json({
       message: 'Lending completed successfully',
