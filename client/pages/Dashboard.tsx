@@ -23,8 +23,8 @@ export default function Dashboard() {
 
   const activeBookings = bookings.filter((b) => b.status === "active").length;
   const activeRentals = rentals.filter((r) => r.status === "active").length;
-  const totalEarnings = rentals.reduce((sum, r) => sum + (r.totalPrice || 0), 0);
-  const rating = user?.rating ?? 0;
+  const totalEarnings = rentals.reduce((sum, r) => sum + (r.totalCost || r.totalPrice || 0), 0);
+  const rating = user?.rating;
   const reviewCount = user?.reviewCount ?? 0;
 
   return (
@@ -228,14 +228,14 @@ export default function Dashboard() {
                 </div>
                 <h3 className="text-lg font-bold text-white">{user?.name || "User"}</h3>
                 <p className="text-sm text-gray-400 mt-1">
-                  Member since Jan 2024
+                  Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
                 </p>
               </div>
 
               <div className="border-t border-white/10 pt-4 space-y-2">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-white font-semibold">{rating || "—"} rating</span>
+                  <span className="text-white font-semibold">{rating != null ? rating.toFixed(1) : "—"} rating</span>
                   <span className="text-gray-400 text-sm">({reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center gap-2">

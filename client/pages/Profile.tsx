@@ -68,14 +68,14 @@ export default function Profile() {
                     <div className="flex items-center gap-2 mt-2">
                       <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                       <span className="font-bold text-white">
-                        {user?.rating || 4.8}
+                        {user?.rating != null ? user.rating.toFixed(1) : "—"}
                       </span>
                       <span className="text-gray-400">
-                        ({user?.reviewCount || 47} reviews)
+                        ({user?.reviewCount ?? 0} reviews)
                       </span>
                     </div>
                     <p className="text-gray-400 mt-2">
-                      Member since Jan 2024
+                      Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
                     </p>
                   </div>
                 </div>
@@ -245,11 +245,13 @@ export default function Profile() {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Email</span>
-                  <span className="text-green-400 font-semibold">✓ Verified</span>
+                  <span className={`font-semibold ${user?.isVerified ? 'text-green-400' : 'text-yellow-300'}`}>
+                    {user?.isVerified ? '✓ Verified' : 'Pending'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Identity</span>
-                  <span className="text-green-400 font-semibold">✓ Verified</span>
+                  <span className="text-gray-400 font-semibold">Not provided</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Payment Method</span>

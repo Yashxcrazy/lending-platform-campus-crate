@@ -328,7 +328,16 @@ export const bookingsAPI = {
 
   getMyRentals: async () => {
     try {
-      return await get('/lending/my-requests');
+      const data = await get('/lending/my-rentals');
+      return {
+        data: Array.isArray(data?.data)
+          ? data.data.map((r: any) => ({
+              ...r,
+              id: r._id || r.id,
+              itemTitle: r.item?.title || r.itemTitle,
+            }))
+          : [],
+      };
     } catch (error) {
       throw error;
     }
@@ -336,7 +345,16 @@ export const bookingsAPI = {
 
   getMyBookings: async () => {
     try {
-      return await get('/lending/my-requests');
+      const data = await get('/lending/my-requests?type=borrowing');
+      return {
+        data: Array.isArray(data?.data)
+          ? data.data.map((r: any) => ({
+              ...r,
+              id: r._id || r.id,
+              itemTitle: r.item?.title || r.itemTitle,
+            }))
+          : [],
+      };
     } catch (error) {
       throw error;
     }

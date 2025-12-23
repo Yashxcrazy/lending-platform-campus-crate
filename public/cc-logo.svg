@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Campus Crate logo" fill="none">
+  <defs>
+    <linearGradient id="faceRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4d29a" />
+      <stop offset="100%" stop-color="#c68744" />
+    </linearGradient>
+    <linearGradient id="faceLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d19962" />
+      <stop offset="100%" stop-color="#a7652f" />
+    </linearGradient>
+    <linearGradient id="topGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#efbf7a" />
+      <stop offset="100%" stop-color="#d4985c" />
+    </linearGradient>
+    <linearGradient id="tapeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9a7456" />
+      <stop offset="100%" stop-color="#7a5a41" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#000" flood-opacity="0.24" />
+    </filter>
+  </defs>
+
+  <!-- Isometric box with complete flaps and tape; transparent background -->
+  <g filter="url(#shadow)" transform="translate(12 10)">
+    <!-- Top face (two flaps meeting) -->
+    <path d="M20 30 56 12 92 30 56 48Z" fill="url(#topGrad)" />
+    <!-- Flap seam -->
+    <path d="M56 12 56 48" stroke="#c68650" stroke-width="1.6" stroke-linecap="round" opacity="0.8" />
+    <!-- Tape across top seam with slight inset -->
+    <path d="M52 14 52 44 60 40 60 10Z" fill="url(#tapeGrad)" />
+    <!-- Left face -->
+    <path d="M20 30 20 72 56 92 56 48Z" fill="url(#faceLeft)" />
+    <!-- Right face -->
+    <path d="M92 30 92 72 56 92 56 48Z" fill="url(#faceRight)" />
+    <!-- Edge strokes for clarity at small sizes -->
+    <path d="M20 30 56 12 92 30 56 48 20 30Z" stroke="#6a3f21" stroke-width="1.4" stroke-linejoin="round" opacity="0.9" />
+    <path d="M20 30 20 72 56 92 92 72 92 30" stroke="#6a3f21" stroke-width="1.4" stroke-linejoin="round" opacity="0.9" />
+    <!-- Small corner highlights -->
+    <circle cx="56" cy="12" r="1.2" fill="#fff" opacity="0.35" />
+    <circle cx="92" cy="30" r="1.2" fill="#fff" opacity="0.25" />
+    <!-- Label sticker on left face -->
+    <rect x="28" y="56" width="12" height="10" rx="1.5" fill="#f5eefc" stroke="#e2d9f6" stroke-width="0.8" />
+  </g>
+</svg>
