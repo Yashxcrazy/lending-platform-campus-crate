@@ -30,7 +30,7 @@ router.put('/users/:id/role', async (req, res) => {
     }
 
     // Prevent self-demotion (compare as strings to handle ObjectId)
-    if (id.toString() === req.user.id.toString() && role === 'user') {
+    if (id.toString() === req.user.id && role === 'user') {
       return res.status(400).json({ message: 'Cannot demote yourself from admin' });
     }
 

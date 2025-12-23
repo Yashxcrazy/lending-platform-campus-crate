@@ -93,7 +93,8 @@ app.get('/', (req, res) => {
       health: '/health',
       auth: '/api/auth',
       items: '/api/items',
-      lending: '/api/lending'
+      lending: '/api/lending',
+      admin: '/api/admin'
     }
   });
 });

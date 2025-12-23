@@ -12,7 +12,6 @@
  * 
  * Environment variables:
  *   MONGODB_URI - Required. MongoDB connection string
- *   DB_NAME - Optional. Database name (extracted from URI if not provided)
  *   ADMIN_EMAIL - Optional. Email of user to promote to admin
  */
 
