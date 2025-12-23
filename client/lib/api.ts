@@ -217,7 +217,13 @@ export const listingsAPI = {
 
   getMyListings: async () => {
     try {
-      return await get('/items?owner=me');
+      const data = await get('/items?owner=me');
+      return {
+        items: Array.isArray(data.items) ? data.items.map(transformItem) : [],
+        data: Array.isArray(data.items) ? data.items.map(transformItem) : [],
+        totalPages: data.totalPages || 1,
+        totalCount: data.totalCount || 0,
+      };
     } catch (error) {
       throw error;
     }
