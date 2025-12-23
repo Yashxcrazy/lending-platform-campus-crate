@@ -3,8 +3,14 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Package, Search } from "lucide-react";
-import { BASE_URL, getAuthToken, User } from "@/lib/api";
+import { BASE_URL, getAuthToken, User, adminAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+
+const formatDate = (value?: string | Date) => {
+  if (!value) return "—";
+  const date = typeof value === 'string' ? new Date(value) : value;
+  return isNaN(date.getTime()) ? "—" : date.toLocaleString();
+};
 
 /**
  * AdminDashboard (real data)
@@ -19,6 +25,8 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'banned' | 'inactive'>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'lastActive' | 'bannedUntil'>('newest');
 
   // Stats (optional backend endpoints can populate these)
   const [stats, setStats] = useState({
@@ -32,6 +40,11 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [changingRoleFor, setChangingRoleFor] = useState<string | null>(null);
+  const [banningFor, setBanningFor] = useState<string | null>(null);
+  const [deletingFor, setDeletingFor] = useState<string | null>(null);
+  // Admin Items state
+  const [items, setItems] = useState<any[]>([]);
+  const [loadingItems, setLoadingItems] = useState(false);
 
   // Fetch users (admin-only endpoint)
   const fetchAllUsers = async () => {
@@ -63,6 +76,25 @@ export default function AdminDashboard() {
     fetchAllUsers();
     // Optionally fetch stats if your backend exposes endpoints
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchAllUsers();
+    }
+  }, [activeTab]);
+
+  const fetchAdminItems = async () => {
+    setLoadingItems(true);
+    try {
+      const res: any = await adminAPI.listItems({ page: 1, limit: 50 });
+      setItems(res.items || []);
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+      setItems([]);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
 
   // Helper to get consistent user ID (supports both MongoDB _id and standard id)
   const getUserId = (user: User): string => {
@@ -106,6 +138,48 @@ export default function AdminDashboard() {
       });
     } finally {
       setChangingRoleFor(null);
+    }
+  };
+
+  const banUser = async (id: string) => {
+    setBanningFor(id);
+    try {
+      await adminAPI.banUser(id, { reason: 'Policy violation' });
+      await fetchAllUsers();
+      toast({ title: 'User banned', description: 'The user has been banned.' });
+    } catch (err) {
+      console.error('Failed to ban user:', err);
+      toast({ title: 'Error', description: 'Failed to ban user', variant: 'destructive' });
+    } finally {
+      setBanningFor(null);
+    }
+  };
+
+  const unbanUser = async (id: string) => {
+    setBanningFor(id);
+    try {
+      await adminAPI.unbanUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User unbanned', description: 'The user has been unbanned.' });
+    } catch (err) {
+      console.error('Failed to unban user:', err);
+      toast({ title: 'Error', description: 'Failed to unban user', variant: 'destructive' });
+    } finally {
+      setBanningFor(null);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    setDeletingFor(id);
+    try {
+      await adminAPI.deleteUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User deleted', description: 'The user has been deleted.' });
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      toast({ title: 'Error', description: 'Failed to delete user', variant: 'destructive' });
+    } finally {
+      setDeletingFor(null);
     }
   };
 
@@ -160,16 +234,35 @@ export default function AdminDashboard() {
             <div className="glass-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-white">Manage Admins</h2>
-                <div className="w-80">
-                  <div className="relative">
+                <div className="flex items-center gap-3 w-full max-w-xl justify-end">
+                  <div className="relative w-72">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400/50" />
                     <Input
-                      placeholder="Filter users..."
+                      placeholder="Search users..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-12 py-2 glass-card border-cyan-400/30"
                     />
                   </div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5"
+                  >
+                    <option value="all" className="bg-slate-900">All statuses</option>
+                    <option value="active" className="bg-slate-900">Active</option>
+                    <option value="banned" className="bg-slate-900">Banned</option>
+                    <option value="inactive" className="bg-slate-900">Inactive</option>
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5"
+                  >
+                    <option value="newest" className="bg-slate-900">Newest</option>
+                    <option value="lastActive" className="bg-slate-900">Last active</option>
+                    <option value="bannedUntil" className="bg-slate-900">Banned until</option>
+                  </select>
                 </div>
               </div>
 
@@ -183,17 +276,45 @@ export default function AdminDashboard() {
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Name</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Email</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Role</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Last Active</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {users
                         .filter((u) => {
-                          if (!searchQuery) return true;
-                          return `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase());
+                          const matchesSearch = `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase());
+                          if (!matchesSearch) return false;
+                          if (statusFilter === 'banned') return !!u.isBanned;
+                          if (statusFilter === 'inactive') return u.isActive === false && !u.isBanned;
+                          if (statusFilter === 'active') return u.isActive !== false && !u.isBanned;
+                          return true;
+                        })
+                        .sort((a, b) => {
+                          if (sortBy === 'lastActive') {
+                            const aTime = a.lastActive ? new Date(a.lastActive).getTime() : 0;
+                            const bTime = b.lastActive ? new Date(b.lastActive).getTime() : 0;
+                            return bTime - aTime;
+                          }
+                          if (sortBy === 'bannedUntil') {
+                            const aTime = a.bannedUntil ? new Date(a.bannedUntil).getTime() : 0;
+                            const bTime = b.bannedUntil ? new Date(b.bannedUntil).getTime() : 0;
+                            return bTime - aTime;
+                          }
+                          // default newest by createdAt
+                          const aTime = (a as any).createdAt ? new Date((a as any).createdAt).getTime() : 0;
+                          const bTime = (b as any).createdAt ? new Date((b as any).createdAt).getTime() : 0;
+                          return bTime - aTime;
                         })
                         .map((u) => {
                           const userId = getUserId(u);
+                          const statusLabel = u.isBanned ? 'Banned' : (u.isActive === false ? 'Inactive' : 'Active');
+                          const statusClass = u.isBanned
+                            ? 'bg-red-500/10 text-red-400'
+                            : u.isActive === false
+                              ? 'bg-gray-400/10 text-gray-300'
+                              : 'bg-green-400/10 text-green-400';
                           return (
                             <tr key={userId} className="border-b border-white/10 hover:bg-white/5 transition-colors">
                               <td className="px-4 py-3 text-white font-semibold">{u.name}</td>
@@ -204,6 +325,18 @@ export default function AdminDashboard() {
                                 </span>
                               </td>
                               <td className="px-4 py-3">
+                                <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${statusClass}`}>
+                                  {statusLabel}
+                                </span>
+                                {u.isBanned && (
+                                  <div className="text-xs text-red-300 mt-1">
+                                    {u.banReason || 'Policy violation'}
+                                    {u.bannedUntil && ` (until ${formatDate(u.bannedUntil)})`}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-gray-300 text-sm">{formatDate(u.lastActive)}</td>
+                              <td className="px-4 py-3 flex gap-2 flex-wrap">
                                 {u.role === "admin" ? (
                                   <Button
                                     variant="outline"
@@ -220,6 +353,30 @@ export default function AdminDashboard() {
                                     {changingRoleFor === userId ? "Updating..." : "Make Admin"}
                                   </Button>
                                 )}
+                                {u.isBanned ? (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => unbanUser(userId)}
+                                    disabled={banningFor === userId}
+                                  >
+                                    {banningFor === userId ? 'Working...' : 'Unban'}
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => banUser(userId)}
+                                    disabled={banningFor === userId}
+                                  >
+                                    {banningFor === userId ? 'Working...' : 'Ban'}
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="outline"
+                                  onClick={() => deleteUser(userId)}
+                                  disabled={deletingFor === userId}
+                                >
+                                  {deletingFor === userId ? 'Deleting...' : 'Delete'}
+                                </Button>
                               </td>
                             </tr>
                           );
@@ -248,10 +405,62 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "listings" && (
-          <div className="glass-card p-8 text-center">
-            <Package className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Listings Management</h3>
-            <p className="text-gray-400">Connect to backend to manage listings</p>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Manage Listings</h2>
+              <Button onClick={fetchAdminItems} variant="outline">Refresh</Button>
+            </div>
+            <div className="glass-card p-6">
+              {loadingItems ? (
+                <div>Loading items...</div>
+              ) : items.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No items found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Title</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Owner</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item: any) => (
+                        <tr key={item._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-3 text-white font-semibold">{item.title}</td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">{item.owner?.name || '—'}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${item.isActive ? 'bg-green-400/10 text-green-400' : 'bg-gray-400/10 text-gray-300'}`}>
+                              {item.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {item.isActive ? (
+                              <Button
+                                variant="outline"
+                                onClick={async () => {
+                                  await adminAPI.deactivateItem(item._id);
+                                  await fetchAdminItems();
+                                }}
+                              >
+                                Deactivate
+                              </Button>
+                            ) : (
+                              <span className="text-gray-500 text-sm">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

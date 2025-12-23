@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { useMyBookings, useMyRentals } from "@/hooks/useAPI";
+import { useMyBookings, useMyRentals, useCurrentUser } from "@/hooks/useAPI";
 import {
   BarChart3,
   TrendingUp,
@@ -16,6 +16,7 @@ import {
 export default function Dashboard() {
   const { data: bookingsData } = useMyBookings();
   const { data: rentalsData } = useMyRentals();
+  const { data: user } = useCurrentUser();
 
   const bookings = bookingsData?.data || [];
   const rentals = rentalsData?.data || [];
@@ -23,6 +24,8 @@ export default function Dashboard() {
   const activeBookings = bookings.filter((b) => b.status === "active").length;
   const activeRentals = rentals.filter((r) => r.status === "active").length;
   const totalEarnings = rentals.reduce((sum, r) => sum + (r.totalPrice || 0), 0);
+  const rating = user?.rating ?? 0;
+  const reviewCount = user?.reviewCount ?? 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +69,7 @@ export default function Dashboard() {
               },
               {
                 label: "Rating",
-                value: "4.8",
+                value: rating ? `${rating}` : "—",
                 icon: Star,
                 color: "purple",
               },
@@ -221,9 +224,9 @@ export default function Dashboard() {
             <div className="glass-card p-6">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">
-                  U
+                  {user?.name?.charAt(0) || "U"}
                 </div>
-                <h3 className="text-lg font-bold text-white">User Name</h3>
+                <h3 className="text-lg font-bold text-white">{user?.name || "User"}</h3>
                 <p className="text-sm text-gray-400 mt-1">
                   Member since Jan 2024
                 </p>
@@ -232,13 +235,13 @@ export default function Dashboard() {
               <div className="border-t border-white/10 pt-4 space-y-2">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-white font-semibold">4.8 rating</span>
-                  <span className="text-gray-400 text-sm">(47 reviews)</span>
+                  <span className="text-white font-semibold">{rating || "—"} rating</span>
+                  <span className="text-gray-400 text-sm">({reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-cyan-400" />
                   <span className="text-gray-400 text-sm">
-                    Email verified ✓
+                    {user?.isVerified ? "Email verified ✓" : "Email not verified"}
                   </span>
                 </div>
               </div>

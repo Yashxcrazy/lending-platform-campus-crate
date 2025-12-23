@@ -18,6 +18,8 @@ import LendingReview from "./pages/LendingReview";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "@/components/AdminRoute";
 import Placeholder from "./pages/Placeholder";
+import AccountSettings from "./pages/AccountSettings";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,16 +100,8 @@ export const App = () => (
               />
             }
           />
-          <Route
-            path="/how-it-works"
-            element={
-              <Placeholder
-                title="How It Works"
-                description="Learn about the borrowing and lending process on CampusCrate."
-                icon="❓"
-              />
-            }
-          />
+          <Route path="/settings" element={<AccountSettings />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -15,6 +15,15 @@ const UserSchema = new mongoose.Schema({
   profileImage: String,
   phone: String,
   studentId: String,
+  // Preferences for notifications and privacy
+  notificationPreferences: {
+    email: { type: Boolean, default: true },
+    sms: { type: Boolean, default: false },
+  },
+  privacyPreferences: {
+    showEmail: { type: Boolean, default: true },
+    showPhone: { type: Boolean, default: false },
+  },
   // Add role field (default 'user'). Allowed values: 'user' | 'admin'
   role: { type: String, enum: ['user', 'admin'], default: 'user', index: true },
 }, {

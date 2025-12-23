@@ -45,6 +45,11 @@ export interface User {
   rating: number;
   reviewCount: number;
   createdAt: string;
+  isActive?: boolean;
+  isBanned?: boolean;
+  bannedUntil?: string;
+  banReason?: string;
+  lastActive?: string;
 }
 
 export interface Booking {
@@ -98,9 +103,18 @@ export const authAPI = {
     try {
       return await post('/auth/login', { email, password }, { skipAuth: true });
     } catch (error) {
+      if (error instanceof ApiError) {
+        return {
+          success: false,
+          error: error.message,
+          code: (error.data as any)?.code,
+          until: (error.data as any)?.until,
+          reason: (error.data as any)?.reason,
+        };
+      }
       return {
         success: false,
-        error: error instanceof ApiError ? error.message : "Backend not available. Check connection.",
+        error: "Backend not available. Check connection.",
       };
     }
   },
@@ -126,6 +140,14 @@ export const authAPI = {
       return await get('/auth/me');
     } catch (error) {
       return null;
+    }
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    try {
+      return await post('/auth/change-password', { currentPassword, newPassword });
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to change password' };
     }
   },
 };
@@ -245,6 +267,33 @@ export const usersAPI = {
 
   getReviews: async (userId: string) => {
     return await get(`/users/${userId}/reviews`);
+  },
+
+  getPreferences: async () => {
+    try {
+      return await get('/users/preferences');
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updatePreferences: async (preferences: {
+    notificationPreferences?: { email?: boolean; sms?: boolean };
+    privacyPreferences?: { showEmail?: boolean; showPhone?: boolean };
+  }) => {
+    try {
+      return await put('/users/preferences', preferences);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to update preferences' };
+    }
+  },
+
+  deleteMe: async () => {
+    try {
+      return await del('/users/me');
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete account' };
+    }
   },
 };
 
@@ -370,6 +419,67 @@ export const adminAPI = {
       return await put(`/admin/users/${userId}/role`, { role });
     } catch (error) {
       return { success: false, error: error instanceof ApiError ? error.message : "Failed to update user role" };
+    }
+  },
+
+  deactivateUser: async (userId: string) => {
+    try {
+      return await put(`/admin/users/${userId}/deactivate`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to deactivate user' };
+    }
+  },
+
+  banUser: async (userId: string, data?: { reason?: string; until?: string | Date }) => {
+    try {
+      return await put(`/admin/users/${userId}/ban`, data || {});
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to ban user' };
+    }
+  },
+
+  unbanUser: async (userId: string) => {
+    try {
+      return await put(`/admin/users/${userId}/unban`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to unban user' };
+    }
+  },
+
+  deleteUser: async (userId: string) => {
+    try {
+      return await del(`/admin/users/${userId}`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete user' };
+    }
+  },
+
+  listItems: async (params?: { isActive?: boolean; page?: number; limit?: number }) => {
+    try {
+      const search = new URLSearchParams();
+      if (typeof params?.isActive !== 'undefined') search.append('isActive', String(params.isActive));
+      if (params?.page) search.append('page', String(params.page));
+      if (params?.limit) search.append('limit', String(params.limit));
+      const suffix = search.toString() ? `?${search}` : '';
+      return await get(`/admin/items${suffix}`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to fetch items' };
+    }
+  },
+
+  deactivateItem: async (itemId: string) => {
+    try {
+      return await put(`/admin/items/${itemId}/deactivate`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to deactivate item' };
+    }
+  },
+
+  deleteReview: async (reviewId: string) => {
+    try {
+      return await del(`/admin/reviews/${reviewId}`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete review' };
     }
   },
 };

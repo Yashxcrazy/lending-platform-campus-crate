@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,21 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    phone: "",
-    address: "",
+    phone: (user as any)?.phone || "",
+    address: (user as any)?.address || "",
   });
+
+  // Sync form fields when user data loads
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: (user as any)?.phone || "",
+        address: (user as any)?.address || "",
+      });
+    }
+  }, [user]);
 
   const reviews = reviewsData?.data || [];
 
@@ -165,9 +177,9 @@ export default function Profile() {
                     <h3 className="text-sm font-semibold text-cyan-400 mb-2">
                       PHONE
                     </h3>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Phone className="w-5 h-5" />
-                      <span>Not provided</span>
+                    <div className="flex items-center gap-2 text-white">
+                      <Phone className="w-5 h-5 text-cyan-400" />
+                      <span>{(user as any)?.phone || "Not provided"}</span>
                     </div>
                   </div>
                 </div>
@@ -248,20 +260,12 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Account Settings */}
+            {/* Account Settings Link */}
             <div className="glass-card p-6">
               <h3 className="font-bold text-white mb-4">Account Settings</h3>
-              <div className="space-y-3">
-                <button className="w-full text-left px-4 py-3 glass-card rounded-lg hover:bg-white/10 transition-all text-white font-semibold">
-                  Change Password
-                </button>
-                <button className="w-full text-left px-4 py-3 glass-card rounded-lg hover:bg-white/10 transition-all text-white font-semibold">
-                  Two-Factor Authentication
-                </button>
-                <button className="w-full text-left px-4 py-3 glass-card rounded-lg hover:bg-white/10 transition-all text-white font-semibold">
-                  Privacy Settings
-                </button>
-              </div>
+              <a href="/settings" className="btn-glow-cyan inline-block px-4 py-2 rounded">
+                Manage Account Settings
+              </a>
             </div>
 
             {/* Danger Zone */}

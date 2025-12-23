@@ -38,20 +38,32 @@ export default function Login() {
       }
 
       // Call login API via centralized authAPI
-const data = await authAPI.login(email, password);
+      const data: any = await authAPI.login(email, password);
 
-if (!data || !data.token) {
-  setError(data?.message || data?.error || "Login failed. Please try again.");
-  return;
-}
+      if (data?.success === false) {
+        if (data.code === 'ACCOUNT_BANNED') {
+          const untilText = data.until ? ` until ${new Date(data.until).toLocaleString()}` : '';
+          setError(`Your account is banned${untilText}. Reason: ${data.reason || 'Policy violation'}.`);
+        } else if (data.code === 'ACCOUNT_DEACTIVATED') {
+          setError('Your account is deactivated. Please contact support.');
+        } else {
+          setError(data.error || data.message || "Login failed. Please try again.");
+        }
+        return;
+      }
 
-// Store token and user data
-localStorage.setItem("token", data.token);
-if (data.user) {
-  localStorage.setItem("user", JSON.stringify(data.user));
-}
+      if (!data || !data.token) {
+        setError(data?.message || data?.error || "Login failed. Please try again.");
+        return;
+      }
 
-navigate("/dashboard");
+      // Store token and user data
+      localStorage.setItem("token", data.token);
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
       setError("Login failed. Please check your connection and try again.");

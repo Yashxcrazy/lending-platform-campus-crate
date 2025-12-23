@@ -119,6 +119,38 @@ export const useUpdateProfile = () => {
   });
 };
 
+export const usePreferences = () => {
+  return useQuery({
+    queryKey: ["preferences"],
+    queryFn: () => usersAPI.getPreferences(),
+    retry: 1,
+    retryDelay: 1000,
+  });
+};
+
+export const useUpdatePreferences = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (preferences: { notificationPreferences?: { email?: boolean; sms?: boolean }; privacyPreferences?: { showEmail?: boolean; showPhone?: boolean } }) => usersAPI.updatePreferences(preferences),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["preferences"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["currentUser"], refetchType: 'active' });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) => authAPI.changePassword(currentPassword, newPassword),
+  });
+};
+
+export const useDeleteAccount = () => {
+  return useMutation({
+    mutationFn: () => usersAPI.deleteMe(),
+  });
+};
+
 // ============================================================================
 // Bookings Hooks
 // ============================================================================
