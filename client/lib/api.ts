@@ -271,7 +271,7 @@ export const usersAPI = {
   },
 
   getReviews: async (userId: string) => {
-    return await get(`/users/${userId}/reviews`);
+    return await get(`/reviews/user/${userId}`);
   },
 
   getPreferences: async () => {
