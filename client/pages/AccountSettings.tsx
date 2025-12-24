@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { usePreferences, useUpdatePreferences, useChangePassword, useDeleteAccount } from "@/hooks/useAPI";
-import { Lock, Bell, Shield, Save } from "lucide-react";
+import { clearAuthToken } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
+import { Lock, Bell, Shield, Save, Trash2 } from "lucide-react";
 
 export default function AccountSettings() {
+  const navigate = useNavigate();
   const { data: prefData } = usePreferences();
   const updatePreferences = useUpdatePreferences();
   const changePassword = useChangePassword();
@@ -15,6 +18,7 @@ export default function AccountSettings() {
   const [passwords, setPasswords] = useState({ current: "", next: "", confirm: "" });
   const [notifications, setNotifications] = useState({ email: true, sms: false });
   const [privacy, setPrivacy] = useState({ showEmail: true, showPhone: false });
+  const [deletePassword, setDeletePassword] = useState("");
 
   // Initialize toggles from server preferences when available
   useEffect(() => {
@@ -49,9 +53,25 @@ export default function AccountSettings() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("This will deactivate your account. Continue?")) return;
-    await deleteAccount.mutateAsync();
-    alert("Account deactivated");
+    if (!deletePassword) {
+      alert("Please enter your password to confirm deletion.");
+      return;
+    }
+    if (!confirm("This will permanently delete your account and data. Continue?")) return;
+    try {
+      const result: any = await deleteAccount.mutateAsync(deletePassword);
+      if (result?.success === false) {
+        alert(result.error || "Failed to delete account");
+        return;
+      }
+      clearAuthToken();
+      localStorage.removeItem("user");
+      alert("Account deleted");
+      navigate("/", { replace: true });
+      window.location.href = "/";
+    } catch (err: any) {
+      alert(err?.message || "Failed to delete account");
+    }
   };
 
   return (
@@ -138,10 +158,32 @@ export default function AccountSettings() {
               <Button onClick={handleSavePreferences} className="btn-glow-cyan flex items-center gap-2">
                 <Save className="w-4 h-4" /> Save Settings
               </Button>
-              <Button onClick={handleDeleteAccount} variant="outline" className="border-red-500/50 text-red-400">
-                Deactivate Account
-              </Button>
             </div>
+          </div>
+        </div>
+
+        <div className="glass-card p-6 border-red-500/30">
+          <div className="flex items-center gap-2 mb-4">
+            <Trash2 className="w-5 h-5 text-red-400" />
+            <h2 className="text-lg font-semibold text-white">Delete Account</h2>
+          </div>
+          <p className="text-sm text-gray-400 mb-4">This permanently deletes your account and related data.</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Input
+              type="password"
+              placeholder="Enter password to confirm"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="glass-card border-red-400/40"
+            />
+            <Button
+              onClick={handleDeleteAccount}
+              className="btn-glow-red flex items-center gap-2"
+              disabled={deleteAccount.isPending}
+            >
+              <Trash2 className="w-4 h-4" />
+              {deleteAccount.isPending ? "Deleting..." : "Delete Account"}
+            </Button>
           </div>
         </div>
       </div>

@@ -32,7 +32,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
         const payload = await res.json();
         // payload.user may hold the user or payload itself depending on your /auth/me shape
         const user = payload.user || payload;
-        if (mounted) setIsAdmin(user?.role === "admin");
+        if (mounted) setIsAdmin(user?.role === "admin" || user?.role === "manager");
       } catch (err) {
         if (mounted) setIsAdmin(false);
       } finally {

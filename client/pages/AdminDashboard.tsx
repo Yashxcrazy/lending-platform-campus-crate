@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search } from "lucide-react";
+import { Package, Search, CheckCircle2 } from "lucide-react";
 import { BASE_URL, getAuthToken, User, adminAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useAPI";
 
 const formatDate = (value?: string | Date) => {
   if (!value) return "—";
@@ -23,10 +24,11 @@ const formatDate = (value?: string | Date) => {
 
 export default function AdminDashboard() {
   const { toast } = useToast();
+  const { data: currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'banned' | 'inactive'>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'lastActive' | 'bannedUntil'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'bannedUntil'>('newest');
 
   // Stats (optional backend endpoints can populate these)
   const [stats, setStats] = useState({
@@ -42,6 +44,8 @@ export default function AdminDashboard() {
   const [changingRoleFor, setChangingRoleFor] = useState<string | null>(null);
   const [banningFor, setBanningFor] = useState<string | null>(null);
   const [deletingFor, setDeletingFor] = useState<string | null>(null);
+  const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
+  const [resettingFor, setResettingFor] = useState<string | null>(null);
   // Admin Items state
   const [items, setItems] = useState<any[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
@@ -101,8 +105,12 @@ export default function AdminDashboard() {
     return (user as any)._id || user.id;
   };
 
+  const isManager = currentUser?.role === 'manager';
+  const canModerate = (role?: string) => isManager || (currentUser?.role === 'admin' && role === 'user');
+  const canChangeRoles = isManager;
+
   // Promote / demote user
-  const setRole = async (id: string, role: "admin" | "user") => {
+  const setRole = async (id: string, role: "admin" | "user" | "manager") => {
     setChangingRoleFor(id);
     try {
       const token = getAuthToken();
@@ -183,6 +191,35 @@ export default function AdminDashboard() {
     }
   };
 
+  const verifyUser = async (id: string) => {
+    setVerifyingFor(id);
+    try {
+      await adminAPI.verifyUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User verified', description: 'Verification updated.' });
+    } catch (err) {
+      console.error('Failed to verify user:', err);
+      toast({ title: 'Error', description: 'Failed to verify user', variant: 'destructive' });
+    } finally {
+      setVerifyingFor(null);
+    }
+  };
+
+  const resetPassword = async (id: string) => {
+    const newPassword = window.prompt('Enter new password (min 8 chars)');
+    if (!newPassword || newPassword.length < 8) return;
+    setResettingFor(id);
+    try {
+      await adminAPI.resetUserPassword(id, newPassword);
+      toast({ title: 'Password reset', description: 'User password has been reset.' });
+    } catch (err) {
+      console.error('Failed to reset password:', err);
+      toast({ title: 'Error', description: 'Failed to reset password', variant: 'destructive' });
+    } finally {
+      setResettingFor(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -260,7 +297,6 @@ export default function AdminDashboard() {
                     className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5"
                   >
                     <option value="newest" className="bg-slate-900">Newest</option>
-                    <option value="lastActive" className="bg-slate-900">Last active</option>
                     <option value="bannedUntil" className="bg-slate-900">Banned until</option>
                   </select>
                 </div>
@@ -277,7 +313,7 @@ export default function AdminDashboard() {
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Email</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Role</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
-                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Last Active</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Verification</th>
                         <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
                       </tr>
                     </thead>
@@ -292,11 +328,6 @@ export default function AdminDashboard() {
                           return true;
                         })
                         .sort((a, b) => {
-                          if (sortBy === 'lastActive') {
-                            const aTime = a.lastActive ? new Date(a.lastActive).getTime() : 0;
-                            const bTime = b.lastActive ? new Date(b.lastActive).getTime() : 0;
-                            return bTime - aTime;
-                          }
                           if (sortBy === 'bannedUntil') {
                             const aTime = a.bannedUntil ? new Date(a.bannedUntil).getTime() : 0;
                             const bTime = b.bannedUntil ? new Date(b.bannedUntil).getTime() : 0;
@@ -320,7 +351,7 @@ export default function AdminDashboard() {
                               <td className="px-4 py-3 text-white font-semibold">{u.name}</td>
                               <td className="px-4 py-3 text-gray-400 text-sm">{u.email}</td>
                               <td className="px-4 py-3">
-                                <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${u.role === "admin" ? "bg-green-400/10 text-green-400" : "bg-gray-400/10 text-gray-300"}`}>
+                                <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${u.role === "admin" ? "bg-green-400/10 text-green-400" : u.role === 'manager' ? 'bg-purple-400/10 text-purple-300' : "bg-gray-400/10 text-gray-300"}`}>
                                   {u.role}
                                 </span>
                               </td>
@@ -335,29 +366,72 @@ export default function AdminDashboard() {
                                   </div>
                                 )}
                               </td>
-                              <td className="px-4 py-3 text-gray-300 text-sm">{formatDate(u.lastActive)}</td>
-                              <td className="px-4 py-3 flex gap-2 flex-wrap">
-                                {u.role === "admin" ? (
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => setRole(userId, "user")}
-                                    disabled={changingRoleFor === userId}
-                                  >
-                                    {changingRoleFor === userId ? "Updating..." : "Remove Admin"}
-                                  </Button>
+                              <td className="px-4 py-3 text-gray-300 text-sm">
+                                {u.isVerified ? (
+                                  <span className="inline-flex items-center gap-1 text-green-400 font-semibold text-xs">
+                                    <CheckCircle2 className="w-4 h-4" /> Verified
+                                  </span>
                                 ) : (
-                                  <Button
-                                    onClick={() => setRole(userId, "admin")}
-                                    disabled={changingRoleFor === userId}
-                                  >
-                                    {changingRoleFor === userId ? "Updating..." : "Make Admin"}
-                                  </Button>
+                                  <span className="text-yellow-300 text-xs">Pending</span>
                                 )}
+                              </td>
+                              <td className="px-4 py-3 flex gap-2 flex-wrap">
+                                {canChangeRoles && (
+                                  <div className="flex gap-2 flex-wrap">
+                                    {u.role === "manager" ? (
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => setRole(userId, "admin")}
+                                        disabled={changingRoleFor === userId}
+                                      >
+                                        {changingRoleFor === userId ? "Updating..." : "Set Admin"}
+                                      </Button>
+                                    ) : u.role === "admin" ? (
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => setRole(userId, "user")}
+                                        disabled={changingRoleFor === userId}
+                                      >
+                                        {changingRoleFor === userId ? "Updating..." : "Remove Admin"}
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        <Button
+                                          onClick={() => setRole(userId, "admin")}
+                                          disabled={changingRoleFor === userId}
+                                        >
+                                          {changingRoleFor === userId ? "Updating..." : "Make Admin"}
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => setRole(userId, "manager")}
+                                          disabled={changingRoleFor === userId}
+                                        >
+                                          {changingRoleFor === userId ? "Updating..." : "Make Manager"}
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                                <Button
+                                  variant="outline"
+                                  onClick={() => verifyUser(userId)}
+                                  disabled={verifyingFor === userId || !canModerate(u.role)}
+                                >
+                                  {verifyingFor === userId ? 'Verifying...' : 'Verify'}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => resetPassword(userId)}
+                                  disabled={resettingFor === userId || !canModerate(u.role)}
+                                >
+                                  {resettingFor === userId ? 'Resetting...' : 'Reset Password'}
+                                </Button>
                                 {u.isBanned ? (
                                   <Button
                                     variant="outline"
                                     onClick={() => unbanUser(userId)}
-                                    disabled={banningFor === userId}
+                                    disabled={banningFor === userId || !canModerate(u.role)}
                                   >
                                     {banningFor === userId ? 'Working...' : 'Unban'}
                                   </Button>
@@ -365,7 +439,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="destructive"
                                     onClick={() => banUser(userId)}
-                                    disabled={banningFor === userId}
+                                    disabled={banningFor === userId || !canModerate(u.role)}
                                   >
                                     {banningFor === userId ? 'Working...' : 'Ban'}
                                   </Button>
@@ -373,7 +447,7 @@ export default function AdminDashboard() {
                                 <Button
                                   variant="outline"
                                   onClick={() => deleteUser(userId)}
-                                  disabled={deletingFor === userId}
+                                  disabled={deletingFor === userId || !canModerate(u.role)}
                                 >
                                   {deletingFor === userId ? 'Deleting...' : 'Delete'}
                                 </Button>

@@ -42,7 +42,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role?: "admin" | "user";
+  role?: "admin" | "user" | "manager";
   profileImage?: string;
   rating: number;
   reviewCount: number;
@@ -52,6 +52,7 @@ export interface User {
   bannedUntil?: string;
   banReason?: string;
   lastActive?: string;
+  isVerified?: boolean;
 }
 
 export interface Booking {
@@ -292,9 +293,9 @@ export const usersAPI = {
     }
   },
 
-  deleteMe: async () => {
+  deleteMe: async (password: string) => {
     try {
-      return await del('/users/me');
+      return await post('/users/me/delete', { password });
     } catch (error) {
       return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete account' };
     }
@@ -436,11 +437,27 @@ export const adminAPI = {
     }
   },
 
-  updateUserRole: async (userId: string, role: "user" | "admin") => {
+  updateUserRole: async (userId: string, role: "user" | "admin" | "manager") => {
     try {
       return await put(`/admin/users/${userId}/role`, { role });
     } catch (error) {
       return { success: false, error: error instanceof ApiError ? error.message : "Failed to update user role" };
+    }
+  },
+
+  verifyUser: async (userId: string) => {
+    try {
+      return await put(`/admin/users/${userId}/verify`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to verify user' };
+    }
+  },
+
+  resetUserPassword: async (userId: string, newPassword: string) => {
+    try {
+      return await put(`/admin/users/${userId}/reset-password`, { newPassword });
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to reset password' };
     }
   },
 

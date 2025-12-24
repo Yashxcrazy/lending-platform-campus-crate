@@ -147,7 +147,7 @@ export const useChangePassword = () => {
 
 export const useDeleteAccount = () => {
   return useMutation({
-    mutationFn: () => usersAPI.deleteMe(),
+    mutationFn: (password: string) => usersAPI.deleteMe(password),
   });
 };
 

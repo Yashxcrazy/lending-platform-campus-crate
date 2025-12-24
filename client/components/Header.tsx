@@ -27,7 +27,7 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
   // Note: This is UI-only admin check from localStorage for showing/hiding the link.
   // The AdminRoute component provides the actual security by validating via /api/auth/me.
   // Users could modify localStorage, but they'll be redirected by AdminRoute if not admin.
-  const isAdminUser = storedUser?.role === "admin";
+  const isAdminUser = storedUser?.role === "admin" || storedUser?.role === "manager";
 
   return (
     <header className="glass-card border-b border-cyan-400/20 sticky top-0 z-50 rounded-none">
