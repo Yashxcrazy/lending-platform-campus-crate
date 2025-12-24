@@ -49,6 +49,24 @@ export default function AdminDashboard() {
   // Admin Items state
   const [items, setItems] = useState<any[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
+  const [reports, setReports] = useState<any[]>([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  // Fetch stats
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    try {
+      const res: any = await adminAPI.getStats();
+      if (res.success && res.stats) {
+        setStats(res.stats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   // Fetch users (admin-only endpoint)
   const fetchAllUsers = async () => {
@@ -78,12 +96,18 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAllUsers();
-    // Optionally fetch stats if your backend exposes endpoints
+    fetchStats();
   }, []);
 
   useEffect(() => {
     if (activeTab === 'users') {
       fetchAllUsers();
+    }
+    if (activeTab === 'listings') {
+      fetchAdminItems();
+    }
+    if (activeTab === 'reports') {
+      fetchReports();
     }
   }, [activeTab]);
 
@@ -97,6 +121,19 @@ export default function AdminDashboard() {
       setItems([]);
     } finally {
       setLoadingItems(false);
+    }
+  };
+
+  const fetchReports = async () => {
+    setLoadingReports(true);
+    try {
+      const res: any = await adminAPI.getReports({ page: 1, limit: 50 });
+      setReports(res.reports || []);
+    } catch (err) {
+      console.error('Failed to fetch reports:', err);
+      setReports([]);
+    } finally {
+      setLoadingReports(false);
     }
   };
 
@@ -465,16 +502,176 @@ export default function AdminDashboard() {
 
         {/* Placeholder views for other tabs */}
         {activeTab === "overview" && (
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold text-white">Overview</h2>
-            <p className="text-gray-400">Platform overview and charts (implement backend analytics endpoints to populate)</p>
+          <div className="space-y-6">
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-bold text-white mb-6">Platform Overview</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Recent Activity</h3>
+                  <div className="space-y-3">
+                    <div className="glass-card p-4 border-cyan-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Total Platform Users</span>
+                        <span className="text-2xl font-bold text-cyan-400">{stats.totalUsers}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-blue-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Active Listings</span>
+                        <span className="text-2xl font-bold text-blue-400">{stats.totalListings}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-purple-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Total Bookings</span>
+                        <span className="text-2xl font-bold text-purple-400">{stats.totalBookings}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-red-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Pending Reports</span>
+                        <span className="text-2xl font-bold text-red-400">{stats.reportedItems}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setActiveTab('users')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-cyan-400/20"
+                    >
+                      <div className="font-semibold text-white">Manage Users</div>
+                      <div className="text-sm text-gray-400">View and moderate platform users</div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('listings')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-blue-400/20"
+                    >
+                      <div className="font-semibold text-white">Manage Listings</div>
+                      <div className="text-sm text-gray-400">Review and moderate item listings</div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('reports')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-red-400/20"
+                    >
+                      <div className="font-semibold text-white">View Reports</div>
+                      <div className="text-sm text-gray-400">{stats.reportedItems} pending reports</div>
+                    </button>
+                    <button
+                      onClick={fetchStats}
+                      className="w-full btn-glow-cyan flex items-center justify-center gap-2"
+                      disabled={loadingStats}
+                    >
+                      {loadingStats ? 'Refreshing...' : 'Refresh Stats'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === "reports" && (
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold text-white">Reports</h2>
-            <p className="text-gray-400">Reports - implement GET ${BASE_URL}/admin/reports (optional)</p>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Manage Reports</h2>
+              <Button onClick={fetchReports} variant="outline">Refresh</Button>
+            </div>
+            <div className="glass-card p-6">
+              {loadingReports ? (
+                <div>Loading reports...</div>
+              ) : reports.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckCircle2 className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No reports found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Reporter</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Type</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Reason</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Date</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reports.map((report: any) => (
+                        <tr key={report._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-3 text-white text-sm">{report.reporter?.name || '—'}</td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">
+                            {report.reportedItem ? 'Item' : report.reportedUser ? 'User' : '—'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">{report.reason}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${
+                              report.status === 'Pending' ? 'bg-yellow-400/10 text-yellow-400' :
+                              report.status === 'Reviewing' ? 'bg-blue-400/10 text-blue-400' :
+                              report.status === 'Resolved' ? 'bg-green-400/10 text-green-400' :
+                              'bg-gray-400/10 text-gray-300'
+                            }`}>
+                              {report.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">
+                            {new Date(report.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 flex gap-2">
+                            {report.status === 'Pending' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    if (confirm('Resolve this report?')) {
+                                      await adminAPI.resolveReport(report._id, 'Resolved');
+                                      await fetchReports();
+                                      toast({ title: 'Report resolved' });
+                                    }
+                                  }}
+                                >
+                                  Resolve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={async () => {
+                                    if (confirm('Dismiss this report?')) {
+                                      await adminAPI.resolveReport(report._id, 'Dismissed');
+                                      await fetchReports();
+                                      toast({ title: 'Report dismissed' });
+                                    }
+                                  }}
+                                >
+                                  Dismiss
+                                </Button>
+                              </>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={async () => {
+                                if (confirm('Delete this report?')) {
+                                  await adminAPI.deleteReport(report._id);
+                                  await fetchReports();
+                                  toast({ title: 'Report deleted' });
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

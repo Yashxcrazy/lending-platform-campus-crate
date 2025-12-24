@@ -417,6 +417,28 @@ export const reviewsAPI = {
 };
 
 // ============================================================================
+// Reports API
+// ============================================================================
+
+export const reportsAPI = {
+  create: async (report: { reportedItem?: string; reportedUser?: string; reason: string; description: string }) => {
+    try {
+      return await post('/reports', report);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : "Failed to create report" };
+    }
+  },
+
+  getMyReports: async () => {
+    try {
+      return await get('/reports/my-reports');
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : "Failed to fetch reports" };
+    }
+  },
+};
+
+// ============================================================================
 // Helper functions - delegated to fetcher
 // ============================================================================
 
@@ -429,6 +451,14 @@ export const clearAuthToken = auth.clearToken;
 // ============================================================================
 
 export const adminAPI = {
+  getStats: async () => {
+    try {
+      return await get('/admin/stats');
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : "Failed to fetch stats" };
+    }
+  },
+
   getUsers: async () => {
     try {
       return await get('/admin/users');
@@ -519,6 +549,35 @@ export const adminAPI = {
       return await del(`/admin/reviews/${reviewId}`);
     } catch (error) {
       return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete review' };
+    }
+  },
+
+  getReports: async (params?: { status?: string; page?: number; limit?: number }) => {
+    try {
+      const search = new URLSearchParams();
+      if (params?.status) search.append('status', params.status);
+      if (params?.page) search.append('page', String(params.page));
+      if (params?.limit) search.append('limit', String(params.limit));
+      const suffix = search.toString() ? `?${search}` : '';
+      return await get(`/admin/reports${suffix}`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to fetch reports' };
+    }
+  },
+
+  resolveReport: async (reportId: string, status: 'Resolved' | 'Dismissed', adminNotes?: string) => {
+    try {
+      return await put(`/admin/reports/${reportId}/resolve`, { status, adminNotes });
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to resolve report' };
+    }
+  },
+
+  deleteReport: async (reportId: string) => {
+    try {
+      return await del(`/admin/reports/${reportId}`);
+    } catch (error) {
+      return { success: false, error: error instanceof ApiError ? error.message : 'Failed to delete report' };
     }
   },
 };
