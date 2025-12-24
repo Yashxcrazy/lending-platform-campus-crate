@@ -104,6 +104,7 @@ export const useUserReviews = (userId: string) => {
   return useQuery({
     queryKey: ["userReviews", userId],
     queryFn: () => reviewsAPI.getReviews(userId),
+    enabled: Boolean(userId),
     retry: 1,
     retryDelay: 1000,
   });
