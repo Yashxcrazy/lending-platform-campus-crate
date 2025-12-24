@@ -271,7 +271,7 @@ export const usersAPI = {
   },
 
   getReviews: async (userId: string) => {
-    return await get(`/reviews/user/${userId}`);
+    return await get(`/users/${userId}/reviews`);
   },
 
   getPreferences: async () => {
@@ -412,7 +412,11 @@ export const reviewsAPI = {
   },
 
   getForUser: async (userId: string) => {
-    return await get(`/reviews/user/${userId}`);
+    return await get(`/users/${userId}/reviews`);
+  },
+  
+  getReviews: async (userId: string) => {
+    return await get(`/users/${userId}/reviews`);
   },
 };
 
