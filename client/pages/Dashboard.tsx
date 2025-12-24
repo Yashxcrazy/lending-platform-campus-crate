@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { useMyBookings, useMyRentals, useCurrentUser } from "@/hooks/useAPI";
+import { useMyBookings, useMyRentals, useCurrentUser, useMyListings } from "@/hooks/useAPI";
 import {
   BarChart3,
   TrendingUp,
@@ -9,6 +9,7 @@ import {
   Star,
   Clock,
   AlertCircle,
+  AlertTriangle,
   ArrowRight,
   Plus,
 } from "lucide-react";
@@ -16,13 +17,15 @@ import {
 export default function Dashboard() {
   const { data: bookingsData } = useMyBookings();
   const { data: rentalsData } = useMyRentals();
+  const { data: listingsData } = useMyListings();
   const { data: user } = useCurrentUser();
 
   const bookings = bookingsData?.data || [];
   const rentals = rentalsData?.data || [];
+  const listings = listingsData?.items || [];
 
-  const activeBookings = bookings.filter((b) => b.status === "active").length;
-  const activeRentals = rentals.filter((r) => r.status === "active").length;
+  const activeBookings = bookings.filter((b: any) => b.status === "Active").length;
+  const activeRentals = rentals.filter((r: any) => r.status === "Active").length;
   const totalEarnings = rentals.reduce((sum, r) => sum + (r.totalCost || r.totalPrice || 0), 0);
   const rating = user?.rating;
   const reviewCount = user?.reviewCount ?? 0;
@@ -139,42 +142,41 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {bookings.slice(0, 3).map((booking: any) => (
-                    <div
-                      key={booking.id}
-                      className="glass-card p-4 flex items-center justify-between"
-                    >
-                      <div>
-                        <h4 className="font-semibold text-white">
-                          Item Booking
-                        </h4>
-                        <p className="text-sm text-gray-400">
-                          {new Date(booking.startDate).toLocaleDateString()} -{" "}
-                          {new Date(booking.endDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-cyan-300">
-                          ₹{booking.totalPrice}
+                  {bookings.slice(0, 3).map((booking: any) => {
+                    const status = booking.status;
+                    const statusClass =
+                      status === "Active" ? "text-green-400" :
+                      status === "Accepted" ? "text-blue-400" :
+                      status === "Completed" ? "text-gray-400" :
+                      status === "Pending" ? "text-yellow-400" :
+                      "text-red-400";
+                    return (
+                      <div
+                        key={booking.id}
+                        className="glass-card p-4 flex items-center justify-between"
+                      >
+                        <div>
+                          <h4 className="font-semibold text-white">Item Booking</h4>
+                          <p className="text-sm text-gray-400">
+                            {new Date(booking.startDate).toLocaleDateString()} -{" "}
+                            {new Date(booking.endDate).toLocaleDateString()}
+                          </p>
                         </div>
-                        <div className={`text-xs font-semibold ${
-                          booking.status === "active"
-                            ? "text-green-400"
-                            : "text-yellow-400"
-                        }`}>
-                          {booking.status}
+                        <div className="text-right">
+                          <div className="font-bold text-cyan-300">₹{booking.totalPrice}</div>
+                          <div className={`text-xs font-semibold ${statusClass}`}>{status}</div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Recent Rentals */}
+            {/* Your Listings */}
             <div className="glass-card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">Your Rentals</h2>
+                <h2 className="text-xl font-bold text-white">Your Listings</h2>
                 <Link
                   to="/my-listings"
                   className="text-cyan-400 hover:text-cyan-300 text-sm font-semibold"
@@ -183,36 +185,38 @@ export default function Dashboard() {
                 </Link>
               </div>
 
-              {rentals.length === 0 ? (
+              {listings.length === 0 ? (
                 <div className="text-center py-8">
                   <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                   <p className="text-gray-400">You haven't listed any items</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {rentals.slice(0, 3).map((rental: any) => (
-                    <div
-                      key={rental.id}
-                      className="glass-card p-4 flex items-center justify-between"
-                    >
-                      <div>
-                        <h4 className="font-semibold text-white">
-                          {rental.title}
-                        </h4>
-                        <p className="text-sm text-gray-400">
-                          {rental.bookingCount || 0} bookings
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-cyan-300">
-                          ₹{rental.monthlyRate}/month
+                  {listings.slice(0, 3).map((item: any) => {
+                    const availability = item.availability || "Available";
+                    const chipClass =
+                      availability === "Available" ? "text-green-400" :
+                      availability === "Rented" ? "text-yellow-400" :
+                      "text-gray-400";
+                    return (
+                      <div
+                        key={item.id}
+                        className="glass-card p-4 flex items-center justify-between"
+                      >
+                        <div>
+                          <h4 className="font-semibold text-white">{item.title}</h4>
+                          <p className="text-sm text-gray-400">{item.category || "Listing"}</p>
                         </div>
-                        <div className="text-xs text-green-400 font-semibold">
-                          Active
+                        <div className="text-right">
+                          <div className="font-bold text-cyan-300">
+                            ₹{item.monthlyRate || (item.dailyRate ? item.dailyRate * 25 : 0)}/month
+                          </div>
+                          <div className={`text-xs font-semibold ${chipClass}`}>{availability}</div>
+                          <div className="text-xs text-gray-400 mt-1">Bookings: {item.bookingCount ?? 0}</div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -256,7 +260,7 @@ export default function Dashboard() {
             {/* Safety Tips */}
             <div className="glass-card p-6 border-cyan-400/30">
               <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
+                <AlertTriangle className="w-5 h-5" />
                 Safety Tips
               </h3>
               <ul className="space-y-2 text-sm text-gray-400">

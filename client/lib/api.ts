@@ -23,6 +23,8 @@ export interface Listing {
   securityDeposit?: number;
   images: string[];
   condition: string;
+  availability?: string;
+  bookingCount?: number;
   location:
     | string
     | {
@@ -167,6 +169,8 @@ const transformItem = (item: any) => ({
   monthlyRate: item.dailyRate * 25, // Calculate from daily rate
   images: item.images || [],
   condition: item.condition,
+  availability: item.availability,
+  bookingCount: item.bookingCount,
   location:
     typeof item.location === "string"
       ? item.location
@@ -239,7 +243,7 @@ export const listingsAPI = {
 
   getMyListings: async () => {
     try {
-      const data = await get('/items?owner=me');
+      const data = await get('/items?owner=me&includeBookingCount=true');
       return {
         items: Array.isArray(data.items) ? data.items.map(transformItem) : [],
         data: Array.isArray(data.items) ? data.items.map(transformItem) : [],
