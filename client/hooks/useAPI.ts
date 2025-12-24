@@ -103,7 +103,7 @@ export const useUser = (userId: string) => {
 export const useUserReviews = (userId: string) => {
   return useQuery({
     queryKey: ["userReviews", userId],
-    queryFn: () => usersAPI.getReviews(userId),
+    queryFn: () => reviewsAPI.getReviews(userId),
     retry: 1,
     retryDelay: 1000,
   });
