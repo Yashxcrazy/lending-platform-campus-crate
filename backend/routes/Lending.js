@@ -6,6 +6,8 @@ const Notification = require('../models/Notification');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const authenticateToken = require('../middleware/auth');
+const validateObjectId = require('../middleware/validateObjectId');
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 const requireVerified = async (req, res, next) => {
   try {
@@ -34,9 +36,40 @@ const requireVerified = async (req, res, next) => {
 };
 
 // Create lending request
-router.post('/request', authenticateToken, requireVerified, async (req, res) => {
+router.post('/request', authenticateToken, requireVerified, sanitizeInput(['message']), async (req, res) => {
   try {
     const { itemId, startDate, endDate, message } = req.body;
+
+    // Validate dates
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Start date and end date are required' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: 'Invalid date format' });
+    }
+
+    // Check if start date is in the past
+    if (start < today) {
+      return res.status(400).json({ message: 'Start date cannot be in the past' });
+    }
+
+    // Check if end date is after start date
+    if (end <= start) {
+      return res.status(400).json({ message: 'End date must be after start date' });
+    }
+
+    // Check for reasonable rental period (max 1 year)
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    if (days > 365) {
+      return res.status(400).json({ message: 'Rental period cannot exceed 1 year' });
+    }
 
     const item = await Item.findById(itemId).populate('owner');
     if (!item) {
@@ -50,10 +83,6 @@ router.post('/request', authenticateToken, requireVerified, async (req, res) => 
     if (item.owner._id.toString() === req.userId) {
       return res.status(400).json({ message: 'Cannot borrow your own item' });
     }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const totalCost = days * item.dailyRate;
 
     const lendingRequest = new LendingRequest({
@@ -120,7 +149,7 @@ router.get('/my-requests', authenticateToken, requireVerified, async (req, res) 
 });
 
 // Get single lending request
-router.get('/:id', authenticateToken, requireVerified, async (req, res) => {
+router.get('/:id', authenticateToken, requireVerified, validateObjectId(), async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -143,7 +172,7 @@ router.get('/:id', authenticateToken, requireVerified, async (req, res) => {
 });
 
 // Accept lending request
-router.post('/:id/accept', authenticateToken, requireVerified, async (req, res) => {
+router.post('/:id/accept', authenticateToken, requireVerified, validateObjectId(), async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -196,7 +225,7 @@ router.post('/:id/accept', authenticateToken, requireVerified, async (req, res) 
 });
 
 // Reject lending request
-router.post('/:id/reject', authenticateToken, requireVerified, async (req, res) => {
+router.post('/:id/reject', authenticateToken, requireVerified, validateObjectId(), sanitizeInput(['reason']), async (req, res) => {
   try {
     const { reason } = req.body;
     const request = await LendingRequest.findById(req.params.id)
@@ -243,7 +272,7 @@ router.post('/:id/reject', authenticateToken, requireVerified, async (req, res) 
 });
 
 // Complete lending
-router.post('/:id/complete', authenticateToken, requireVerified, async (req, res) => {
+router.post('/:id/complete', authenticateToken, requireVerified, validateObjectId(), async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -298,7 +327,7 @@ router.post('/:id/complete', authenticateToken, requireVerified, async (req, res
 });
 
 // Get messages for a lending request (anonymous chat)
-router.get('/:id/messages', authenticateToken, requireVerified, async (req, res) => {
+router.get('/:id/messages', authenticateToken, requireVerified, validateObjectId(), async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id);
     if (!request) return res.status(404).json({ message: 'Lending request not found' });
@@ -324,7 +353,7 @@ router.get('/:id/messages', authenticateToken, requireVerified, async (req, res)
 });
 
 // Send message for a lending request
-router.post('/:id/messages', authenticateToken, requireVerified, async (req, res) => {
+router.post('/:id/messages', authenticateToken, requireVerified, validateObjectId(), sanitizeInput(['content']), async (req, res) => {
   try {
     const { content } = req.body || {};
     if (!content || !content.trim()) {

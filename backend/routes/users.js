@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const Review = require('../models/Review');
 const authenticateToken = require('../middleware/auth');
+const validateObjectId = require('../middleware/validateObjectId');
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 // Get preferences for current user
 router.get('/preferences', authenticateToken, async (req, res) => {
@@ -74,7 +76,7 @@ router.delete('/me', authenticateToken, async (req, res) => {
 });
 
 // Get user profile by ID
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', validateObjectId('userId'), async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
       .select('-password')
@@ -91,7 +93,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', authenticateToken, async (req, res) => {
+router.put('/profile', authenticateToken, sanitizeInput(['name', 'campus', 'studentId']), async (req, res) => {
   try {
     const { name, phone, campus, studentId, profileImage } = req.body;
     

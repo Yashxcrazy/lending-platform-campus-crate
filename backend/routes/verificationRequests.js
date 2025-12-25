@@ -4,6 +4,8 @@ const VerificationRequest = require('../models/VerificationRequest');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const isAdmin = require('../middleware/isAdmin');
+const validateObjectId = require('../middleware/validateObjectId');
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 // Helpers
 const sendNotification = async ({ userId, title, message, relatedId, link, type = 'Verification' }) => {
@@ -17,7 +19,7 @@ const sendNotification = async ({ userId, title, message, relatedId, link, type 
 
 // POST /api/verification-requests
 // Create or reuse a pending verification request for the logged-in user
-router.post('/', async (req, res) => {
+router.post('/', sanitizeInput(['message']), async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
@@ -81,7 +83,7 @@ router.get('/', isAdmin, async (req, res) => {
 });
 
 // ADMIN: PUT /api/verification-requests/:id/status
-router.put('/:id/status', isAdmin, async (req, res) => {
+router.put('/:id/status', isAdmin, validateObjectId(), sanitizeInput(['adminNote']), async (req, res) => {
   try {
     const { status, adminNote } = req.body || {};
     if (!['pending', 'approved', 'rejected'].includes(status)) {
@@ -120,7 +122,7 @@ router.put('/:id/status', isAdmin, async (req, res) => {
 });
 
 // ADMIN: POST /api/verification-requests/:id/message
-router.post('/:id/message', isAdmin, async (req, res) => {
+router.post('/:id/message', isAdmin, validateObjectId(), sanitizeInput(['content']), async (req, res) => {
   try {
     const { content } = req.body || {};
     if (!content || !content.trim()) {

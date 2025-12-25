@@ -1,40 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Star, ArrowLeft } from "lucide-react";
+import { useCreateReview, useBooking } from "@/hooks/useAPI";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LendingReview() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toUserId, setToUserId] = useState("");
+  
+  const createReview = useCreateReview();
+  const { data: booking, isLoading } = useBooking(id || "");
+
+  // Determine who to review (the other party in the transaction)
+  useEffect(() => {
+    if (booking) {
+      // If current user is the borrower, review the lender; otherwise review the borrower
+      const currentUserId = localStorage.getItem('userId');
+      if (booking.borrower?._id === currentUserId || booking.borrower === currentUserId) {
+        setToUserId(booking.lender?._id || booking.lender);
+      } else {
+        setToUserId(booking.borrower?._id || booking.borrower);
+      }
+    }
+  }, [booking]);
 
   const handleSubmitReview = async () => {
     if (rating === 0) {
-      alert("Please select a rating");
+      toast({
+        title: "Rating Required",
+        description: "Please select a rating before submitting",
+        variant: "destructive",
+      });
       return;
     }
 
-    setIsSubmitting(true);
+    if (!id || !toUserId) {
+      toast({
+        title: "Error",
+        description: "Missing required information",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // TODO: Call API to submit review
-      // await submitReview.mutateAsync({
-      //   bookingId: id,
-      //   rating,
-      //   comment,
-      // });
-      alert("Review submitted successfully!");
+      await createReview.mutateAsync({
+        bookingId: id,
+        toUserId,
+        rating,
+        comment,
+      });
+      
+      toast({
+        title: "Success",
+        description: "Review submitted successfully!",
+      });
+      
       navigate("/my-rentals");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to submit review:", error);
-      alert("Failed to submit review");
-    } finally {
-      setIsSubmitting(false);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to submit review",
+        variant: "destructive",
+      });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container-center max-w-2xl py-12 px-4">
+          <div className="text-white text-center">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,7 +202,10 @@ export default function LendingReview() {
             {/* Submit Button */}
             <Button
               onClick={handleSubmitReview}
-              disabled={isSubmitting || rating === 0}
+              disabled={createReview.isPending || rating === 0}
+              className="w-full btn-glow-cyan text-lg py-6"
+            >
+              {createReview.isPending ? "Submitting..." : "Submit Review"}
               className="w-full btn-glow-cyan py-6 text-lg"
             >
               {isSubmitting ? "Submitting..." : "Submit Review"}

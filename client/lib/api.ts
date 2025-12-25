@@ -440,12 +440,12 @@ export const reviewsAPI = {
 
   getForUser: async (userId: string) => {
     if (!userId) return [];
-    return await get(`/users/${userId}/reviews`);
+    return await get(`/reviews/user/${userId}`);
   },
   
   getReviews: async (userId: string) => {
     if (!userId) return [];
-    return await get(`/users/${userId}/reviews`);
+    return await get(`/reviews/user/${userId}`);
   },
 };
 

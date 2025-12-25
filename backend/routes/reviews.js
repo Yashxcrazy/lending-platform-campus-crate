@@ -4,9 +4,11 @@ const Review = require('../models/Review');
 const LendingRequest = require('../models/LendingRequest');
 const User = require('../models/User');
 const authenticateToken = require('../middleware/auth');
+const validateObjectId = require('../middleware/validateObjectId');
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 // Create a review
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, sanitizeInput(['comment']), async (req, res) => {
   try {
     const { bookingId, toUserId, rating, comment, categories } = req.body;
 
@@ -70,7 +72,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Get reviews for a user
-router.get('/user/:userId', async (req, res) => {
+router.get('/user/:userId', validateObjectId('userId'), async (req, res) => {
   try {
     const reviews = await Review.find({ reviewee: req.params.userId })
       .populate('reviewer', 'name profileImage')

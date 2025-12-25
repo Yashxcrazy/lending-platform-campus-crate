@@ -934,6 +934,90 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === "verification" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Verification Requests</h2>
+            </div>
+            <div className="glass-card p-6">
+              {loadingVerification ? (
+                <div>Loading verification requests...</div>
+              ) : verificationRequests.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckCircle2 className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No pending verification requests</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verificationRequests.map((request: any) => (
+                    <div key={request._id} className="glass-card p-6 border border-white/10">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{request.user?.name || 'Unknown'}</h3>
+                          <p className="text-sm text-gray-400">{request.user?.email}</p>
+                          <p className="text-xs text-gray-500 mt-1">Submitted: {new Date(request.createdAt).toLocaleString()}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-md text-xs font-semibold ${
+                          request.status === 'approved' ? 'bg-green-400/15 text-green-400 border border-green-400/30' :
+                          request.status === 'rejected' ? 'bg-red-400/15 text-red-400 border border-red-400/30' :
+                          'bg-yellow-400/15 text-yellow-400 border border-yellow-400/30'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
+
+                      {request.message && (
+                        <div className="mb-4 p-3 bg-white/5 rounded-lg">
+                          <p className="text-sm text-gray-300"><strong>User message:</strong> {request.message}</p>
+                        </div>
+                      )}
+
+                      {request.adminMessages && request.adminMessages.length > 0 && (
+                        <div className="mb-4 space-y-2">
+                          <p className="text-sm font-semibold text-white">Admin Messages:</p>
+                          {request.adminMessages.map((msg: any, idx: number) => (
+                            <div key={idx} className="p-2 bg-cyan-400/10 rounded text-sm text-gray-300">
+                              {msg.content} <span className="text-xs text-gray-500">({new Date(msg.createdAt).toLocaleString()})</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSendVerificationMessage(request._id)}
+                          className="btn-glow-cyan"
+                        >
+                          Send Message
+                        </Button>
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateVerificationStatus(request._id, 'approved')}
+                              className="bg-green-500 hover:bg-green-600"
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleUpdateVerificationStatus(request._id, 'rejected')}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

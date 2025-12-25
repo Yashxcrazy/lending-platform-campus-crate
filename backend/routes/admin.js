@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Item = require('../models/Item');
 const Review = require('../models/Review');
 const isAdmin = require('../middleware/isAdmin');
+const validateObjectId = require('../middleware/validateObjectId');
 
 // GET /api/admin/users - list users (admin only)
 router.get('/users', isAdmin, async (req, res) => {
@@ -17,7 +18,7 @@ router.get('/users', isAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/users/:id/role - change user role (admin only)
-router.put('/users/:id/role', isAdmin, async (req, res) => {
+router.put('/users/:id/role', isAdmin, validateObjectId(), async (req, res) => {
   try {
     const targetId = req.params.id;
     const { role } = req.body;
@@ -52,7 +53,7 @@ router.put('/users/:id/role', isAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/users/:id/verify - mark user verified (admin only)
-router.put('/users/:id/verify', isAdmin, async (req, res) => {
+router.put('/users/:id/verify', isAdmin, validateObjectId(), async (req, res) => {
   try {
     const target = await User.findById(req.params.id);
     if (!target) return res.status(404).json({ success: false, error: 'User not found' });
@@ -70,7 +71,7 @@ router.put('/users/:id/verify', isAdmin, async (req, res) => {
 module.exports = router;
 
 // Deactivate a user (admin only)
-router.put('/users/:id/deactivate', isAdmin, async (req, res) => {
+router.put('/users/:id/deactivate', isAdmin, validateObjectId(), async (req, res) => {
   try {
     const target = await User.findById(req.params.id);
     if (!target) return res.status(404).json({ success: false, error: 'User not found' });
@@ -115,7 +116,7 @@ router.get('/items', isAdmin, async (req, res) => {
 });
 
 // Deactivate an item (admin only)
-router.put('/items/:id/deactivate', isAdmin, async (req, res) => {
+router.put('/items/:id/deactivate', isAdmin, validateObjectId(), async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
@@ -129,7 +130,7 @@ router.put('/items/:id/deactivate', isAdmin, async (req, res) => {
 });
 
 // Delete a review (admin only)
-router.delete('/reviews/:id', isAdmin, async (req, res) => {
+router.delete('/reviews/:id', isAdmin, validateObjectId(), async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ success: false, error: 'Review not found' });

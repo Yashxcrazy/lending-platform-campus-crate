@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
 const authenticateToken = require('../middleware/auth');
+const validateObjectId = require('../middleware/validateObjectId');
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 // Get all items with filters
 router.get('/', async (req, res) => {
@@ -82,7 +84,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get single item
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId(), async (req, res) => {
   try {
     const item = await Item.findById(req.params.id)
       .populate('owner', 'name profileImage rating reviewCount campus phone email');
@@ -101,7 +103,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create item
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, sanitizeInput(['title', 'description', 'tags']), async (req, res) => {
   try {
     const {
       title,
@@ -145,7 +147,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Update item
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, validateObjectId(), sanitizeInput(['title', 'description', 'tags']), async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
 
@@ -193,7 +195,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete item
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, validateObjectId(), async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
 
@@ -215,7 +217,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // Get user's items
-router.get('/user/:userId', async (req, res) => {
+router.get('/user/:userId', validateObjectId('userId'), async (req, res) => {
   try {
     const items = await Item.find({
       owner: req.params.userId,

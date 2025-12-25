@@ -74,6 +74,7 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
 const reviewRoutes = require('./routes/reviews');
 const verificationRoutes = require('./routes/verificationRequests');
+const reportRoutes = require('./routes/reports');
 const authenticateToken = require('./middleware/auth');
 
 app.use('/api/auth', authRoutes);
@@ -83,6 +84,7 @@ app.use('/api/admin', authenticateToken, adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/verification-requests', authenticateToken, verificationRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 
