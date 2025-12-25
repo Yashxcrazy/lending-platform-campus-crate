@@ -116,7 +116,7 @@ export default function Contact() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John Doe"
+                placeholder=""
                 required
                 className="glass-card border-cyan-400/30 bg-white/5"
               />
@@ -130,7 +130,7 @@ export default function Contact() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john@nitrr.ac.in"
+                placeholder="youremail@nitrr.ac.in"
                 required
                 className="glass-card border-cyan-400/30 bg-white/5"
               />
