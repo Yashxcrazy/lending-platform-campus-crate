@@ -341,6 +341,7 @@ export default function AdminDashboard() {
 
               {loadingUsers ? (
                 <div>Loading users...</div>
+              ) : (
                 <div className="overflow-x-auto rounded-lg border border-white/10">
                   <table className="w-full">
                     <thead>
