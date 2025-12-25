@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { useNavigate } from "react-router-dom";
 import { Shield, Eye, MessageSquare, Camera, MapPin, AlertTriangle, CheckCircle, Users } from "lucide-react";
 
 const safetyTips = [
@@ -104,6 +105,8 @@ const colorMap: Record<string, { bg: string; border: string; icon: string }> = {
 };
 
 export default function SafetyTips() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -169,7 +172,7 @@ export default function SafetyTips() {
             If you encounter fraud, harassment, or safety concerns, report them immediately. We take all 
             reports seriously and will take appropriate action to protect the community.
           </p>
-          <button className="btn-glow-red">
+          <button onClick={() => navigate("/report")} className="btn-glow-red">
             Report an Issue
           </button>
         </div>
