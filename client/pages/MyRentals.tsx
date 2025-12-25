@@ -40,7 +40,9 @@ const statusIcons = {
 };
 
 export default function MyRentals() {
+  // All hooks must be at the top level
   const [filter, setFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<"rentals" | "bookings">("rentals");
   const {
     data: rentalsData,
     isLoading: rentalsLoading,
@@ -56,6 +58,7 @@ export default function MyRentals() {
   const { data: currentUser } = useCurrentUser();
   const updateStatus = useUpdateBookingStatus();
 
+  // Non-hook logic below
   let storedUser: any = {};
   try {
     storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -67,8 +70,6 @@ export default function MyRentals() {
   const isVerified = Boolean(
     currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
   );
-
-  const [activeTab, setActiveTab] = useState<"rentals" | "bookings">("rentals");
 
   const error = activeTab === "rentals" ? rentalsError : bookingsError;
   const isLoading = activeTab === "rentals" ? rentalsLoading : bookingsLoading;
