@@ -17,6 +17,12 @@ export default function Chat() {
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const submitVerification = useSubmitVerification();
+  const { data: verificationData } = useVerificationStatus();
+  const { data: currentUser } = useCurrentUser();
+  const sendMessage = useSendMessage();
+
   let storedUser: any = {};
   try {
     storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -24,17 +30,12 @@ export default function Chat() {
     storedUser = {};
   }
 
-  const submitVerification = useSubmitVerification();
-  const { data: verificationData } = useVerificationStatus();
-  const { data: currentUser } = useCurrentUser();
-
   const verificationStatus = verificationData?.request?.status;
   const isVerified = Boolean(
     currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
   );
 
   const { data: messagesData, isLoading } = useMessages(id!, isVerified);
-  const sendMessage = useSendMessage();
 
   const messages = messagesData?.data || [];
 

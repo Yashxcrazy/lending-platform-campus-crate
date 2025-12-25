@@ -38,6 +38,8 @@ export default function ItemDetails() {
   const submitVerification = useSubmitVerification();
   const { data: verificationData } = useVerificationStatus();
   const { data: currentUser } = useCurrentUser();
+  const { data: listing, isLoading, error } = useListing(id!);
+  const createBookingMutation = useCreateBooking();
 
   let storedUser: any = {};
   try {
@@ -50,9 +52,6 @@ export default function ItemDetails() {
   const isVerified = Boolean(
     currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
   );
-
-  const { data: listing, isLoading, error } = useListing(id!);
-  const createBookingMutation = useCreateBooking();
 
   if (isLoading) {
     return (
