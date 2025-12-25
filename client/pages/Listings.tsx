@@ -306,6 +306,8 @@ export default function Listings() {
                               className="btn-glow-cyan"
                               onClick={(e) => {
                                 e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/listing/${listing.id}`;
                               }}
                             >
                               View
