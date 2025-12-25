@@ -384,15 +384,7 @@ export default function MyRentals() {
                                   </Link>
                                 </>
                               )}
-                                  <Link
-                                    to={isVerified ? `/lending/${request.id}/chat` : "#"}
-                                    onClick={(e) => {
-                                      if (!isVerified) {
-                                        e.preventDefault();
-                                        ensureVerified();
-                                      }
-                                    }}
-                                  >
+                              {request.status === "Completed" && (
                                 <Link to={`/lending/${request.id}/review`}>
                                   <Button className="w-full btn-glow-red text-sm">
                                     Leave Review
