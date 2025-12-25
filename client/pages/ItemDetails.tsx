@@ -8,6 +8,7 @@ import {
   useCreateBooking,
   useSubmitVerification,
   useVerificationStatus,
+  useCurrentUser,
 } from "@/hooks/useAPI";
 import {
   Star,
@@ -36,6 +37,7 @@ export default function ItemDetails() {
 
   const submitVerification = useSubmitVerification();
   const { data: verificationData } = useVerificationStatus();
+  const { data: currentUser } = useCurrentUser();
 
   let storedUser: any = {};
   try {
@@ -45,7 +47,9 @@ export default function ItemDetails() {
   }
 
   const verificationStatus = verificationData?.request?.status;
-  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
+  const isVerified = Boolean(
+    currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
+  );
 
   const { data: listing, isLoading, error } = useListing(id!);
   const createBookingMutation = useCreateBooking();

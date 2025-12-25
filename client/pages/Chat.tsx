@@ -8,6 +8,7 @@ import {
   useSendMessage,
   useSubmitVerification,
   useVerificationStatus,
+  useCurrentUser,
 } from "@/hooks/useAPI";
 import { ArrowLeft, Send } from "lucide-react";
 
@@ -25,9 +26,12 @@ export default function Chat() {
 
   const submitVerification = useSubmitVerification();
   const { data: verificationData } = useVerificationStatus();
+  const { data: currentUser } = useCurrentUser();
 
   const verificationStatus = verificationData?.request?.status;
-  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
+  const isVerified = Boolean(
+    currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
+  );
 
   const { data: messagesData, isLoading } = useMessages(id!, isVerified);
   const sendMessage = useSendMessage();

@@ -5,6 +5,7 @@ import {
   useUpdateBookingStatus,
   useSubmitVerification,
   useVerificationStatus,
+  useCurrentUser,
 } from "@/hooks/useAPI";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ export default function MyRentals() {
   } = useMyBookings();
   const submitVerification = useSubmitVerification();
   const { data: verificationData } = useVerificationStatus();
+  const { data: currentUser } = useCurrentUser();
   const updateStatus = useUpdateBookingStatus();
 
   let storedUser: any = {};
@@ -62,7 +64,9 @@ export default function MyRentals() {
   }
 
   const verificationStatus = verificationData?.request?.status;
-  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
+  const isVerified = Boolean(
+    currentUser?.isVerified || storedUser?.isVerified || verificationStatus === "approved"
+  );
 
   const [activeTab, setActiveTab] = useState<"rentals" | "bookings">("rentals");
 
