@@ -73,6 +73,7 @@ const lendingRoutes = require('./routes/Lending');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
 const reviewRoutes = require('./routes/reviews');
+const verificationRoutes = require('./routes/verificationRequests');
 const authenticateToken = require('./middleware/auth');
 
 app.use('/api/auth', authRoutes);
@@ -81,6 +82,7 @@ app.use('/api/lending', lendingRoutes);
 app.use('/api/admin', authenticateToken, adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/verification-requests', authenticateToken, verificationRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 

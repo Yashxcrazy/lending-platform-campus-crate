@@ -3,6 +3,8 @@ import {
   useMyRentals,
   useMyBookings,
   useUpdateBookingStatus,
+  useSubmitVerification,
+  useVerificationStatus,
 } from "@/hooks/useAPI";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -48,7 +50,19 @@ export default function MyRentals() {
     isLoading: bookingsLoading,
     error: bookingsError,
   } = useMyBookings();
+  const submitVerification = useSubmitVerification();
+  const { data: verificationData } = useVerificationStatus();
   const updateStatus = useUpdateBookingStatus();
+
+  let storedUser: any = {};
+  try {
+    storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (err) {
+    storedUser = {};
+  }
+
+  const verificationStatus = verificationData?.request?.status;
+  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
 
   const [activeTab, setActiveTab] = useState<"rentals" | "bookings">("rentals");
 
@@ -63,7 +77,31 @@ export default function MyRentals() {
     return request.status?.toLowerCase() === filter.toLowerCase();
   });
 
+  const ensureVerified = () => {
+    if (!isVerified) {
+      const wants = window.confirm(
+        "You are not verified. Send a verification request now?"
+      );
+      if (wants) {
+        handleSendVerificationRequest();
+      }
+      return false;
+    }
+    return true;
+  };
+
+  const handleSendVerificationRequest = async () => {
+    const note = window.prompt("Add details for verification (optional)", "");
+    try {
+      await submitVerification.mutateAsync(note || "");
+      alert("Verification request sent to admins.");
+    } catch (err) {
+      alert("Failed to send verification request.");
+    }
+  };
+
   const handleAccept = async (id: string) => {
+    if (!ensureVerified()) return;
     if (window.confirm("Accept this request?")) {
       try {
         await updateStatus.mutateAsync({ id, status: "Accepted" });
@@ -75,6 +113,7 @@ export default function MyRentals() {
   };
 
   const handleReject = async (id: string) => {
+    if (!ensureVerified()) return;
     if (window.confirm("Reject this request?")) {
       try {
         await updateStatus.mutateAsync({ id, status: "Rejected" });
@@ -86,6 +125,7 @@ export default function MyRentals() {
   };
 
   const handleComplete = async (id: string) => {
+    if (!ensureVerified()) return;
     if (window.confirm("Mark as complete? You can leave a review after.")) {
       try {
         await updateStatus.mutateAsync({ id, status: "Completed" });
@@ -105,6 +145,24 @@ export default function MyRentals() {
           <h1 className="marvel-title mb-2">My Rentals</h1>
           <p className="marvel-subtitle">Manage your active and past rentals</p>
         </div>
+
+        {!isVerified && (
+          <div className="glass-card border border-yellow-400/30 bg-yellow-400/10 p-4 rounded-lg text-yellow-200 text-sm mt-4">
+            {verificationStatus
+              ? `Verification status: ${verificationStatus}`
+              : "Verify your account to accept requests, complete rentals, or use chat."}
+            <div className="mt-2 flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSendVerificationRequest}
+                disabled={submitVerification.isPending}
+              >
+                {submitVerification.isPending ? "Sending..." : "Send Verification Request"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-cyan-400/20">
@@ -282,6 +340,7 @@ export default function MyRentals() {
                                 <>
                                   <Button
                                     onClick={() => handleAccept(request.id)}
+                                    disabled={!isVerified}
                                     className="btn-glow-cyan text-sm"
                                   >
                                     Accept
@@ -289,6 +348,7 @@ export default function MyRentals() {
                                   <Button
                                     onClick={() => handleReject(request.id)}
                                     variant="outline"
+                                    disabled={!isVerified}
                                     className="text-sm text-red-400"
                                   >
                                     Reject
@@ -299,13 +359,23 @@ export default function MyRentals() {
                                 <>
                                   <Button
                                     onClick={() => handleComplete(request.id)}
+                                      disabled={!isVerified}
                                     className="btn-glow-cyan text-sm"
                                   >
                                     Complete
                                   </Button>
-                                  <Link to={`/lending/${request.id}/chat`}>
+                                  <Link
+                                    to={isVerified ? `/lending/${request.id}/chat` : "#"}
+                                    onClick={(e) => {
+                                      if (!isVerified) {
+                                        e.preventDefault();
+                                        ensureVerified();
+                                      }
+                                    }}
+                                  >
                                     <Button
                                       variant="outline"
+                                      disabled={!isVerified}
                                       className="w-full text-sm flex items-center gap-2 justify-center"
                                     >
                                       <MessageSquare className="w-4 h-4" />
@@ -314,7 +384,15 @@ export default function MyRentals() {
                                   </Link>
                                 </>
                               )}
-                              {request.status === "Completed" && (
+                                  <Link
+                                    to={isVerified ? `/lending/${request.id}/chat` : "#"}
+                                    onClick={(e) => {
+                                      if (!isVerified) {
+                                        e.preventDefault();
+                                        ensureVerified();
+                                      }
+                                    }}
+                                  >
                                 <Link to={`/lending/${request.id}/review`}>
                                   <Button className="w-full btn-glow-red text-sm">
                                     Leave Review

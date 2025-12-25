@@ -3,7 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMessages, useSendMessage } from "@/hooks/useAPI";
+import {
+  useMessages,
+  useSendMessage,
+  useSubmitVerification,
+  useVerificationStatus,
+} from "@/hooks/useAPI";
 import { ArrowLeft, Send } from "lucide-react";
 
 export default function Chat() {
@@ -11,7 +16,20 @@ export default function Chat() {
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { data: messagesData, isLoading } = useMessages(id!);
+  let storedUser: any = {};
+  try {
+    storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (err) {
+    storedUser = {};
+  }
+
+  const submitVerification = useSubmitVerification();
+  const { data: verificationData } = useVerificationStatus();
+
+  const verificationStatus = verificationData?.request?.status;
+  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
+
+  const { data: messagesData, isLoading } = useMessages(id!, isVerified);
   const sendMessage = useSendMessage();
 
   const messages = messagesData?.data || [];
@@ -26,6 +44,11 @@ export default function Chat() {
 
   const handleSendMessage = async () => {
     if (!messageText.trim()) return;
+
+    if (!isVerified) {
+      alert("Verify your account to send messages.");
+      return;
+    }
 
     const text = messageText;
     setMessageText("");
@@ -61,6 +84,32 @@ export default function Chat() {
             </p>
           </div>
         </div>
+
+        {!isVerified && (
+          <div className="glass-card border border-yellow-400/30 bg-yellow-400/10 p-3 rounded-lg text-yellow-200 text-sm mb-4">
+            {verificationStatus
+              ? `Verification status: ${verificationStatus}`
+              : "Verify your account to read and send messages."}
+            <div className="mt-2 flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  const note = window.prompt("Add details for verification (optional)", "");
+                  try {
+                    await submitVerification.mutateAsync(note || "");
+                    alert("Verification request sent to admins.");
+                  } catch (err) {
+                    alert("Failed to send verification request.");
+                  }
+                }}
+                disabled={submitVerification.isPending}
+              >
+                {submitVerification.isPending ? "Sending..." : "Send Verification Request"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Messages Container */}
         <div className="flex-1 glass-card border border-cyan-400/20 rounded-lg p-6 mb-6 overflow-y-auto space-y-4 min-h-96 max-h-96">
@@ -119,11 +168,12 @@ export default function Chat() {
               }
             }}
             placeholder="Type your message... (Keep both parties safe)"
+            disabled={!isVerified}
             className="flex-1 glass-card border-cyan-400/30 bg-white/5"
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!messageText.trim()}
+            disabled={!messageText.trim() || !isVerified}
             className="btn-glow-cyan px-6"
           >
             <Send className="w-4 h-4" />

@@ -3,7 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useListing, useCreateBooking } from "@/hooks/useAPI";
+import {
+  useListing,
+  useCreateBooking,
+  useSubmitVerification,
+  useVerificationStatus,
+} from "@/hooks/useAPI";
 import {
   Star,
   MapPin,
@@ -28,6 +33,19 @@ export default function ItemDetails() {
   const [endDate, setEndDate] = useState("");
   const [message, setMessage] = useState("");
   const [requestLoading, setRequestLoading] = useState(false);
+
+  const submitVerification = useSubmitVerification();
+  const { data: verificationData } = useVerificationStatus();
+
+  let storedUser: any = {};
+  try {
+    storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (err) {
+    storedUser = {};
+  }
+
+  const verificationStatus = verificationData?.request?.status;
+  const isVerified = Boolean(storedUser?.isVerified || verificationStatus === "approved");
 
   const { data: listing, isLoading, error } = useListing(id!);
   const createBookingMutation = useCreateBooking();
@@ -90,6 +108,11 @@ export default function ItemDetails() {
   }
 
   const handleRequestItem = async () => {
+    if (!isVerified) {
+      alert("Please verify your account to send a borrowing request.");
+      return;
+    }
+
     if (!startDate || !endDate) {
       alert("Please select both start and end dates");
       return;
@@ -129,6 +152,16 @@ export default function ItemDetails() {
       alert("Failed to send request. Please try again.");
     } finally {
       setRequestLoading(false);
+    }
+  };
+
+  const handleSendVerificationRequest = async () => {
+    const note = window.prompt("Add details for verification (optional)", "");
+    try {
+      await submitVerification.mutateAsync(note || "");
+      alert("Verification request sent to admins. You'll be notified once reviewed.");
+    } catch (err) {
+      alert("Failed to send verification request. Please try again.");
     }
   };
 
@@ -282,12 +315,31 @@ export default function ItemDetails() {
                 Request to Borrow
               </h2>
 
+              {!isVerified && (
+                <div className="mb-4 glass-card bg-yellow-400/10 border border-yellow-400/30 text-yellow-200 text-sm p-3 rounded">
+                  {verificationStatus
+                    ? `Verification status: ${verificationStatus}`
+                    : "You are not verified yet. Submit a verification request to continue."}
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSendVerificationRequest}
+                      disabled={submitVerification.isPending}
+                    >
+                      {submitVerification.isPending ? "Sending..." : "Send Verification Request"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {!showRequestForm ? (
                 <Button
                   onClick={() => setShowRequestForm(true)}
+                  disabled={!isVerified}
                   className="w-full btn-glow-cyan py-6"
                 >
-                  Send Request
+                  {isVerified ? "Send Request" : "Verify to Request"}
                 </Button>
               ) : (
                 <div className="space-y-4">
@@ -361,10 +413,10 @@ export default function ItemDetails() {
                   <div className="flex gap-2">
                     <Button
                       onClick={handleRequestItem}
-                      disabled={requestLoading || !startDate || !endDate}
+                      disabled={requestLoading || !startDate || !endDate || !isVerified}
                       className="flex-1 btn-glow-cyan"
                     >
-                      {requestLoading ? "Sending..." : "Send Request"}
+                      {requestLoading ? "Sending..." : isVerified ? "Send Request" : "Verify to Request"}
                     </Button>
                     <Button
                       onClick={() => setShowRequestForm(false)}

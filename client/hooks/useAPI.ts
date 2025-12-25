@@ -11,6 +11,8 @@ import {
   User,
   Message,
   Review,
+  verificationAPI,
+  VerificationRequest,
 } from "@/lib/api";
 
 // ============================================================================
@@ -224,13 +226,14 @@ export const useCancelBooking = () => {
 // Messages Hooks
 // ============================================================================
 
-export const useMessages = (bookingId: string) => {
+export const useMessages = (bookingId: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["messages", bookingId],
     queryFn: () => messagesAPI.getForBooking(bookingId),
     refetchInterval: 2000,
     retry: 1,
     retryDelay: 1000,
+    enabled,
   });
 };
 
@@ -246,6 +249,66 @@ export const useSendMessage = () => {
     }) => messagesAPI.send(bookingId, content),
     onSuccess: (_, { bookingId }) => {
       queryClient.invalidateQueries({ queryKey: ["messages", bookingId], refetchType: 'active' });
+    },
+  });
+};
+
+// ============================================================================
+// Verification Requests Hooks
+// ============================================================================
+
+export const useVerificationStatus = () => {
+  return useQuery({
+    queryKey: ["verificationStatus"],
+    queryFn: () => verificationAPI.myRequest(),
+    retry: 1,
+    retryDelay: 1000,
+  });
+};
+
+export const useSubmitVerification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (message?: string) => verificationAPI.submit(message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["verificationStatus"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["currentUser"], refetchType: 'active' });
+    },
+  });
+};
+
+export const useAdminVerificationRequests = (status?: VerificationRequest["status"]) => {
+  return useQuery({
+    queryKey: ["adminVerificationRequests", status],
+    queryFn: () => verificationAPI.adminList(status),
+    retry: 1,
+    retryDelay: 1000,
+  });
+};
+
+export const useAdminSendVerificationMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requestId, content }: { requestId: string; content: string }) =>
+      verificationAPI.adminSendMessage(requestId, content),
+    onSuccess: (_, { requestId }) => {
+      queryClient.invalidateQueries({ queryKey: ["adminVerificationRequests"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["verificationStatus"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["verificationRequest", requestId], refetchType: 'active' });
+    },
+  });
+};
+
+export const useAdminUpdateVerificationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requestId, status, adminNote }: { requestId: string; status: VerificationRequest["status"]; adminNote?: string }) =>
+      verificationAPI.adminUpdateStatus(requestId, status, adminNote),
+    onSuccess: (_, { requestId }) => {
+      queryClient.invalidateQueries({ queryKey: ["adminVerificationRequests"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["verificationStatus"], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["verificationRequest", requestId], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: ["currentUser"], refetchType: 'active' });
     },
   });
 };

@@ -86,6 +86,26 @@ export interface Review {
   createdAt: string;
 }
 
+export interface VerificationAdminMessage {
+  sender?: { _id?: string; name?: string; email?: string } | string;
+  content: string;
+  createdAt?: string;
+}
+
+export interface VerificationRequest {
+  id: string;
+  _id?: string;
+  user: User;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected';
+  adminNote?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  adminMessages?: VerificationAdminMessage[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // ============================================================================
 // Auth API
 // ============================================================================
@@ -308,14 +328,22 @@ export const usersAPI = {
 // ============================================================================
 
 export const bookingsAPI = {
-  create: async (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) => {
+  create: async (
+    booking: Omit<Booking, "id" | "createdAt" | "updatedAt"> & {
+      itemId?: string;
+      item?: string;
+      message?: string;
+      securityDeposit?: number;
+      totalCost?: number;
+    },
+  ) => {
     try {
       // Transform frontend booking format to backend lending request format
       const requestData = {
-        itemId: booking.listingId,
+        itemId: booking.itemId || booking.listingId || (booking as any).item,
         startDate: booking.startDate,
         endDate: booking.endDate,
-        message: "" // Optional message field
+        message: (booking as any).message || "" // Optional message field
       };
       
       return await post('/lending/request', requestData);
@@ -334,15 +362,14 @@ export const bookingsAPI = {
 
   getMyRentals: async () => {
     try {
-      const data = await get('/lending/my-rentals');
+      const data = await get('/lending/my-requests?type=lending');
+      const list = Array.isArray(data) ? data : data?.data || [];
       return {
-        data: Array.isArray(data?.data)
-          ? data.data.map((r: any) => ({
-              ...r,
-              id: r._id || r.id,
-              itemTitle: r.item?.title || r.itemTitle,
-            }))
-          : [],
+        data: list.map((r: any) => ({
+          ...r,
+          id: r._id || r.id,
+          itemTitle: r.item?.title || r.itemTitle,
+        })),
       };
     } catch (error) {
       throw error;
@@ -352,14 +379,13 @@ export const bookingsAPI = {
   getMyBookings: async () => {
     try {
       const data = await get('/lending/my-requests?type=borrowing');
+      const list = Array.isArray(data) ? data : data?.data || [];
       return {
-        data: Array.isArray(data?.data)
-          ? data.data.map((r: any) => ({
-              ...r,
-              id: r._id || r.id,
-              itemTitle: r.item?.title || r.itemTitle,
-            }))
-          : [],
+        data: list.map((r: any) => ({
+          ...r,
+          id: r._id || r.id,
+          itemTitle: r.item?.title || r.itemTitle,
+        })),
       };
     } catch (error) {
       throw error;
@@ -420,6 +446,33 @@ export const reviewsAPI = {
   getReviews: async (userId: string) => {
     if (!userId) return [];
     return await get(`/users/${userId}/reviews`);
+  },
+};
+
+// ============================================================================
+// Verification Requests API
+// ============================================================================
+
+export const verificationAPI = {
+  submit: async (message?: string) => {
+    return await post('/verification-requests', { message });
+  },
+
+  myRequest: async () => {
+    return await get('/verification-requests/me');
+  },
+
+  adminList: async (status?: string) => {
+    const query = status ? `?status=${status}` : '';
+    return await get(`/verification-requests${query}`);
+  },
+
+  adminSendMessage: async (requestId: string, content: string) => {
+    return await post(`/verification-requests/${requestId}/message`, { content });
+  },
+
+  adminUpdateStatus: async (requestId: string, status: 'pending' | 'approved' | 'rejected', adminNote?: string) => {
+    return await put(`/verification-requests/${requestId}/status`, { status, adminNote });
   },
 };
 

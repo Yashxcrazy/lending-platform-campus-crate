@@ -3,10 +3,38 @@ const router = express.Router();
 const LendingRequest = require('../models/LendingRequest');
 const Item = require('../models/Item');
 const Notification = require('../models/Notification');
+const Message = require('../models/Message');
+const User = require('../models/User');
 const authenticateToken = require('../middleware/auth');
 
+const requireVerified = async (req, res, next) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    let isVerifiedFlag = typeof req.user?.isVerified !== 'undefined' ? req.user.isVerified : undefined;
+
+    if (typeof isVerifiedFlag === 'undefined') {
+      const userDoc = await User.findById(req.userId).select('isVerified');
+      if (!userDoc) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      isVerifiedFlag = userDoc.isVerified;
+    }
+
+    if (!isVerifiedFlag) {
+      return res.status(403).json({ message: 'Account verification required to borrow, lend, or chat.' });
+    }
+
+    return next();
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Create lending request
-router.post('/request', authenticateToken, async (req, res) => {
+router.post('/request', authenticateToken, requireVerified, async (req, res) => {
   try {
     const { itemId, startDate, endDate, message } = req.body;
 
@@ -62,7 +90,7 @@ router.post('/request', authenticateToken, async (req, res) => {
 });
 
 // Get all lending requests for user
-router.get('/my-requests', authenticateToken, async (req, res) => {
+router.get('/my-requests', authenticateToken, requireVerified, async (req, res) => {
   try {
     const { type = 'all', status } = req.query;
 
@@ -92,7 +120,7 @@ router.get('/my-requests', authenticateToken, async (req, res) => {
 });
 
 // Get single lending request
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, requireVerified, async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -115,7 +143,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Accept lending request
-router.post('/:id/accept', authenticateToken, async (req, res) => {
+router.post('/:id/accept', authenticateToken, requireVerified, async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -168,7 +196,7 @@ router.post('/:id/accept', authenticateToken, async (req, res) => {
 });
 
 // Reject lending request
-router.post('/:id/reject', authenticateToken, async (req, res) => {
+router.post('/:id/reject', authenticateToken, requireVerified, async (req, res) => {
   try {
     const { reason } = req.body;
     const request = await LendingRequest.findById(req.params.id)
@@ -215,7 +243,7 @@ router.post('/:id/reject', authenticateToken, async (req, res) => {
 });
 
 // Complete lending
-router.post('/:id/complete', authenticateToken, async (req, res) => {
+router.post('/:id/complete', authenticateToken, requireVerified, async (req, res) => {
   try {
     const request = await LendingRequest.findById(req.params.id)
       .populate('item')
@@ -263,6 +291,80 @@ router.post('/:id/complete', authenticateToken, async (req, res) => {
     res.json({
       message: 'Lending completed successfully',
       request
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get messages for a lending request (anonymous chat)
+router.get('/:id/messages', authenticateToken, requireVerified, async (req, res) => {
+  try {
+    const request = await LendingRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: 'Lending request not found' });
+
+    const isParticipant =
+      request.borrower.toString() === req.userId || request.lender.toString() === req.userId;
+    if (!isParticipant) return res.status(403).json({ message: 'Not authorized' });
+
+    const messages = await Message.find({ request: req.params.id })
+      .sort({ createdAt: 1 });
+
+    const shaped = messages.map((m) => ({
+      id: m._id,
+      content: m.content,
+      createdAt: m.createdAt,
+      isOwnMessage: m.sender.toString() === req.userId,
+    }));
+
+    res.json({ data: shaped });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Send message for a lending request
+router.post('/:id/messages', authenticateToken, requireVerified, async (req, res) => {
+  try {
+    const { content } = req.body || {};
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: 'Message content is required' });
+    }
+
+    const request = await LendingRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: 'Lending request not found' });
+
+    const isParticipant =
+      request.borrower.toString() === req.userId || request.lender.toString() === req.userId;
+    if (!isParticipant) return res.status(403).json({ message: 'Not authorized' });
+
+    const message = new Message({
+      request: req.params.id,
+      sender: req.userId,
+      content: content.trim(),
+    });
+    await message.save();
+
+    // Notify the other participant
+    const otherUser = request.borrower.toString() === req.userId ? request.lender : request.borrower;
+    const notification = new Notification({
+      user: otherUser,
+      type: 'Message',
+      title: 'New message',
+      message: 'You have a new chat message',
+      relatedId: req.params.id,
+      link: `/lending/${req.params.id}/chat`
+    });
+    await notification.save();
+
+    res.status(201).json({
+      message: 'Message sent',
+      data: {
+        id: message._id,
+        content: message.content,
+        createdAt: message.createdAt,
+        isOwnMessage: true,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

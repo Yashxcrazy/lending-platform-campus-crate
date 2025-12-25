@@ -51,6 +51,22 @@ router.put('/users/:id/role', isAdmin, async (req, res) => {
   }
 });
 
+// PUT /api/admin/users/:id/verify - mark user verified (admin only)
+router.put('/users/:id/verify', isAdmin, async (req, res) => {
+  try {
+    const target = await User.findById(req.params.id);
+    if (!target) return res.status(404).json({ success: false, error: 'User not found' });
+
+    target.isVerified = true;
+    await target.save();
+
+    res.json({ success: true, user: { _id: target._id, name: target.name, email: target.email, role: target.role, isVerified: target.isVerified } });
+  } catch (err) {
+    console.error('PUT /admin/users/:id/verify error', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 module.exports = router;
 
 // Deactivate a user (admin only)

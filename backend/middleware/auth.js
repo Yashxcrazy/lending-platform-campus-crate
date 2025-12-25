@@ -18,7 +18,15 @@ const authenticateToken = async (req, res, next) => {
     // Populate req.user for admin middleware
     try {
       const user = await User.findById(decoded.userId).select('-password');
-      req.user = user ? { id: user._id.toString(), role: user.role, email: user.email, name: user.name } : null;
+      req.user = user
+        ? {
+            id: user._id.toString(),
+            role: user.role,
+            email: user.email,
+            name: user.name,
+            isVerified: user.isVerified,
+          }
+        : null;
     } catch (error) {
       console.error('Error populating user:', error);
     }

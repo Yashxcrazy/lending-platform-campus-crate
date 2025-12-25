@@ -5,7 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Package, Search, CheckCircle2, Info } from "lucide-react";
 import { BASE_URL, getAuthToken, User, adminAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useCurrentUser } from "@/hooks/useAPI";
+import {
+  useAdminSendVerificationMessage,
+  useAdminUpdateVerificationStatus,
+  useAdminVerificationRequests,
+  useCurrentUser,
+} from "@/hooks/useAPI";
 
 const formatDate = (value?: string | Date) => {
   if (!value) return "—";
@@ -52,6 +57,8 @@ export default function AdminDashboard() {
   const [reports, setReports] = useState<any[]>([]);
   const [loadingReports, setLoadingReports] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({});
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
 
   // Fetch stats
   const fetchStats = async () => {
@@ -136,6 +143,12 @@ export default function AdminDashboard() {
       setLoadingReports(false);
     }
   };
+
+  // Verification requests
+  const { data: verificationRequestsData, isLoading: loadingVerification } = useAdminVerificationRequests();
+  const sendVerificationMessage = useAdminSendVerificationMessage();
+  const updateVerificationStatus = useAdminUpdateVerificationStatus();
+  const verificationRequests = (verificationRequestsData as any)?.requests || [];
 
   // Helper to get consistent user ID (supports both MongoDB _id and standard id)
   const getUserId = (user: User): string => {
@@ -257,6 +270,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSendVerificationMessage = async (requestId: string) => {
+    const content = (messageDrafts[requestId] || "").trim();
+    if (!content) {
+      toast({ title: "Message required", description: "Enter a message before sending.", variant: "destructive" });
+      return;
+    }
+    try {
+      await sendVerificationMessage.mutateAsync({ requestId, content });
+      setMessageDrafts((prev) => ({ ...prev, [requestId]: "" }));
+      toast({ title: "Message sent", description: "User will be notified." });
+    } catch (err) {
+      console.error('Failed to send verification message', err);
+      toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateVerificationStatus = async (requestId: string, status: 'pending' | 'approved' | 'rejected') => {
+    const note = noteDrafts[requestId];
+    try {
+      await updateVerificationStatus.mutateAsync({ requestId, status, adminNote: note });
+      toast({ title: "Status updated", description: `Request marked as ${status}.` });
+    } catch (err) {
+      console.error('Failed to update verification status', err);
+      toast({ title: "Error", description: "Could not update status.", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -287,6 +327,7 @@ export default function AdminDashboard() {
           {[
             { id: "overview", label: "Overview" },
             { id: "reports", label: "Reports" },
+            { id: "verification", label: "Verification" },
             { id: "users", label: "Users" },
             { id: "listings", label: "Listings" },
           ].map((tab) => (
@@ -301,6 +342,140 @@ export default function AdminDashboard() {
             </button>
           ))}
         </div>
+
+        {activeTab === "verification" && (
+          <div className="space-y-4">
+            <div className="glass-card p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Verification Requests</h2>
+                  <p className="text-sm text-gray-400">Review requests and message users before approving.</p>
+                </div>
+                <div className="text-sm text-gray-400">
+                  Total: {verificationRequests.length}
+                </div>
+              </div>
+
+              {loadingVerification ? (
+                <div className="text-gray-400">Loading verification requests...</div>
+              ) : verificationRequests.length === 0 ? (
+                <div className="glass-card border border-white/10 p-6 text-center text-gray-300">
+                  No verification requests yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verificationRequests.map((req: any) => {
+                    const id = req._id || req.id;
+                    const badge =
+                      req.status === 'approved'
+                        ? 'bg-green-400/20 text-green-200 border border-green-400/30'
+                        : req.status === 'rejected'
+                          ? 'bg-red-400/20 text-red-200 border border-red-400/30'
+                          : 'bg-yellow-400/20 text-yellow-200 border border-yellow-400/30';
+
+                    return (
+                      <div key={id} className="glass-card border border-white/10 p-4 rounded-lg">
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="space-y-1">
+                              <div className="text-white font-semibold">
+                                {req.user?.name || 'Unknown User'} ({req.user?.email})
+                              </div>
+                              <div className="text-sm text-gray-400">Submitted: {formatDate(req.createdAt)}</div>
+                              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${badge}`}>
+                                {req.status?.toUpperCase() || 'PENDING'}
+                              </div>
+                              {req.message && (
+                                <div className="text-sm text-gray-300 mt-2">
+                                  <span className="font-semibold text-white">User note:</span> {req.message}
+                                </div>
+                              )}
+                              {req.adminNote && (
+                                <div className="text-sm text-gray-300">
+                                  <span className="font-semibold text-white">Admin note:</span> {req.adminNote}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col gap-2 w-full md:w-80">
+                              <Input
+                                placeholder="Internal note (optional)"
+                                value={noteDrafts[id] || ''}
+                                onChange={(e) => setNoteDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
+                                className="glass-card"
+                              />
+                              <div className="flex gap-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'approved')}
+                                  disabled={updateVerificationStatus.isPending}
+                                  className="btn-glow-cyan"
+                                >
+                                  Approve & Verify
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'rejected')}
+                                  disabled={updateVerificationStatus.isPending}
+                                  className="text-red-400"
+                                >
+                                  Reject
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'pending')}
+                                  disabled={updateVerificationStatus.isPending}
+                                >
+                                  Mark Pending
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="text-sm text-white font-semibold">Admin ↔ User Messages</div>
+                            {req.adminMessages?.length ? (
+                              <div className="space-y-1 text-sm text-gray-200">
+                                {req.adminMessages.map((m: any, idx: number) => (
+                                  <div key={idx} className="glass-card p-2 border border-white/10">
+                                    <div className="flex justify-between text-xs text-gray-400">
+                                      <span>{m.sender?.name || 'Admin'}</span>
+                                      <span>{formatDate(m.createdAt)}</span>
+                                    </div>
+                                    <div className="text-white">{m.content}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-400">No messages yet.</div>
+                            )}
+
+                            <div className="flex gap-2 mt-2">
+                              <Input
+                                placeholder="Send a message to the user"
+                                value={messageDrafts[id] || ''}
+                                onChange={(e) => setMessageDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
+                                className="flex-1"
+                              />
+                              <Button
+                                onClick={() => handleSendVerificationMessage(id)}
+                                disabled={sendVerificationMessage.isPending}
+                              >
+                                Send
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Manage Admins panel (under Users tab) */}
         {activeTab === "users" && (
@@ -352,7 +527,9 @@ export default function AdminDashboard() {
                         <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Status</th>
                         <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300 flex items-center gap-1">
                           Verification
-                          <Info className="w-4 h-4 text-cyan-400/60" title="Verification status of the user" />
+                          <span title="Verification status of the user" className="inline-flex items-center">
+                            <Info className="w-4 h-4 text-cyan-400/60" />
+                          </span>
                         </th>
                         <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Actions</th>
                       </tr>
