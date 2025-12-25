@@ -16,7 +16,7 @@ import {
   Calendar,
   Heart,
   Share2,
-  AlertCircle,
+  Info,
   CheckCircle,
   Clock,
   User,
@@ -435,60 +435,64 @@ export default function ItemDetails() {
             </div>
 
             {/* Lender Info Card */}
-            <div className="glass-card border border-cyan-400/30 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                About the Lender
-              </h3>
+            {listing?.owner && (
+              <div className="glass-card border border-cyan-400/30 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  About the Lender
+                </h3>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
-                    <User className="w-8 h-8 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">Campus Lender</p>
-                    <p className="text-sm text-gray-400">Joined 3 months ago</p>
-                  </div>
-                </div>
-
-                {/* Rating */}
-                <div className="glass-card bg-white/5 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
+                      <User className="w-8 h-8 text-cyan-400" />
                     </div>
-                    <span className="text-white font-semibold">4.8</span>
+                    <div>
+                      <p className="text-white font-semibold">{listing.owner.name || 'Campus Lender'}</p>
+                      <p className="text-sm text-gray-400">
+                        {listing.owner.createdAt 
+                          ? `Joined ${new Date(listing.owner.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}`
+                          : 'Member since'}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-400">45 reviews</p>
-                </div>
 
-                {/* Stats */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm">Verified Profile</span>
+                  {/* Rating */}
+                  <div className="glass-card bg-white/5 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < Math.floor(listing.owner.rating || 0)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-600'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-white font-semibold">{(listing.owner.rating || 0).toFixed(1)}</span>
+                    </div>
+                    <p className="text-xs text-gray-400">{listing.owner.reviewCount || 0} reviews</p>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <TrendingUp className="w-4 h-4 text-green-400" />
-                    <span className="text-sm">23 Items Listed</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Shield className="w-4 h-4 text-green-400" />
-                    <span className="text-sm">Trust Score: 92/100</span>
+
+                  {/* Stats */}
+                  <div className="space-y-2">
+                    {listing.owner.isVerified && (
+                      <div className="flex items-center gap-2 text-gray-300">
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <span className="text-sm">Verified Profile</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Safe Renting Info */}
             <div className="glass-card border border-yellow-400/30 bg-yellow-400/10 p-4 rounded-lg">
               <div className="flex gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                <Info className="w-5 h-5 text-yellow-400 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-white mb-1">
                     Safe Renting Tips

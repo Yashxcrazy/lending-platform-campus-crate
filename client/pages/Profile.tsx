@@ -245,7 +245,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Email</span>
                   <span className={`font-semibold ${user?.isVerified ? 'text-green-400' : 'text-yellow-300'}`}>
-                    {user?.isVerified ? '✓ Verified' : 'Pending'}
+                    {user?.isVerified ? '✓ Verified' : '⚠ Pending'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

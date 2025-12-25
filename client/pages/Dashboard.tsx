@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Plus,
+  CheckCircle,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -243,9 +244,15 @@ export default function Dashboard() {
                   <span className="text-gray-400 text-sm">({reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-cyan-400" />
-                  <span className="text-gray-400 text-sm">
-                    {user?.isVerified ? "Email verified ✓" : "Email not verified"}
+                  {user?.isVerified ? (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-yellow-400" />
+                  )}
+                  <span className={`text-sm ${
+                    user?.isVerified ? 'text-green-400' : 'text-yellow-300'
+                  }`}>
+                    {user?.isVerified ? 'Email verified' : 'Email pending verification'}
                   </span>
                 </div>
               </div>
@@ -277,7 +284,9 @@ export default function Dashboard() {
               <p className="text-sm text-gray-400 mb-4">
                 Check our help center or contact support.
               </p>
-              <Button className="w-full btn-glow-blue">Contact Support</Button>
+              <a href="mailto:support@campuscrate.com" className="block">
+                <Button className="w-full btn-glow-blue">Contact Support</Button>
+              </a>
             </div>
           </div>
         </div>

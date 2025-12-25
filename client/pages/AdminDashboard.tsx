@@ -589,8 +589,8 @@ export default function AdminDashboard() {
                                     <CheckCircle2 className="w-4 h-4" /> Verified
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 text-yellow-300 text-xs px-3 py-1 rounded-md bg-yellow-400/15 border border-yellow-400/30 font-semibold">
-                                    <Info className="w-4 h-4" /> Pending
+                                  <span className="text-yellow-300 text-xs px-3 py-1 rounded-md bg-yellow-400/15 border border-yellow-400/30 font-semibold">
+                                    Pending
                                   </span>
                                 )}
                               </td>

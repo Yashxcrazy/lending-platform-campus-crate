@@ -307,7 +307,7 @@ export default function Index() {
               <div className="bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl p-8 h-96 flex items-center justify-center border border-secondary/20">
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent rounded-2xl" />
                 <div className="relative text-center">
-                  <Smile className="w-24 h-24 text-secondary/60 mx-auto mb-4" />
+                  <Smile className="w-24 h-24 text-secondary mx-auto mb-4" />
                   <h3 className="text-2xl font-bold text-foreground">
                     Safe & Secure
                   </h3>
