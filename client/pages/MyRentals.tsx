@@ -289,7 +289,9 @@ export default function MyRentals() {
                             <MapPin className="w-4 h-4" />
                             <span>
                               {request.location ||
-                                request.item?.location ||
+                                (typeof request.item?.location === "string"
+                                  ? request.item?.location
+                                  : request.item?.location?.address) ||
                                 "Location"}
                             </span>
                           </div>
