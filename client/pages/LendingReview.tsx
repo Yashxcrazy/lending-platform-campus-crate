@@ -206,9 +206,6 @@ export default function LendingReview() {
               className="w-full btn-glow-cyan text-lg py-6"
             >
               {createReview.isPending ? "Submitting..." : "Submit Review"}
-              className="w-full btn-glow-cyan py-6 text-lg"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Review"}
             </Button>
           </div>
         </div>

@@ -79,20 +79,8 @@ export default function AdminDashboard() {
   const fetchAllUsers = async () => {
     setLoadingUsers(true);
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${BASE_URL}/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) {
-        console.error("Failed to fetch users:", await res.text());
-        setUsers([]);
-        return;
-      }
-      const payload = await res.json();
-      setUsers(payload.users || []);
+      const res: any = await adminAPI.getUsers();
+      setUsers(res.users || []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
       setUsers([]);
@@ -163,25 +151,7 @@ export default function AdminDashboard() {
   const setRole = async (id: string, role: "admin" | "user" | "manager") => {
     setChangingRoleFor(id);
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${BASE_URL}/admin/users/${id}/role`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role }),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("Failed to change role:", txt);
-        toast({
-          title: "Error",
-          description: "Failed to change role: " + (txt || res.status),
-          variant: "destructive",
-        });
-        return;
-      }
+      await adminAPI.updateUserRole(id, role);
       await fetchAllUsers();
       toast({
         title: "Success",
