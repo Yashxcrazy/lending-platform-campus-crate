@@ -266,6 +266,8 @@ export default function MyRentals() {
                   const StatusIcon =
                     statusIcons[request.status as keyof typeof statusIcons] ||
                     Clock;
+                  const itemId =
+                    request.item?._id || request.item?.id || request.itemId || request.item;
 
                   return (
                     <div
@@ -291,6 +293,15 @@ export default function MyRentals() {
                                 "Location"}
                             </span>
                           </div>
+                          {itemId && (
+                            <div className="mt-3">
+                              <Link to={`/listing/${itemId}`}>
+                                <Button variant="outline" className="text-sm">
+                                  View Item
+                                </Button>
+                              </Link>
+                            </div>
+                          )}
                         </div>
 
                         {/* Dates */}
