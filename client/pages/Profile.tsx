@@ -167,18 +167,18 @@ export default function Profile() {
                     <h3 className="text-sm font-semibold text-cyan-400 mb-2">
                       EMAIL
                     </h3>
-                    <div className="flex items-center gap-2 text-white">
-                      <Mail className="w-5 h-5 text-cyan-400" />
-                      <span>{user?.email}</span>
+                    <div className="flex items-center gap-2 text-white min-w-0">
+                      <Mail className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                      <span className="truncate">{user?.email}</span>
                     </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-cyan-400 mb-2">
                       PHONE
                     </h3>
-                    <div className="flex items-center gap-2 text-white">
-                      <Phone className="w-5 h-5 text-cyan-400" />
-                      <span>{(user as any)?.phone || "Not provided"}</span>
+                    <div className="flex items-center gap-2 text-white min-w-0">
+                      <Phone className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                      <span className="truncate">{(user as any)?.phone || "Not provided"}</span>
                     </div>
                   </div>
                 </div>

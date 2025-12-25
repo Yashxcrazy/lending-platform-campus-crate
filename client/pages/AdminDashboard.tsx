@@ -283,7 +283,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Content Tabs */}
-        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 md:gap-4 mb-8 overflow-x-auto pb-2 flex-wrap">
           {[
             { id: "overview", label: "Overview" },
             { id: "reports", label: "Reports" },
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${
+              className={`px-3 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base whitespace-nowrap transition-all ${
                 activeTab === tab.id ? "neon-border-cyan bg-cyan-400/20" : "glass-card border-white/10 hover:border-white/20"
               }`}
             >
@@ -306,22 +306,22 @@ export default function AdminDashboard() {
         {activeTab === "users" && (
           <div className="space-y-6">
             <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col gap-4 mb-4">
                 <h2 className="text-xl font-bold text-white">Manage Admins</h2>
-                <div className="flex items-center gap-3 w-full max-w-xl justify-end">
-                  <div className="relative w-72">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
+                  <div className="relative flex-1 min-w-0">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400/50" />
                     <Input
                       placeholder="Search users..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-12 py-2 glass-card border-cyan-400/30"
+                      className="pl-12 py-2 glass-card border-cyan-400/30 w-full"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5"
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5 flex-shrink-0"
                   >
                     <option value="all" className="bg-slate-900">All statuses</option>
                     <option value="active" className="bg-slate-900">Active</option>
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5"
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5 flex-shrink-0"
                   >
                     <option value="newest" className="bg-slate-900">Newest</option>
                     <option value="bannedUntil" className="bg-slate-900">Banned until</option>
