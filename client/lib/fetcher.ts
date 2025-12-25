@@ -36,6 +36,14 @@ export async function fetcher<T = any>(
 ): Promise<T> {
   const { token, skipAuth, ...fetchOptions } = options;
 
+  // Guard against missing path params (e.g., /users//reviews)
+  if (
+    endpoint.includes('/users//reviews') ||
+    endpoint.includes('/reviews/user//')
+  ) {
+    throw new ApiError('Missing userId for reviews request', 400);
+  }
+
   // Build full URL
   const url = endpoint.startsWith('http') 
     ? endpoint 
