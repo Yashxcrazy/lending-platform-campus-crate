@@ -123,8 +123,8 @@ export default function MyListings() {
       <div className="container-center max-w-6xl py-12 px-4">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="marvel-title mb-2">My Items</h1>
-            <p className="marvel-subtitle">
+            <h1 className="page-title mb-2">My Items</h1>
+            <p className="page-subtitle">
               Manage items you're lending to students
             </p>
           </div>

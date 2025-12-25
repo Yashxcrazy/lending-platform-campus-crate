@@ -113,8 +113,8 @@ export default function SafetyTips() {
 
       <div className="container-center max-w-6xl py-16 px-4">
         <div className="text-center mb-12">
-          <h1 className="marvel-title mb-4">Safety Tips</h1>
-          <p className="marvel-subtitle max-w-2xl mx-auto">
+          <h1 className="page-title mb-4">Safety Tips</h1>
+          <p className="page-subtitle max-w-2xl mx-auto">
             Your safety is our priority. Follow these guidelines for a secure lending experience.
           </p>
         </div>

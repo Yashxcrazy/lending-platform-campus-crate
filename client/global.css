@@ -228,8 +228,8 @@
     @apply glass-card-hover;
   }
 
-  /* Marvel title styling */
-  .marvel-title {
+  /* Page title styling */
+  .page-title {
     @apply text-4xl md:text-5xl font-bold tracking-tight;
     background: linear-gradient(135deg, #00d9ff 0%, #b300ff 50%, #ff0066 100%);
     -webkit-background-clip: text;
@@ -237,7 +237,7 @@
     background-clip: text;
   }
 
-  .marvel-subtitle {
+  .page-subtitle {
     @apply text-lg text-gray-300 leading-relaxed;
   }
 

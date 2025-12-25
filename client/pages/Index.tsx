@@ -112,11 +112,11 @@ export default function Index() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 md:space-y-8">
               <div>
-                <h1 className="marvel-title mb-4">
+                <h1 className="page-title mb-4">
                   Borrow, Lend, Save
                   <span className="block text-cyan-300 mt-2">Together</span>
                 </h1>
-                <p className="marvel-subtitle">
+                <p className="page-subtitle">
                   Stop buying what you'll use once. Rent lab equipment, books,
                   calculators, costumes, and more from fellow students on
                   campus.
@@ -286,7 +286,7 @@ export default function Index() {
                   if (item === "Verified NITRR email accounts only") {
                     return (
                       <div key={idx} className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                         <span className="text-foreground">
                           Verified CSE NITRR email accounts only
                         </span>
@@ -295,7 +295,7 @@ export default function Index() {
                   }
                   return (
                     <div key={idx} className="flex gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                       <span className="text-foreground">{item}</span>
                     </div>
                   );
@@ -304,10 +304,10 @@ export default function Index() {
             </div>
 
             <div className="relative hidden md:block">
-              <div className="bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl p-8 h-96 flex items-center justify-center border border-secondary/20">
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent rounded-2xl" />
+              <div className="bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl p-8 h-96 flex items-center justify-center border border-cyan-400/20">
+                <div className="absolute inset-0 bg-gradient-to-t from-cyan-400/5 to-transparent rounded-2xl" />
                 <div className="relative text-center">
-                  <Smile className="w-24 h-24 text-secondary mx-auto mb-4" />
+                  <Smile className="w-24 h-24 text-cyan-400 mx-auto mb-4" />
                   <h3 className="text-2xl font-bold text-foreground">
                     Safe & Secure
                   </h3>

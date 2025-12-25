@@ -273,8 +273,8 @@ export default function AdminDashboard() {
 
       <div className="container-center max-w-6xl py-8 px-4">
         <div className="mb-8">
-          <h1 className="marvel-title mb-2">Admin Dashboard</h1>
-          <p className="marvel-subtitle">Manage users, listings, and reports</p>
+          <h1 className="page-title mb-2">Admin Dashboard</h1>
+          <p className="page-subtitle">Manage users, listings, and reports</p>
         </div>
 
         {/* Stats Grid (kept simple) */}
@@ -626,7 +626,7 @@ export default function AdminDashboard() {
                                   disabled={resettingFor === userId || !canModerate(u.role)}
                                   className="text-xs"
                                 >
-                                  {resettingFor === userId ? 'Resetting...' : 'Reset Pwd'}
+                                  {resettingFor === userId ? 'Resetting...' : 'Reset Pswd'}
                                 </Button>
                                 {u.isBanned ? (
                                   <Button

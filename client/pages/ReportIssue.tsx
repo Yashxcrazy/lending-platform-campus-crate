@@ -31,8 +31,8 @@ export default function ReportIssue() {
 
       <div className="container-center max-w-4xl py-16 px-4">
         <div className="text-center mb-12">
-          <h1 className="marvel-title mb-4">Report an Issue</h1>
-          <p className="marvel-subtitle max-w-2xl mx-auto">
+          <h1 className="page-title mb-4">Report an Issue</h1>
+          <p className="page-subtitle max-w-2xl mx-auto">
             Help us maintain a safe and trustworthy community. All reports are reviewed promptly.
           </p>
         </div>

@@ -44,8 +44,8 @@ export default function Dashboard() {
 
         <div className="container-center max-w-6xl">
           <div className="mb-12">
-            <h1 className="marvel-title mb-2">Your Dashboard</h1>
-            <p className="marvel-subtitle">
+            <h1 className="page-title mb-2">Your Dashboard</h1>
+            <p className="page-subtitle">
               Manage your rentals, listings, and track your activity
             </p>
           </div>

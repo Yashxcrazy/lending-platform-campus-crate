@@ -147,8 +147,8 @@ export default function MyRentals() {
 
       <div className="container-center max-w-6xl py-12 px-4">
         <div>
-          <h1 className="marvel-title mb-2">My Rentals</h1>
-          <p className="marvel-subtitle">Manage your active and past rentals</p>
+          <h1 className="page-title mb-2">My Rentals</h1>
+          <p className="page-subtitle">Manage your active and past rentals</p>
         </div>
 
         {!isVerified && (

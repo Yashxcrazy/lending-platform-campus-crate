@@ -104,8 +104,8 @@ export default function ProhibitedItems() {
       <div className="container-center max-w-6xl py-16 px-4">
         <div className="text-center mb-12">
           <XCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="marvel-title mb-4">Prohibited Items</h1>
-          <p className="marvel-subtitle max-w-2xl mx-auto">
+          <h1 className="page-title mb-4">Prohibited Items</h1>
+          <p className="page-subtitle max-w-2xl mx-auto">
             For everyone's safety, the following items are strictly prohibited on CampusCrate
           </p>
         </div>

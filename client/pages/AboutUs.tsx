@@ -8,8 +8,8 @@ export default function AboutUs() {
 
       <div className="container-center max-w-4xl py-16 px-4">
         <div className="text-center mb-12">
-          <h1 className="marvel-title mb-4">About CampusCrate</h1>
-          <p className="marvel-subtitle max-w-2xl mx-auto">
+          <h1 className="page-title mb-4">About CampusCrate</h1>
+          <p className="page-subtitle max-w-2xl mx-auto">
             Empowering students to share resources and build a sustainable campus community
           </p>
         </div>

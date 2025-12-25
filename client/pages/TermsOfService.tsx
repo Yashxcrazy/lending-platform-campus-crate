@@ -9,7 +9,7 @@ export default function TermsOfService() {
       <div className="container-center max-w-4xl py-16 px-4">
         <div className="text-center mb-12">
           <FileText className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-          <h1 className="marvel-title mb-4">Terms of Service</h1>
+          <h1 className="page-title mb-4">Terms of Service</h1>
           <p className="text-gray-400">Last updated: December 26, 2024</p>
         </div>
 

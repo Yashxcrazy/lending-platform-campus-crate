@@ -64,8 +64,8 @@ export default function Listings() {
 
         <div className="container-center max-w-6xl">
           <div className="text-center mb-12">
-            <h1 className="marvel-title mb-4">Browse Available Items</h1>
-            <p className="marvel-subtitle max-w-2xl mx-auto">
+            <h1 className="page-title mb-4">Browse Available Items</h1>
+            <p className="page-subtitle max-w-2xl mx-auto">
               Discover thousands of items available for rent from fellow
               students. Save money, help others, and build your reputation.
             </p>

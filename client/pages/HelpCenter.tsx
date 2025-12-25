@@ -94,8 +94,8 @@ export default function HelpCenter() {
 
       <div className="container-center max-w-4xl py-16 px-4">
         <div className="text-center mb-12">
-          <h1 className="marvel-title mb-4">Help Center</h1>
-          <p className="marvel-subtitle max-w-2xl mx-auto mb-8">
+          <h1 className="page-title mb-4">Help Center</h1>
+          <p className="page-subtitle max-w-2xl mx-auto mb-8">
             Find answers to common questions about CampusCrate
           </p>
 
