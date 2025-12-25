@@ -359,17 +359,17 @@ export default function Index() {
               <h4 className="font-semibold text-foreground mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/about" className="hover:text-primary transition-colors">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/contact" className="hover:text-primary transition-colors">
                     Contact
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/blog" className="hover:text-primary transition-colors">
                     Blog
                   </Link>
                 </li>
@@ -405,17 +405,17 @@ export default function Index() {
               <h4 className="font-semibold text-foreground mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/help" className="hover:text-primary transition-colors">
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/safety" className="hover:text-primary transition-colors">
                     Safety Tips
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/report" className="hover:text-primary transition-colors">
                     Report Issue
                   </Link>
                 </li>
@@ -425,17 +425,17 @@ export default function Index() {
               <h4 className="font-semibold text-foreground mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/privacy" className="hover:text-primary transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/terms" className="hover:text-primary transition-colors">
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="hover:text-primary transition-colors">
+                  <Link to="/prohibited" className="hover:text-primary transition-colors">
                     Prohibited Items
                   </Link>
                 </li>

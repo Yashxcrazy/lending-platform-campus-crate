@@ -20,6 +20,15 @@ import AdminRoute from "@/components/AdminRoute";
 import Placeholder from "./pages/Placeholder";
 import AccountSettings from "./pages/AccountSettings";
 import HowItWorks from "./pages/HowItWorks";
+import AboutUs from "./pages/AboutUs";
+import Contact from "./pages/Contact";
+import Blog from "./pages/Blog";
+import HelpCenter from "./pages/HelpCenter";
+import SafetyTips from "./pages/SafetyTips";
+import ReportIssue from "./pages/ReportIssue";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import ProhibitedItems from "./pages/ProhibitedItems";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +111,15 @@ export const App = () => (
           />
           <Route path="/settings" element={<AccountSettings />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/safety" element={<SafetyTips />} />
+          <Route path="/report" element={<ReportIssue />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/prohibited" element={<ProhibitedItems />} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
