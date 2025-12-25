@@ -23,6 +23,7 @@ import {
   Shield,
   TrendingUp,
   ArrowLeft,
+  MessageSquare,
 } from "lucide-react";
 
 export default function ItemDetails() {
@@ -337,13 +338,23 @@ export default function ItemDetails() {
               )}
 
               {!showRequestForm ? (
-                <Button
-                  onClick={() => setShowRequestForm(true)}
-                  disabled={!isVerified}
-                  className="w-full btn-glow-cyan py-6"
-                >
-                  {isVerified ? "Send Request" : "Verify to Request"}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => navigate(`/items/${id}/contact`)}
+                    variant="outline"
+                    className="w-full border-cyan-400/40 hover:bg-cyan-400/10 py-6 flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    Ask a Question
+                  </Button>
+                  <Button
+                    onClick={() => setShowRequestForm(true)}
+                    disabled={!isVerified}
+                    className="w-full btn-glow-cyan py-6"
+                  >
+                    {isVerified ? "Send Rental Request" : "Verify to Request"}
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div>

@@ -395,7 +395,7 @@ export const bookingsAPI = {
   updateStatus: async (id: string, status: Booking["status"]) => {
     try {
       const endpoint =
-        status === "confirmed" || status === "active"
+        status === "Accepted" || status === "confirmed" || status === "active"
           ? `accept`
           : status === "completed"
             ? `complete`
