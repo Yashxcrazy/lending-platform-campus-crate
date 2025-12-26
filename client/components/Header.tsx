@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Menu, X, LogOut, Home, Package, User, Settings } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, LogOut, Home, Package, User, Settings, MessageSquare } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import type { User as UserType } from "@/lib/api";
+import { useAPI } from "@/hooks/useAPI";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -11,9 +12,27 @@ interface HeaderProps {
 
 export function Header({ isLoggedIn, userName }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { api } = useAPI();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const isUserLoggedIn =
     isLoggedIn || !!localStorage.getItem("user");
+  
+  useEffect(() => {
+    if (isUserLoggedIn) {
+      const fetchUnread = async () => {
+        try {
+          const res = await api.get('/messages/unread/count');
+          setUnreadCount(res.data.unreadCount);
+        } catch (e) {
+          console.error("Failed to fetch unread count", e);
+        }
+      };
+      fetchUnread();
+      const interval = setInterval(fetchUnread, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isUserLoggedIn, api]);
   
   // Parse stored user safely
   let storedUser: Partial<UserType> = {};
@@ -66,12 +85,25 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
             How It Works
           </Link>
           {isUserLoggedIn && (
-            <Link
-              to="/dashboard"
-              className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
-            >
-              Dashboard
-            </Link>
+            <>
+              <Link
+                to="/inbox"
+                className="text-gray-300 hover:text-cyan-300 transition-colors font-medium relative"
+              >
+                Messages
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link
+                to="/dashboard"
+                className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
+              >
+                Dashboard
+              </Link>
+            </>
           )}
         </div>
 
@@ -179,6 +211,21 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
 
             {isUserLoggedIn && (
               <>
+                <Link
+                  to="/inbox"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-2 py-2 text-gray-300 hover:text-cyan-300"
+                >
+                  <div className="relative">
+                    <MessageSquare className="w-5 h-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-3 w-3 flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  Messages
+                </Link>
                 <Link
                   to="/dashboard"
                   onClick={() => setIsMenuOpen(false)}

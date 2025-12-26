@@ -15,6 +15,7 @@ import MyListings from "./pages/MyListings";
 import MyRentals from "./pages/MyRentals";
 import Chat from "./pages/Chat";
 import ItemContact from "./pages/ItemContact";
+import Inbox from "./pages/Inbox";
 import LendingReview from "./pages/LendingReview";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "@/components/AdminRoute";
@@ -55,6 +56,7 @@ export const App = () => (
           <Route path="/listings" element={<Listings />} />
           <Route path="/listing/:id" element={<ItemDetails />} />
           <Route path="/items/:id/contact" element={<ItemContact />} />
+          <Route path="/inbox" element={<Inbox />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-rentals" element={<MyRentals />} />

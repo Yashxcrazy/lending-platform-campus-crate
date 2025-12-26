@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,8 @@ interface Message {
 
 export default function ItemContact() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const otherUserId = searchParams.get("userId");
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -42,12 +44,17 @@ export default function ItemContact() {
       const interval = setInterval(fetchMessages, 3000);
       return () => clearInterval(interval);
     }
-  }, [id]);
+  }, [id, otherUserId]);
 
   const fetchMessages = async () => {
     try {
       const token = getAuthToken();
-      const response = await fetch(`${BASE_URL}/items/${id}/messages`, {
+      let url = `${BASE_URL}/items/${id}/messages`;
+      if (otherUserId) {
+        url += `?userId=${otherUserId}`;
+      }
+      
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,13 +78,18 @@ export default function ItemContact() {
 
     try {
       const token = getAuthToken();
+      const body: any = { content: text };
+      if (otherUserId) {
+        body.recipientId = otherUserId;
+      }
+
       const response = await fetch(`${BASE_URL}/items/${id}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: text }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
