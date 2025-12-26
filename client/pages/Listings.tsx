@@ -295,10 +295,12 @@ export default function Listings() {
                             <div className="flex items-center gap-1">
                               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                               <span className="text-sm font-semibold text-white">
-                                4.8
+                                {typeof listing.owner === 'object' && listing.owner?.rating 
+                                  ? listing.owner.rating.toFixed(1) 
+                                  : "New"}
                               </span>
                               <span className="text-xs text-gray-400">
-                                (12)
+                                ({typeof listing.owner === 'object' ? listing.owner?.reviewCount || 0 : 0})
                               </span>
                             </div>
                             <Button

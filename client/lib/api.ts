@@ -33,7 +33,14 @@ export interface Listing {
         coordinates?: { lat?: number; lng?: number };
       };
   lenderId?: string; // set by server from auth token
-  owner?: string; // backend uses owner/ownerId
+  owner?: string | {
+    _id: string;
+    name: string;
+    profileImage?: string;
+    rating?: number;
+    reviewCount?: number;
+    campus?: string;
+  }; // backend uses owner/ownerId
   createdAt: string;
   updatedAt: string;
 }
