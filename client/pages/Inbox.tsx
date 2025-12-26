@@ -41,7 +41,8 @@ export default function Inbox() {
     const fetchConversations = async () => {
       try {
         const res = await api.get('/messages/conversations');
-        setConversations(res.data);
+        // The API returns the array directly, not wrapped in a data property
+        setConversations(Array.isArray(res) ? res : []);
       } catch (error) {
         console.error('Failed to fetch conversations:', error);
       } finally {
