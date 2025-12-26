@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { get, post, put, del } from "@/lib/fetcher";
 import {
   listingsAPI,
   bookingsAPI,
@@ -341,3 +342,15 @@ export const useCurrentUser = () => {
     retryDelay: 1000,
   });
 };
+
+export const useAPI = () => {
+  return {
+    api: {
+      get,
+      post,
+      put,
+      del
+    }
+  };
+};
+
