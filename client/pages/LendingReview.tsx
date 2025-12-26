@@ -132,36 +132,7 @@ export default function LendingReview() {
               </div>
             </div>
 
-            {/* Categories (Optional) */}
-            {rating > 0 && (
-              <div>
-                <label className="block text-lg font-semibold text-white mb-4">
-                  Rate specific aspects
-                </label>
-                <div className="space-y-4">
-                  {[
-                    { id: "communication", label: "Communication" },
-                    { id: "condition", label: "Item Condition" },
-                    { id: "punctuality", label: "Punctuality" },
-                  ].map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex justify-between items-center"
-                    >
-                      <span className="text-white">{category.label}</span>
-                      <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className="w-5 h-5 fill-gray-600 text-gray-600 cursor-pointer hover:fill-yellow-400 hover:text-yellow-400 transition-colors"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Comment Section */}
             <div>
@@ -178,25 +149,6 @@ export default function LendingReview() {
               <p className="text-xs text-gray-400 mt-2">
                 {comment.length} / 500 characters
               </p>
-            </div>
-
-            {/* Recommendations */}
-            <div className="glass-card bg-cyan-400/10 border border-cyan-400/30 p-6 rounded-lg">
-              <h3 className="font-semibold text-white mb-3">
-                Would you recommend this {rating >= 4 ? "lender" : "user"} to
-                others?
-              </h3>
-              <div className="flex gap-4">
-                <Button className="flex-1 btn-glow-cyan">
-                  Yes, Definitely!
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Not Sure
-                </Button>
-                <Button variant="outline" className="flex-1 text-red-400">
-                  No
-                </Button>
-              </div>
             </div>
 
             {/* Submit Button */}
