@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot } from "lucide-react";
+import { post } from "@/lib/fetcher";
 
 interface Message {
   text: string;
@@ -13,7 +14,6 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { api } = useAPI();
 
   const handleSend = async () => {
     if (input.trim() && !isLoading) {
@@ -23,8 +23,8 @@ export default function AIChat() {
       setIsLoading(true);
 
       try {
-        const res = await api.post('/ai/chat', { message: input });
-        const aiMessage = { text: res.data.reply, isUser: false };
+        const res = await post('/ai/chat', { message: input });
+        const aiMessage = { text: res.reply, isUser: false };
         setMessages((prev) => [...prev, aiMessage]);
       } catch (error) {
         const errorMessage = { text: "Sorry, I'm having trouble connecting. Please try again.", isUser: false };

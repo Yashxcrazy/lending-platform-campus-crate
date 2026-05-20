@@ -39,6 +39,8 @@ export default function MyListings() {
     description: "",
     category: "Electronics",
     condition: "Good",
+    listingType: "Rent",
+    price: "",
     dailyRate: "",
     securityDeposit: "",
     location: { address: "" },
@@ -53,36 +55,52 @@ export default function MyListings() {
       return;
     }
 
-    if (formData.dailyRate === "" || formData.securityDeposit === "") {
-      alert("Please fill in daily rate and security deposit");
-      return;
-    }
+    let dataToCreate: any = { ...formData };
 
-    const dailyRateNum = parseInt(formData.dailyRate as any);
-    const securityDepositNum = parseInt(formData.securityDeposit as any);
+    // Validate based on listing type
+    if (formData.listingType === "Rent") {
+      if (formData.dailyRate === "" || formData.securityDeposit === "") {
+        alert("Please fill in daily rate and security deposit");
+        return;
+      }
+      const dailyRateNum = parseInt(formData.dailyRate as any);
+      const securityDepositNum = parseInt(formData.securityDeposit as any);
 
-    if (isNaN(dailyRateNum) || dailyRateNum < 0 || !Number.isInteger(dailyRateNum)) {
-      alert("Daily rate must be a positive integer or 0");
-      return;
-    }
-
-    if (isNaN(securityDepositNum) || securityDepositNum < 0 || !Number.isInteger(securityDepositNum)) {
-      alert("Security deposit must be a positive integer or 0");
-      return;
+      if (isNaN(dailyRateNum) || dailyRateNum < 0 || !Number.isInteger(dailyRateNum)) {
+        alert("Daily rate must be a positive integer or 0");
+        return;
+      }
+      if (isNaN(securityDepositNum) || securityDepositNum < 0 || !Number.isInteger(securityDepositNum)) {
+        alert("Security deposit must be a positive integer or 0");
+        return;
+      }
+      dataToCreate.dailyRate = dailyRateNum;
+      dataToCreate.securityDeposit = securityDepositNum;
+    } else if (formData.listingType === "Sell" || formData.listingType === "Buy") {
+      if (formData.price === "") {
+        alert("Please fill in the price");
+        return;
+      }
+      const priceNum = parseInt(formData.price as any);
+      if (isNaN(priceNum) || priceNum < 0 || !Number.isInteger(priceNum)) {
+        alert("Price must be a positive integer");
+        return;
+      }
+      dataToCreate.price = priceNum;
+      dataToCreate.dailyRate = 0;
+      dataToCreate.securityDeposit = 0;
     }
 
     try {
-      await createListing.mutateAsync({
-        ...formData,
-        dailyRate: dailyRateNum,
-        securityDeposit: securityDepositNum,
-      });
+      await createListing.mutateAsync(dataToCreate);
       setShowForm(false);
       setFormData({
         title: "",
         description: "",
         category: "Electronics",
         condition: "Good",
+        listingType: "Rent",
+        price: "",
         dailyRate: "",
         securityDeposit: "",
         location: { address: "" },
@@ -220,6 +238,23 @@ export default function MyListings() {
 
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
+                  Listing Type
+                </label>
+                <select
+                  value={formData.listingType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, listingType: e.target.value })
+                  }
+                  className="w-full glass-card border border-cyan-400/30 bg-white/5 text-white p-2 rounded-lg"
+                >
+                  <option value="Rent" className="bg-gray-900">Rent (Daily Rate)</option>
+                  <option value="Sell" className="bg-gray-900">Sell (One-time Purchase)</option>
+                  <option value="Buy" className="bg-gray-900">Buy Request</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
                   Location
                 </label>
                 <Input
@@ -235,43 +270,66 @@ export default function MyListings() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Daily Rate (₹) *
-                </label>
-                <Input
-                  type="number"
-                  value={formData.dailyRate}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      dailyRate: e.target.value,
-                    })
-                  }
-                  placeholder="e.g., 50"
-                  className="glass-card border-cyan-400/30"
-                  min="0"
-                />
-              </div>
+              {formData.listingType === "Rent" ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Daily Rate (₹) *
+                    </label>
+                    <Input
+                      type="number"
+                      value={formData.dailyRate}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          dailyRate: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., 50"
+                      className="glass-card border-cyan-400/30"
+                      min="0"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Security Deposit (₹) *
-                </label>
-                <Input
-                  type="number"
-                  value={formData.securityDeposit}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      securityDeposit: e.target.value,
-                    })
-                  }
-                  placeholder="e.g., 100"
-                  className="glass-card border-cyan-400/30"
-                  min="0"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Security Deposit (₹) *
+                    </label>
+                    <Input
+                      type="number"
+                      value={formData.securityDeposit}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          securityDeposit: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., 100"
+                      className="glass-card border-cyan-400/30"
+                      min="0"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Price (₹) *
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        price: e.target.value,
+                      })
+                    }
+                    placeholder="e.g., 5000"
+                    className="glass-card border-cyan-400/30"
+                    min="0"
+                  />
+                </div>
+              )}
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-white mb-2">
