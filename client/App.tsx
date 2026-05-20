@@ -31,6 +31,9 @@ import ReportIssue from "./pages/ReportIssue";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ProhibitedItems from "./pages/ProhibitedItems";
+import BuySell from "./pages/BuySell";
+import Rent from "./pages/Rent";
+import AIChat from "./pages/AIChat";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +41,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: true,
       staleTime: 5 * 60 * 1000, // 5 minutes - reduce unnecessary refetches
-      cacheTime: 10 * 60 * 1000, // 10 minutes - keep data in cache longer
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep data in cache longer
       retry: 2, // Retry failed requests twice
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     },
@@ -55,7 +58,8 @@ export const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/listings" element={<Listings />} />
+          <Route path="/buy-sell" element={<BuySell />} />
+          <Route path="/rent" element={<Rent />} />
           <Route path="/listing/:id" element={<ItemDetails />} />
           <Route path="/items/:id/contact" element={<ItemContact />} />
           <Route path="/inbox" element={<Inbox />} />
@@ -100,7 +104,7 @@ export const App = () => (
             element={
               <Placeholder
                 title="Verify Your Email"
-                description="Check your CSE NITRR college email for a verification link to complete your signup."
+                description="Check your NITRR college email for a verification link to complete your signup."
                 icon="✉️"
               />
             }
@@ -127,6 +131,7 @@ export const App = () => (
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/prohibited" element={<ProhibitedItems />} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/ai-chat" element={<AIChat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

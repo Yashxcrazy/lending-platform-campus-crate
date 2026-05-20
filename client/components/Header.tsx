@@ -73,16 +73,28 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
             Home
           </Link>
           <Link
-            to="/listings"
+            to="/buy-sell"
             className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
           >
-            Browse Items
+            Buy/Sell
+          </Link>
+          <Link
+            to="/rent"
+            className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
+          >
+            Rent
           </Link>
           <Link
             to="/how-it-works"
             className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
           >
             How It Works
+          </Link>
+          <Link
+            to="/ai-chat"
+            className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
+          >
+            Euphorium
           </Link>
           {isUserLoggedIn && (
             <>

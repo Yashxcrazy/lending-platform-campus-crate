@@ -139,7 +139,7 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <span className="text-gray-300">CSE NITRR email verified only</span>
+                  <span className="text-gray-300">NITRR email verified only</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
@@ -288,7 +288,7 @@ export default function Index() {
                       <div key={idx} className="flex gap-3">
                         <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                         <span className="text-foreground">
-                          Verified CSE NITRR email accounts only
+                          Verified NITRR email accounts only
                         </span>
                       </div>
                     );
@@ -346,7 +346,7 @@ export default function Index() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            No credit card required. Verified CSE NITRR email addresses only.
+            No credit card required. Verified NITRR email addresses only.
           </p>
         </div>
       </section>
