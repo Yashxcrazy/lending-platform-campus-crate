@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import MyListings from "./pages/MyListings";
 import MyRentals from "./pages/MyRentals";
 import Chat from "./pages/Chat";
+import AIChat from "./pages/AIChat";
 import LendingReview from "./pages/LendingReview";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "@/components/AdminRoute";
@@ -37,6 +38,7 @@ export const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-rentals" element={<MyRentals />} />
           <Route path="/my-listings" element={<MyListings />} />
+          <Route path="/ai-chat" element={<AIChat />} />
           <Route path="/lending/:id/chat" element={<Chat />} />
           <Route path="/lending/:id/review" element={<LendingReview />} />
           <Route

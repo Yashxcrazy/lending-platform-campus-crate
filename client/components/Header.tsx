@@ -65,6 +65,12 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
           >
             How It Works
           </Link>
+          <Link
+            to="/ai-chat"
+            className="text-gray-300 hover:text-cyan-300 transition-colors font-medium"
+          >
+            Ask Euphorium
+          </Link>
           {isUserLoggedIn && (
             <Link
               to="/dashboard"
@@ -175,6 +181,13 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
               className="flex items-center gap-2 py-2 text-gray-300 hover:text-cyan-300"
             >
               ❓ How It Works
+            </Link>
+            <Link
+              to="/ai-chat"
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center gap-2 py-2 text-gray-300 hover:text-cyan-300"
+            >
+              🤖 Ask Euphorium
             </Link>
 
             {isUserLoggedIn && (
