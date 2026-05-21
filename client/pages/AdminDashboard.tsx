@@ -1,10 +1,22 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search } from "lucide-react";
-import { BASE_URL, getAuthToken, User } from "@/lib/api";
+import { Package, Search, CheckCircle2, Info } from "lucide-react";
+import { BASE_URL, getAuthToken, User, adminAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useAdminSendVerificationMessage,
+  useAdminUpdateVerificationStatus,
+  useAdminVerificationRequests,
+  useCurrentUser,
+} from "@/hooks/useAPI";
+
+const formatDate = (value?: string | Date) => {
+  if (!value) return "ΓÇö";
+  const date = typeof value === 'string' ? new Date(value) : value;
+  return isNaN(date.getTime()) ? "ΓÇö" : date.toLocaleString();
+};
 
 /**
  * AdminDashboard (real data)
@@ -17,8 +29,11 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
+  const { data: currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'banned' | 'inactive'>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'bannedUntil'>('newest');
 
   // Stats (optional backend endpoints can populate these)
   const [stats, setStats] = useState({
@@ -32,25 +47,40 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [changingRoleFor, setChangingRoleFor] = useState<string | null>(null);
+  const [banningFor, setBanningFor] = useState<string | null>(null);
+  const [deletingFor, setDeletingFor] = useState<string | null>(null);
+  const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
+  const [resettingFor, setResettingFor] = useState<string | null>(null);
+  // Admin Items state
+  const [items, setItems] = useState<any[]>([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [reports, setReports] = useState<any[]>([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({});
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+
+  // Fetch stats
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    try {
+      const res: any = await adminAPI.getStats();
+      if (res.success && res.stats) {
+        setStats(res.stats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   // Fetch users (admin-only endpoint)
   const fetchAllUsers = async () => {
     setLoadingUsers(true);
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${BASE_URL}/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) {
-        console.error("Failed to fetch users:", await res.text());
-        setUsers([]);
-        return;
-      }
-      const payload = await res.json();
-      setUsers(payload.users || []);
+      const res: any = await adminAPI.getUsers();
+      setUsers(res.users || []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
       setUsers([]);
@@ -61,37 +91,67 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAllUsers();
-    // Optionally fetch stats if your backend exposes endpoints
+    fetchStats();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchAllUsers();
+    }
+    if (activeTab === 'listings') {
+      fetchAdminItems();
+    }
+    if (activeTab === 'reports') {
+      fetchReports();
+    }
+  }, [activeTab]);
+
+  const fetchAdminItems = async () => {
+    setLoadingItems(true);
+    try {
+      const res: any = await adminAPI.listItems({ page: 1, limit: 50 });
+      setItems(res.items || []);
+    } catch (err) {
+      console.error('Failed to fetch items:', err);
+      setItems([]);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  const fetchReports = async () => {
+    setLoadingReports(true);
+    try {
+      const res: any = await adminAPI.getReports({ page: 1, limit: 50 });
+      setReports(res.reports || []);
+    } catch (err) {
+      console.error('Failed to fetch reports:', err);
+      setReports([]);
+    } finally {
+      setLoadingReports(false);
+    }
+  };
+
+  // Verification requests
+  const { data: verificationRequestsData, isLoading: loadingVerification } = useAdminVerificationRequests();
+  const sendVerificationMessage = useAdminSendVerificationMessage();
+  const updateVerificationStatus = useAdminUpdateVerificationStatus();
+  const verificationRequests = (verificationRequestsData as any)?.requests || [];
 
   // Helper to get consistent user ID (supports both MongoDB _id and standard id)
   const getUserId = (user: User): string => {
     return (user as any)._id || user.id;
   };
 
+  const isManager = currentUser?.role === 'manager';
+  const canModerate = (role?: string) => isManager || (currentUser?.role === 'admin' && role === 'user');
+  const canChangeRoles = isManager;
+
   // Promote / demote user
-  const setRole = async (id: string, role: "admin" | "user") => {
+  const setRole = async (id: string, role: "admin" | "user" | "manager") => {
     setChangingRoleFor(id);
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${BASE_URL}/admin/users/${id}/role`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role }),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("Failed to change role:", txt);
-        toast({
-          title: "Error",
-          description: "Failed to change role: " + (txt || res.status),
-          variant: "destructive",
-        });
-        return;
-      }
+      await adminAPI.updateUserRole(id, role);
       await fetchAllUsers();
       toast({
         title: "Success",
@@ -109,14 +169,112 @@ export default function AdminDashboard() {
     }
   };
 
+  const banUser = async (id: string) => {
+    setBanningFor(id);
+    try {
+      await adminAPI.banUser(id, { reason: 'Policy violation' });
+      await fetchAllUsers();
+      toast({ title: 'User banned', description: 'The user has been banned.' });
+    } catch (err) {
+      console.error('Failed to ban user:', err);
+      toast({ title: 'Error', description: 'Failed to ban user', variant: 'destructive' });
+    } finally {
+      setBanningFor(null);
+    }
+  };
+
+  const unbanUser = async (id: string) => {
+    setBanningFor(id);
+    try {
+      await adminAPI.unbanUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User unbanned', description: 'The user has been unbanned.' });
+    } catch (err) {
+      console.error('Failed to unban user:', err);
+      toast({ title: 'Error', description: 'Failed to unban user', variant: 'destructive' });
+    } finally {
+      setBanningFor(null);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    setDeletingFor(id);
+    try {
+      await adminAPI.deleteUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User deleted', description: 'The user has been deleted.' });
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      toast({ title: 'Error', description: 'Failed to delete user', variant: 'destructive' });
+    } finally {
+      setDeletingFor(null);
+    }
+  };
+
+  const verifyUser = async (id: string) => {
+    setVerifyingFor(id);
+    try {
+      await adminAPI.verifyUser(id);
+      await fetchAllUsers();
+      toast({ title: 'User verified', description: 'Verification updated.' });
+    } catch (err) {
+      console.error('Failed to verify user:', err);
+      toast({ title: 'Error', description: 'Failed to verify user', variant: 'destructive' });
+    } finally {
+      setVerifyingFor(null);
+    }
+  };
+
+  const resetPassword = async (id: string) => {
+    const newPassword = window.prompt('Enter new password (min 8 chars)');
+    if (!newPassword || newPassword.length < 8) return;
+    setResettingFor(id);
+    try {
+      await adminAPI.resetUserPassword(id, newPassword);
+      toast({ title: 'Password reset', description: 'User password has been reset.' });
+    } catch (err) {
+      console.error('Failed to reset password:', err);
+      toast({ title: 'Error', description: 'Failed to reset password', variant: 'destructive' });
+    } finally {
+      setResettingFor(null);
+    }
+  };
+
+  const handleSendVerificationMessage = async (requestId: string) => {
+    const content = (messageDrafts[requestId] || "").trim();
+    if (!content) {
+      toast({ title: "Message required", description: "Enter a message before sending.", variant: "destructive" });
+      return;
+    }
+    try {
+      await sendVerificationMessage.mutateAsync({ requestId, content });
+      setMessageDrafts((prev) => ({ ...prev, [requestId]: "" }));
+      toast({ title: "Message sent", description: "User will be notified." });
+    } catch (err) {
+      console.error('Failed to send verification message', err);
+      toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateVerificationStatus = async (requestId: string, status: 'pending' | 'approved' | 'rejected') => {
+    const note = noteDrafts[requestId];
+    try {
+      await updateVerificationStatus.mutateAsync({ requestId, status, adminNote: note });
+      toast({ title: "Status updated", description: `Request marked as ${status}.` });
+    } catch (err) {
+      console.error('Failed to update verification status', err);
+      toast({ title: "Error", description: "Could not update status.", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <div className="container-center max-w-6xl py-8 px-4">
         <div className="mb-8">
-          <h1 className="marvel-title mb-2">Admin Dashboard</h1>
-          <p className="marvel-subtitle">Manage users, listings, and reports</p>
+          <h1 className="page-title mb-2">Admin Dashboard</h1>
+          <p className="page-subtitle">Manage users, listings, and reports</p>
         </div>
 
         {/* Stats Grid (kept simple) */}
@@ -135,17 +293,18 @@ export default function AdminDashboard() {
         </div>
 
         {/* Content Tabs */}
-        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 md:gap-4 mb-8 overflow-x-auto pb-2 flex-wrap">
           {[
             { id: "overview", label: "Overview" },
             { id: "reports", label: "Reports" },
+            { id: "verification", label: "Verification" },
             { id: "users", label: "Users" },
             { id: "listings", label: "Listings" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${
+              className={`px-3 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base whitespace-nowrap transition-all ${
                 activeTab === tab.id ? "neon-border-cyan bg-cyan-400/20" : "glass-card border-white/10 hover:border-white/20"
               }`}
             >
@@ -154,72 +313,351 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        {activeTab === "verification" && (
+          <div className="space-y-4">
+            <div className="glass-card p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Verification Requests</h2>
+                  <p className="text-sm text-gray-400">Review requests and message users before approving.</p>
+                </div>
+                <div className="text-sm text-gray-400">
+                  Total: {verificationRequests.length}
+                </div>
+              </div>
+
+              {loadingVerification ? (
+                <div className="text-gray-400">Loading verification requests...</div>
+              ) : verificationRequests.length === 0 ? (
+                <div className="glass-card border border-white/10 p-6 text-center text-gray-300">
+                  No verification requests yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verificationRequests.map((req: any) => {
+                    const id = req._id || req.id;
+                    const badge =
+                      req.status === 'approved'
+                        ? 'bg-green-400/20 text-green-200 border border-green-400/30'
+                        : req.status === 'rejected'
+                          ? 'bg-red-400/20 text-red-200 border border-red-400/30'
+                          : 'bg-yellow-400/20 text-yellow-200 border border-yellow-400/30';
+
+                    return (
+                      <div key={id} className="glass-card border border-white/10 p-4 rounded-lg">
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="space-y-1">
+                              <div className="text-white font-semibold">
+                                {req.user?.name || 'Unknown User'} ({req.user?.email})
+                              </div>
+                              <div className="text-sm text-gray-400">Submitted: {formatDate(req.createdAt)}</div>
+                              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${badge}`}>
+                                {req.status?.toUpperCase() || 'PENDING'}
+                              </div>
+                              {req.message && (
+                                <div className="text-sm text-gray-300 mt-2">
+                                  <span className="font-semibold text-white">User note:</span> {req.message}
+                                </div>
+                              )}
+                              {req.adminNote && (
+                                <div className="text-sm text-gray-300">
+                                  <span className="font-semibold text-white">Admin note:</span> {req.adminNote}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col gap-2 w-full md:w-80">
+                              <Input
+                                placeholder="Internal note (optional)"
+                                value={noteDrafts[id] || ''}
+                                onChange={(e) => setNoteDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
+                                className="glass-card"
+                              />
+                              <div className="flex gap-2 flex-wrap">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'approved')}
+                                  disabled={updateVerificationStatus.isPending}
+                                  className="btn-glow-cyan"
+                                >
+                                  Approve & Verify
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'rejected')}
+                                  disabled={updateVerificationStatus.isPending}
+                                  className="text-red-400"
+                                >
+                                  Reject
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateVerificationStatus(id, 'pending')}
+                                  disabled={updateVerificationStatus.isPending}
+                                >
+                                  Mark Pending
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="text-sm text-white font-semibold">Admin Γåö User Messages</div>
+                            {req.adminMessages?.length ? (
+                              <div className="space-y-1 text-sm text-gray-200">
+                                {req.adminMessages.map((m: any, idx: number) => (
+                                  <div key={idx} className="glass-card p-2 border border-white/10">
+                                    <div className="flex justify-between text-xs text-gray-400">
+                                      <span>{m.sender?.name || 'Admin'}</span>
+                                      <span>{formatDate(m.createdAt)}</span>
+                                    </div>
+                                    <div className="text-white">{m.content}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-400">No messages yet.</div>
+                            )}
+
+                            <div className="flex gap-2 mt-2">
+                              <Input
+                                placeholder="Send a message to the user"
+                                value={messageDrafts[id] || ''}
+                                onChange={(e) => setMessageDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
+                                className="flex-1"
+                              />
+                              <Button
+                                onClick={() => handleSendVerificationMessage(id)}
+                                disabled={sendVerificationMessage.isPending}
+                              >
+                                Send
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Manage Admins panel (under Users tab) */}
         {activeTab === "users" && (
           <div className="space-y-6">
             <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col gap-4 mb-4">
                 <h2 className="text-xl font-bold text-white">Manage Admins</h2>
-                <div className="w-80">
-                  <div className="relative">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
+                  <div className="relative flex-1 min-w-0">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400/50" />
                     <Input
-                      placeholder="Filter users..."
+                      placeholder="Search users..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-12 py-2 glass-card border-cyan-400/30"
+                      className="pl-12 py-2 glass-card border-cyan-400/30 w-full"
                     />
                   </div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5 flex-shrink-0"
+                  >
+                    <option value="all" className="bg-slate-900">All statuses</option>
+                    <option value="active" className="bg-slate-900">Active</option>
+                    <option value="banned" className="bg-slate-900">Banned</option>
+                    <option value="inactive" className="bg-slate-900">Inactive</option>
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="glass-card border border-white/10 rounded-md px-3 py-2 text-sm text-white bg-white/5 flex-shrink-0"
+                  >
+                    <option value="newest" className="bg-slate-900">Newest</option>
+                    <option value="bannedUntil" className="bg-slate-900">Banned until</option>
+                  </select>
                 </div>
               </div>
 
               {loadingUsers ? (
                 <div>Loading users...</div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-lg border border-white/10">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Name</th>
-                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Email</th>
-                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Role</th>
-                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
+                      <tr className="bg-gradient-to-r from-cyan-400/10 to-cyan-400/5 border-b border-white/20">
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Name</th>
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Email</th>
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Role</th>
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Status</th>
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300 flex items-center gap-1">
+                          Verification
+                          <span title="Verification status of the user" className="inline-flex items-center">
+                            <Info className="w-4 h-4 text-cyan-400/60" />
+                          </span>
+                        </th>
+                        <th className="text-left px-4 py-4 text-sm font-semibold text-cyan-300">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {users
                         .filter((u) => {
-                          if (!searchQuery) return true;
-                          return `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase());
+                          const matchesSearch = `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase());
+                          if (!matchesSearch) return false;
+                          if (statusFilter === 'banned') return !!u.isBanned;
+                          if (statusFilter === 'inactive') return u.isActive === false && !u.isBanned;
+                          if (statusFilter === 'active') return u.isActive !== false && !u.isBanned;
+                          return true;
+                        })
+                        .sort((a, b) => {
+                          if (sortBy === 'bannedUntil') {
+                            const aTime = a.bannedUntil ? new Date(a.bannedUntil).getTime() : 0;
+                            const bTime = b.bannedUntil ? new Date(b.bannedUntil).getTime() : 0;
+                            return bTime - aTime;
+                          }
+                          // default newest by createdAt
+                          const aTime = (a as any).createdAt ? new Date((a as any).createdAt).getTime() : 0;
+                          const bTime = (b as any).createdAt ? new Date((b as any).createdAt).getTime() : 0;
+                          return bTime - aTime;
                         })
                         .map((u) => {
                           const userId = getUserId(u);
+                          const statusLabel = u.isBanned ? 'Banned' : (u.isActive === false ? 'Inactive' : 'Active');
+                          const statusClass = u.isBanned
+                            ? 'bg-red-500/10 text-red-400'
+                            : u.isActive === false
+                              ? 'bg-gray-400/10 text-gray-300'
+                              : 'bg-green-400/10 text-green-400';
                           return (
-                            <tr key={userId} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                              <td className="px-4 py-3 text-white font-semibold">{u.name}</td>
-                              <td className="px-4 py-3 text-gray-400 text-sm">{u.email}</td>
-                              <td className="px-4 py-3">
-                                <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${u.role === "admin" ? "bg-green-400/10 text-green-400" : "bg-gray-400/10 text-gray-300"}`}>
+                            <tr key={userId} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-4 text-white font-semibold">{u.name}</td>
+                              <td className="px-4 py-4 text-gray-400 text-sm">{u.email}</td>
+                              <td className="px-4 py-4">
+                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold ${u.role === "admin" ? "bg-green-400/15 text-green-400 border border-green-400/30" : u.role === 'manager' ? 'bg-purple-400/15 text-purple-300 border border-purple-400/30' : "bg-gray-400/15 text-gray-300 border border-gray-400/30"}`}>
                                   {u.role}
                                 </span>
                               </td>
-                              <td className="px-4 py-3">
-                                {u.role === "admin" ? (
+                              <td className="px-4 py-4">
+                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold border ${statusClass.includes('red') ? 'border-red-400/30' : statusClass.includes('gray') ? 'border-gray-400/30' : 'border-green-400/30'} ${statusClass}`}>
+                                  {statusLabel}
+                                </span>
+                                {u.isBanned && (
+                                  <div className="text-xs text-red-300 mt-2">
+                                    <span className="block font-semibold">{u.banReason || 'Policy violation'}</span>
+                                    {u.bannedUntil && <span className="block">(until {formatDate(u.bannedUntil)})</span>}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-gray-300 text-sm">
+                                {u.isVerified ? (
+                                  <span className="inline-flex items-center gap-1 text-green-400 font-semibold text-xs px-3 py-1 rounded-md bg-green-400/15 border border-green-400/30">
+                                    <CheckCircle2 className="w-4 h-4" /> Verified
+                                  </span>
+                                ) : (
+                                  <span className="text-yellow-300 text-xs px-3 py-1 rounded-md bg-yellow-400/15 border border-yellow-400/30 font-semibold">
+                                    Pending
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 flex gap-1.5 flex-wrap">
+                                {canChangeRoles && (
+                                  <div className="flex gap-1.5 flex-wrap">
+                                    {u.role === "manager" ? (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setRole(userId, "admin")}
+                                        disabled={changingRoleFor === userId}
+                                        className="text-xs"
+                                      >
+                                        {changingRoleFor === userId ? "Updating..." : "Set Admin"}
+                                      </Button>
+                                    ) : u.role === "admin" ? (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setRole(userId, "user")}
+                                        disabled={changingRoleFor === userId}
+                                        className="text-xs"
+                                      >
+                                        {changingRoleFor === userId ? "Updating..." : "Remove Admin"}
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => setRole(userId, "admin")}
+                                          disabled={changingRoleFor === userId}
+                                          className="text-xs"
+                                        >
+                                          {changingRoleFor === userId ? "Updating..." : "Make Admin"}
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setRole(userId, "manager")}
+                                          disabled={changingRoleFor === userId}
+                                          className="text-xs"
+                                        >
+                                          {changingRoleFor === userId ? "Updating..." : "Make Manager"}
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => verifyUser(userId)}
+                                  disabled={verifyingFor === userId || !canModerate(u.role)}
+                                  className="text-xs"
+                                >
+                                  {verifyingFor === userId ? 'Verifying...' : 'Verify'}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => resetPassword(userId)}
+                                  disabled={resettingFor === userId || !canModerate(u.role)}
+                                  className="text-xs"
+                                >
+                                  {resettingFor === userId ? 'Resetting...' : 'Reset Pswd'}
+                                </Button>
+                                {u.isBanned ? (
                                   <Button
                                     variant="outline"
-                                    onClick={() => setRole(userId, "user")}
-                                    disabled={changingRoleFor === userId}
+                                    size="sm"
+                                    onClick={() => unbanUser(userId)}
+                                    disabled={banningFor === userId || !canModerate(u.role)}
+                                    className="text-xs"
                                   >
-                                    {changingRoleFor === userId ? "Updating..." : "Remove Admin"}
+                                    {banningFor === userId ? 'Working...' : 'Unban'}
                                   </Button>
                                 ) : (
                                   <Button
-                                    onClick={() => setRole(userId, "admin")}
-                                    disabled={changingRoleFor === userId}
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => banUser(userId)}
+                                    disabled={banningFor === userId || !canModerate(u.role)}
+                                    className="text-xs"
                                   >
-                                    {changingRoleFor === userId ? "Updating..." : "Make Admin"}
+                                    {banningFor === userId ? 'Working...' : 'Ban'}
                                   </Button>
                                 )}
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => deleteUser(userId)}
+                                  disabled={deletingFor === userId || !canModerate(u.role)}
+                                  className="text-xs"
+                                >
+                                  {deletingFor === userId ? 'Deleting...' : 'Delete'}
+                                </Button>
                               </td>
                             </tr>
                           );
@@ -234,24 +672,320 @@ export default function AdminDashboard() {
 
         {/* Placeholder views for other tabs */}
         {activeTab === "overview" && (
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold text-white">Overview</h2>
-            <p className="text-gray-400">Platform overview and charts (implement backend analytics endpoints to populate)</p>
+          <div className="space-y-6">
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-bold text-white mb-6">Platform Overview</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Recent Activity</h3>
+                  <div className="space-y-3">
+                    <div className="glass-card p-4 border-cyan-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Total Platform Users</span>
+                        <span className="text-2xl font-bold text-cyan-400">{stats.totalUsers}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-blue-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Active Listings</span>
+                        <span className="text-2xl font-bold text-blue-400">{stats.totalListings}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-purple-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Total Bookings</span>
+                        <span className="text-2xl font-bold text-purple-400">{stats.totalBookings}</span>
+                      </div>
+                    </div>
+                    <div className="glass-card p-4 border-red-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold">Pending Reports</span>
+                        <span className="text-2xl font-bold text-red-400">{stats.reportedItems}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setActiveTab('users')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-cyan-400/20"
+                    >
+                      <div className="font-semibold text-white">Manage Users</div>
+                      <div className="text-sm text-gray-400">View and moderate platform users</div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('listings')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-blue-400/20"
+                    >
+                      <div className="font-semibold text-white">Manage Listings</div>
+                      <div className="text-sm text-gray-400">Review and moderate item listings</div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('reports')}
+                      className="w-full glass-card p-4 text-left hover:bg-white/10 transition-all border-red-400/20"
+                    >
+                      <div className="font-semibold text-white">View Reports</div>
+                      <div className="text-sm text-gray-400">{stats.reportedItems} pending reports</div>
+                    </button>
+                    <button
+                      onClick={fetchStats}
+                      className="w-full btn-glow-cyan flex items-center justify-center gap-2"
+                      disabled={loadingStats}
+                    >
+                      {loadingStats ? 'Refreshing...' : 'Refresh Stats'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === "reports" && (
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold text-white">Reports</h2>
-            <p className="text-gray-400">Reports - implement GET ${BASE_URL}/admin/reports (optional)</p>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Manage Reports</h2>
+              <Button onClick={fetchReports} variant="outline">Refresh</Button>
+            </div>
+            <div className="glass-card p-6">
+              {loadingReports ? (
+                <div>Loading reports...</div>
+              ) : reports.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckCircle2 className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No reports found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Reporter</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Type</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Reason</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Date</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reports.map((report: any) => (
+                        <tr key={report._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-3 text-white text-sm">{report.reporter?.name || 'ΓÇö'}</td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">
+                            {report.reportedItem ? 'Item' : report.reportedUser ? 'User' : 'ΓÇö'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">{report.reason}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${
+                              report.status === 'Pending' ? 'bg-yellow-400/10 text-yellow-400' :
+                              report.status === 'Reviewing' ? 'bg-blue-400/10 text-blue-400' :
+                              report.status === 'Resolved' ? 'bg-green-400/10 text-green-400' :
+                              'bg-gray-400/10 text-gray-300'
+                            }`}>
+                              {report.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">
+                            {new Date(report.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 flex gap-2">
+                            {report.status === 'Pending' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    if (confirm('Resolve this report?')) {
+                                      await adminAPI.resolveReport(report._id, 'Resolved');
+                                      await fetchReports();
+                                      toast({ title: 'Report resolved' });
+                                    }
+                                  }}
+                                >
+                                  Resolve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={async () => {
+                                    if (confirm('Dismiss this report?')) {
+                                      await adminAPI.resolveReport(report._id, 'Dismissed');
+                                      await fetchReports();
+                                      toast({ title: 'Report dismissed' });
+                                    }
+                                  }}
+                                >
+                                  Dismiss
+                                </Button>
+                              </>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={async () => {
+                                if (confirm('Delete this report?')) {
+                                  await adminAPI.deleteReport(report._id);
+                                  await fetchReports();
+                                  toast({ title: 'Report deleted' });
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {activeTab === "listings" && (
-          <div className="glass-card p-8 text-center">
-            <Package className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Listings Management</h3>
-            <p className="text-gray-400">Connect to backend to manage listings</p>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Manage Listings</h2>
+              <Button onClick={fetchAdminItems} variant="outline">Refresh</Button>
+            </div>
+            <div className="glass-card p-6">
+              {loadingItems ? (
+                <div>Loading items...</div>
+              ) : items.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No items found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Title</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Owner</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-gray-400">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item: any) => (
+                        <tr key={item._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-3 text-white font-semibold">{item.title}</td>
+                          <td className="px-4 py-3 text-gray-400 text-sm">{item.owner?.name || 'ΓÇö'}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${item.isActive ? 'bg-green-400/10 text-green-400' : 'bg-gray-400/10 text-gray-300'}`}>
+                              {item.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {item.isActive ? (
+                              <Button
+                                variant="outline"
+                                onClick={async () => {
+                                  await adminAPI.deactivateItem(item._id);
+                                  await fetchAdminItems();
+                                }}
+                              >
+                                Deactivate
+                              </Button>
+                            ) : (
+                              <span className="text-gray-500 text-sm">ΓÇö</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "verification" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Verification Requests</h2>
+            </div>
+            <div className="glass-card p-6">
+              {loadingVerification ? (
+                <div>Loading verification requests...</div>
+              ) : verificationRequests.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckCircle2 className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No pending verification requests</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verificationRequests.map((request: any) => (
+                    <div key={request._id} className="glass-card p-6 border border-white/10">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{request.user?.name || 'Unknown'}</h3>
+                          <p className="text-sm text-gray-400">{request.user?.email}</p>
+                          <p className="text-xs text-gray-500 mt-1">Submitted: {new Date(request.createdAt).toLocaleString()}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-md text-xs font-semibold ${
+                          request.status === 'approved' ? 'bg-green-400/15 text-green-400 border border-green-400/30' :
+                          request.status === 'rejected' ? 'bg-red-400/15 text-red-400 border border-red-400/30' :
+                          'bg-yellow-400/15 text-yellow-400 border border-yellow-400/30'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
+
+                      {request.message && (
+                        <div className="mb-4 p-3 bg-white/5 rounded-lg">
+                          <p className="text-sm text-gray-300"><strong>User message:</strong> {request.message}</p>
+                        </div>
+                      )}
+
+                      {request.adminMessages && request.adminMessages.length > 0 && (
+                        <div className="mb-4 space-y-2">
+                          <p className="text-sm font-semibold text-white">Admin Messages:</p>
+                          {request.adminMessages.map((msg: any, idx: number) => (
+                            <div key={idx} className="p-2 bg-cyan-400/10 rounded text-sm text-gray-300">
+                              {msg.content} <span className="text-xs text-gray-500">({new Date(msg.createdAt).toLocaleString()})</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSendVerificationMessage(request._id)}
+                          className="btn-glow-cyan"
+                        >
+                          Send Message
+                        </Button>
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateVerificationStatus(request._id, 'approved')}
+                              className="bg-green-500 hover:bg-green-600"
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleUpdateVerificationStatus(request._id, 'rejected')}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
