@@ -120,6 +120,7 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
                   <button
                     onClick={() => {
                       localStorage.removeItem("user");
+                      localStorage.removeItem("token");
                       window.location.href = "/";
                     }}
                     className="w-full flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-red-400/10 transition-colors border-t border-white/10"
@@ -236,6 +237,7 @@ export function Header({ isLoggedIn, userName }: HeaderProps) {
                   <button
                     onClick={() => {
                       localStorage.removeItem("user");
+                      localStorage.removeItem("token");
                       setIsMenuOpen(false);
                       window.location.href = "/";
                     }}

@@ -204,9 +204,9 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     try {
-  const response = await fetch(`${BASE_URL}/items?owner=me`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
+      const response = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -380,15 +380,21 @@ export const usersAPI = {
 // ============================================================================
 
 export const bookingsAPI = {
-  create: async (booking: Omit<Booking, "id" | "createdAt" | "updatedAt">) => {
+  create: async (booking: any) => {
     try {
+      const payload = {
+        itemId: booking.itemId || booking.item || booking.listingId,
+        startDate: booking.startDate,
+        endDate: booking.endDate,
+        message: booking.message,
+      };
       const response = await fetch(`${BASE_URL}/lending/request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(booking),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
@@ -440,13 +446,13 @@ export const bookingsAPI = {
   updateStatus: async (id: string, status: Booking["status"]) => {
     try {
       const endpoint =
-        status === "confirmed" || status === "active"
+        status === "confirmed" || status === "active" || status === "Accepted"
           ? `accept`
-          : status === "completed"
+          : status === "completed" || status === "Completed"
             ? `complete`
             : `reject`;
       const response = await fetch(`${BASE_URL}/lending/${id}/${endpoint}`, {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -464,7 +470,7 @@ export const bookingsAPI = {
   cancel: async (id: string) => {
     try {
       const response = await fetch(`${BASE_URL}/lending/${id}/reject`, {
-        method: "PUT",
+        method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -482,20 +488,20 @@ export const bookingsAPI = {
 
 export const messagesAPI = {
   getForBooking: async (bookingId: string) => {
-    const response = await fetch(`${BASE_URL}/lending/${bookingId}/messages`, {
+    const response = await fetch(`${BASE_URL}/messages/lending/${bookingId}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return response.json();
   },
 
   send: async (bookingId: string, content: string) => {
-    const response = await fetch(`${BASE_URL}/lending/${bookingId}/messages`, {
+    const response = await fetch(`${BASE_URL}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ bookingId, content }),
+      body: JSON.stringify({ lendingRequestId: bookingId, content }),
     });
     return response.json();
   },
@@ -506,14 +512,20 @@ export const messagesAPI = {
 // ============================================================================
 
 export const reviewsAPI = {
-  create: async (review: Omit<Review, "id" | "createdAt">) => {
+  create: async (review: any) => {
+    const payload = {
+      lendingRequestId: review.bookingId,
+      revieweeId: review.toUserId,
+      rating: review.rating,
+      comment: review.comment,
+    };
     const response = await fetch(`${BASE_URL}/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify(review),
+      body: JSON.stringify(payload),
     });
     return response.json();
   },

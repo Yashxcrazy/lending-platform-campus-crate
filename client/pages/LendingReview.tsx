@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Star, ArrowLeft } from "lucide-react";
+import { useBooking, useCurrentUser, useCreateReview } from "@/hooks/useAPI";
 
 export default function LendingReview() {
   const { id } = useParams();
@@ -12,20 +13,37 @@ export default function LendingReview() {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { data: booking, isLoading: bookingLoading } = useBooking(id!);
+  const { data: currentUser } = useCurrentUser();
+  const createReviewMutation = useCreateReview();
+
   const handleSubmitReview = async () => {
     if (rating === 0) {
       alert("Please select a rating");
       return;
     }
 
+    const borrowerId = booking?.borrower?._id || booking?.borrower?.id || booking?.borrowerId || booking?.borrower;
+    const lenderId = booking?.lender?._id || booking?.lender?.id || booking?.lenderId || booking?.lender;
+    const currentUserId = currentUser?.id || currentUser?._id;
+
+    if (!borrowerId || !lenderId || !currentUserId) {
+      alert("Could not load details needed to submit review.");
+      return;
+    }
+
+    const isBorrower = currentUserId === borrowerId;
+    const toUserId = isBorrower ? lenderId : borrowerId;
+
     setIsSubmitting(true);
     try {
-      // TODO: Call API to submit review
-      // await submitReview.mutateAsync({
-      //   bookingId: id,
-      //   rating,
-      //   comment,
-      // });
+      await createReviewMutation.mutateAsync({
+        bookingId: id!,
+        toUserId,
+        fromUserId: currentUserId,
+        rating,
+        comment,
+      });
       alert("Review submitted successfully!");
       navigate("/my-rentals");
     } catch (error) {

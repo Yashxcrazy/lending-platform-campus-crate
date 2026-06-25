@@ -86,14 +86,14 @@ const steps = [
 ];
 
 const categories = [
-  { name: "Books", emoji: "📚" },
-  { name: "Lab Equipment", emoji: "🔬" },
-  { name: "Calculators", emoji: "🧮" },
-  { name: "Sports Gear", emoji: "⚽" },
-  { name: "Costumes", emoji: "🎭" },
   { name: "Electronics", emoji: "💻" },
+  { name: "Books", emoji: "📚" },
+  { name: "Sports Equipment", emoji: "⚽" },
   { name: "Tools", emoji: "🔧" },
-  { name: "More", emoji: "📦" },
+  { name: "Musical Instruments", emoji: "🎸" },
+  { name: "Furniture", emoji: "🪑" },
+  { name: "Appliances", emoji: "🍳" },
+  { name: "Other", emoji: "📦" },
 ];
 
 export default function Index() {
@@ -183,7 +183,7 @@ export default function Index() {
             {categories.map((cat) => (
               <Link
                 key={cat.name}
-                to={`/listings?category=${cat.name.toLowerCase()}`}
+                to={`/listings?category=${cat.name}`}
               >
                 <button className="w-full p-6 glass-card-hover flex flex-col items-center gap-3">
                   <span className="text-4xl">{cat.emoji}</span>
