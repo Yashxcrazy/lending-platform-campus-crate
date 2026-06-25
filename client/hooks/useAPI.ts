@@ -6,6 +6,7 @@ import {
   usersAPI,
   authAPI,
   reviewsAPI,
+  adminAPI,
   Listing,
   Booking,
   User,
@@ -243,5 +244,52 @@ export const useCurrentUser = () => {
     queryFn: () => authAPI.getCurrentUser(),
     retry: 1,
     retryDelay: 1000,
+  });
+};
+
+// ============================================================================
+// Admin Hooks
+// ============================================================================
+
+export const useAdminVerificationRequests = () => {
+  return useQuery({
+    queryKey: ["adminVerificationRequests"],
+    queryFn: () => adminAPI.getVerificationRequests(),
+    retry: 1,
+    retryDelay: 1000,
+  });
+};
+
+export const useAdminSendVerificationMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      requestId,
+      content,
+    }: {
+      requestId: string;
+      content: string;
+    }) => adminAPI.sendVerificationMessage(requestId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminVerificationRequests"] });
+    },
+  });
+};
+
+export const useAdminUpdateVerificationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      requestId,
+      status,
+      adminNote,
+    }: {
+      requestId: string;
+      status: "pending" | "approved" | "rejected";
+      adminNote?: string;
+    }) => adminAPI.updateVerificationStatus(requestId, status, adminNote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminVerificationRequests"] });
+    },
   });
 };

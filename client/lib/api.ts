@@ -537,6 +537,178 @@ export const reviewsAPI = {
 };
 
 // ============================================================================
+// Admin API
+// ============================================================================
+
+const adminAuthHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
+
+export const adminAPI = {
+  getStats: async () => {
+    const response = await fetch(`${BASE_URL}/admin/stats`, {
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  getUsers: async () => {
+    const response = await fetch(`${BASE_URL}/admin/users`, {
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  updateUserRole: async (id: string, role: "admin" | "user" | "manager") => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/role`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify({ role }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  banUser: async (id: string, payload?: { reason?: string; until?: string }) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/ban`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify(payload || {}),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  unbanUser: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/unban`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  deleteUser: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}`, {
+      method: "DELETE",
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  verifyUser: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/verify`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  resetUserPassword: async (id: string, newPassword: string) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/reset-password`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify({ newPassword }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  listItems: async (params?: { isActive?: boolean; page?: number; limit?: number }) => {
+    const search = new URLSearchParams();
+    if (typeof params?.isActive !== "undefined") search.set("isActive", String(params.isActive));
+    if (params?.page) search.set("page", String(params.page));
+    if (params?.limit) search.set("limit", String(params.limit));
+
+    const qs = search.toString();
+    const response = await fetch(`${BASE_URL}/admin/items${qs ? `?${qs}` : ""}`, {
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  deactivateItem: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/admin/items/${id}/deactivate`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  getReports: async (params?: { status?: string; page?: number; limit?: number }) => {
+    const search = new URLSearchParams();
+    if (params?.status) search.set("status", params.status);
+    if (params?.page) search.set("page", String(params.page));
+    if (params?.limit) search.set("limit", String(params.limit));
+
+    const qs = search.toString();
+    const response = await fetch(`${BASE_URL}/admin/reports${qs ? `?${qs}` : ""}`, {
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  resolveReport: async (id: string, status: "Resolved" | "Dismissed", adminNotes?: string) => {
+    const response = await fetch(`${BASE_URL}/admin/reports/${id}/resolve`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify({ status, adminNotes }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  deleteReport: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/admin/reports/${id}`, {
+      method: "DELETE",
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  getVerificationRequests: async () => {
+    const response = await fetch(`${BASE_URL}/verification-requests`, {
+      headers: adminAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  updateVerificationStatus: async (
+    requestId: string,
+    status: "pending" | "approved" | "rejected",
+    adminNote?: string,
+  ) => {
+    const response = await fetch(`${BASE_URL}/verification-requests/${requestId}/status`, {
+      method: "PUT",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify({ status, adminNote }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+
+  sendVerificationMessage: async (requestId: string, content: string) => {
+    const response = await fetch(`${BASE_URL}/verification-requests/${requestId}/message`, {
+      method: "POST",
+      headers: adminAuthHeaders(),
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+};
+
+// ============================================================================
 // Helper function to set token
 // ============================================================================
 
